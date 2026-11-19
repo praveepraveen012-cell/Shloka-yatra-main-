@@ -1,0 +1,2305 @@
+{
+  "totalFiles": 244,
+  "uniqueCount": 165,
+  "duplicateCount": 79,
+  "duplicates": [
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.56 PM.jpeg",
+      "id": "sy_img_001"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.57 PM.jpeg",
+      "id": "sy_img_002"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (2).jpeg",
+      "id": "sy_img_005"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (3)(1).jpeg",
+      "id": "sy_img_004"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (3).jpeg",
+      "id": "sy_img_003"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (5).jpeg",
+      "id": "sy_img_008"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (6)(1).jpeg",
+      "id": "sy_img_007"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (6).jpeg",
+      "id": "sy_img_006"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (7).jpeg",
+      "id": "sy_img_009"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (8).jpeg",
+      "id": "sy_img_010"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM (9).jpeg",
+      "id": "sy_img_011"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.28.59 PM.jpeg",
+      "id": "sy_img_012"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.08 PM (3)(1).jpeg",
+      "id": "sy_img_094"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.08 PM (4)(1).jpeg",
+      "id": "sy_img_095"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.08 PM (8).jpeg",
+      "id": "sy_img_096"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.08 PM (9).jpeg",
+      "id": "sy_img_091"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.08 PM(1).jpeg",
+      "id": "sy_img_093"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (1).jpeg",
+      "id": "sy_img_104"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (10).jpeg",
+      "id": "sy_img_105"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (13)(1).jpeg",
+      "id": "sy_img_109"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (13).jpeg",
+      "id": "sy_img_108"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (14).jpeg",
+      "id": "sy_img_110"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (15).jpeg",
+      "id": "sy_img_111"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (16).jpeg",
+      "id": "sy_img_112"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (18).jpeg",
+      "id": "sy_img_115"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (19)(1).jpeg",
+      "id": "sy_img_114"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (19).jpeg",
+      "id": "sy_img_113"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (2).jpeg",
+      "id": "sy_img_116"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (20).jpeg",
+      "id": "sy_img_117"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (21).jpeg",
+      "id": "sy_img_118"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (22).jpeg",
+      "id": "sy_img_119"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (24).jpeg",
+      "id": "sy_img_122"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (25)(1).jpeg",
+      "id": "sy_img_121"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (25).jpeg",
+      "id": "sy_img_120"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (27).jpeg",
+      "id": "sy_img_125"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (28)(1).jpeg",
+      "id": "sy_img_124"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (28).jpeg",
+      "id": "sy_img_123"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (29).jpeg",
+      "id": "sy_img_126"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (3).jpeg",
+      "id": "sy_img_127"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (30).jpeg",
+      "id": "sy_img_128"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (31).jpeg",
+      "id": "sy_img_129"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (32).jpeg",
+      "id": "sy_img_130"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (33).jpeg",
+      "id": "sy_img_131"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (34).jpeg",
+      "id": "sy_img_132"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (35).jpeg",
+      "id": "sy_img_133"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (36).jpeg",
+      "id": "sy_img_134"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (37).jpeg",
+      "id": "sy_img_135"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (39).jpeg",
+      "id": "sy_img_138"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (4).jpeg",
+      "id": "sy_img_139"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (40)(1).jpeg",
+      "id": "sy_img_137"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (40).jpeg",
+      "id": "sy_img_136"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (42).jpeg",
+      "id": "sy_img_142"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (43)(1).jpeg",
+      "id": "sy_img_141"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (43).jpeg",
+      "id": "sy_img_140"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (5).jpeg",
+      "id": "sy_img_143"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (7).jpeg",
+      "id": "sy_img_146"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (8)(1).jpeg",
+      "id": "sy_img_145"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (8).jpeg",
+      "id": "sy_img_144"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (9)(1).jpeg",
+      "id": "sy_img_107"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM (9).jpeg",
+      "id": "sy_img_106"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.32.10 PM.jpeg",
+      "id": "sy_img_147"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.00 PM.jpeg",
+      "id": "sy_img_148"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (1).jpeg",
+      "id": "sy_img_149"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (10).jpeg",
+      "id": "sy_img_150"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (11).jpeg",
+      "id": "sy_img_151"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (12).jpeg",
+      "id": "sy_img_152"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (14)(1).jpeg",
+      "id": "sy_img_154"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (14).jpeg",
+      "id": "sy_img_153"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (2).jpeg",
+      "id": "sy_img_155"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (3).jpeg",
+      "id": "sy_img_156"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (4).jpeg",
+      "id": "sy_img_157"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (5).jpeg",
+      "id": "sy_img_158"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (6).jpeg",
+      "id": "sy_img_159"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (7).jpeg",
+      "id": "sy_img_160"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (8).jpeg",
+      "id": "sy_img_161"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM (9).jpeg",
+      "id": "sy_img_162"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.01 PM.jpeg",
+      "id": "sy_img_163"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.02 PM (1).jpeg",
+      "id": "sy_img_164"
+    },
+    {
+      "duplicateFile": "WhatsApp Image 2026-10-31 at 10.33.02 PM.jpeg",
+      "id": "sy_img_165"
+    }
+  ],
+  "images": [
+    {
+      "id": "sy_img_001",
+      "cleanFilename": "sy_img_001.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.56 PM(1).jpeg",
+      "size": 154539,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "9fa39b251114f4cc4716d3c4f277851de2ff4cd434bd90c54598ad3060647a88",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_001.jpg"
+    },
+    {
+      "id": "sy_img_002",
+      "cleanFilename": "sy_img_002.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.57 PM(1).jpeg",
+      "size": 193668,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "f532d4f10ad545ba790c09ffa5b6b159ba1ae2a8957f608a384dffd6889e6fba",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_002.jpg"
+    },
+    {
+      "id": "sy_img_003",
+      "cleanFilename": "sy_img_003.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (1)(1).jpeg",
+      "size": 46311,
+      "width": 1280,
+      "height": 591,
+      "aspectRatio": "2.17",
+      "orientation": "landscape",
+      "hash": "8afff6fe6aeb8a41dc9b7fc447111bc39a9b800c1d312fbe4304aac30d549ae5",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_003.jpg"
+    },
+    {
+      "id": "sy_img_004",
+      "cleanFilename": "sy_img_004.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (1).jpeg",
+      "size": 185208,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "cb923fccdcb0d6424d6e2e242943693d8ea8cbd9c9ffa5fe1e4dc3dea9c34f17",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_004.jpg"
+    },
+    {
+      "id": "sy_img_005",
+      "cleanFilename": "sy_img_005.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (2)(1).jpeg",
+      "size": 56387,
+      "width": 1280,
+      "height": 591,
+      "aspectRatio": "2.17",
+      "orientation": "landscape",
+      "hash": "76fedaf161ab910a42818c340de0f0260e7452c4448022e78c4d7b8895a83325",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_005.jpg"
+    },
+    {
+      "id": "sy_img_006",
+      "cleanFilename": "sy_img_006.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (4)(1).jpeg",
+      "size": 52344,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "3bb56e59a3c37b049b5f3bcc4c207a036b9105175bb3a82137ebe6beadb19ab0",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_006.jpg"
+    },
+    {
+      "id": "sy_img_007",
+      "cleanFilename": "sy_img_007.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (4).jpeg",
+      "size": 245201,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "52183f47f17ed480dea80d83c0055ef575a1e137fcd4c92f76494cdb16a8a361",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_007.jpg"
+    },
+    {
+      "id": "sy_img_008",
+      "cleanFilename": "sy_img_008.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (5)(1).jpeg",
+      "size": 66932,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "3b484bab5d5d4aa299f82f191910893541ca56e3af05dc3240fcb6229fbd48e0",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_008.jpg"
+    },
+    {
+      "id": "sy_img_009",
+      "cleanFilename": "sy_img_009.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (7)(1).jpeg",
+      "size": 272192,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "0661e3b536bd17e0486f72dde6e2d21019b47891d2400bb18ccdb68dc92c597c",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_009.jpg"
+    },
+    {
+      "id": "sy_img_010",
+      "cleanFilename": "sy_img_010.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (8)(1).jpeg",
+      "size": 196855,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "90994962e95e46345e46191424a3557332ac72e028065285711519ba76e999cb",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_010.jpg"
+    },
+    {
+      "id": "sy_img_011",
+      "cleanFilename": "sy_img_011.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM (9)(1).jpeg",
+      "size": 146763,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "5b63ec9cdd091e9a8de77baec32ff9edbdf94fc7780880db2e666284a6a62ac1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_011.jpg"
+    },
+    {
+      "id": "sy_img_012",
+      "cleanFilename": "sy_img_012.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.28.59 PM(1).jpeg",
+      "size": 68118,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "163b50918e0f1b916fded8236d0c2ca74675651aa0484456431af50d485a9f94",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_012.jpg"
+    },
+    {
+      "id": "sy_img_013",
+      "cleanFilename": "sy_img_013.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (1).jpeg",
+      "size": 257712,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "73c9f1e0a9bc77f549bd43972b604e71c9dc866d92470d5f6764fd48de498e23",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_013.jpg"
+    },
+    {
+      "id": "sy_img_014",
+      "cleanFilename": "sy_img_014.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (10).jpeg",
+      "size": 178502,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "8f6c9370526a643dff1292136a337e007b1700c79fd139de715a4ae5da46aac6",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_014.jpg"
+    },
+    {
+      "id": "sy_img_015",
+      "cleanFilename": "sy_img_015.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (11).jpeg",
+      "size": 199873,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "e163d14edc22d54a16e283bf14f1a983d94876da0ac20cc9ae5748dd364dd9ab",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_015.jpg"
+    },
+    {
+      "id": "sy_img_016",
+      "cleanFilename": "sy_img_016.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (12).jpeg",
+      "size": 220935,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "314a34583ba59c0b404e3d1a229dd36851a056d6faff48cd497ab0c2167f72a0",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_016.jpg"
+    },
+    {
+      "id": "sy_img_017",
+      "cleanFilename": "sy_img_017.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (13).jpeg",
+      "size": 106620,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "69a56d651550ee84da5cec38b503bef41afec93d8aad737970bba271cfa1dc48",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_017.jpg"
+    },
+    {
+      "id": "sy_img_018",
+      "cleanFilename": "sy_img_018.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (14).jpeg",
+      "size": 205607,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "57301ac91558a29315a9e32c6cad6e5b94ccbf3291483c67ca7ffdfc363776b1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_018.jpg"
+    },
+    {
+      "id": "sy_img_019",
+      "cleanFilename": "sy_img_019.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (15).jpeg",
+      "size": 244643,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "a4ce0279d4ef6a9173b6dcf004475593c215a3429694693a8e250bd7427e5cf3",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_019.jpg"
+    },
+    {
+      "id": "sy_img_020",
+      "cleanFilename": "sy_img_020.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (16).jpeg",
+      "size": 76252,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "f3bddf9f4d16333c899e677bb13d47e4a5a1cd9fcb567030471f4be7f2d9b0fe",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_020.jpg"
+    },
+    {
+      "id": "sy_img_021",
+      "cleanFilename": "sy_img_021.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (17).jpeg",
+      "size": 133325,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "2b191fa223fbe18aefca457265bcb06d2156ba94cb1f5fd081d0861580c4527e",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_021.jpg"
+    },
+    {
+      "id": "sy_img_022",
+      "cleanFilename": "sy_img_022.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (18).jpeg",
+      "size": 151127,
+      "width": 1280,
+      "height": 1102,
+      "aspectRatio": "1.16",
+      "orientation": "landscape",
+      "hash": "07e8723cd4f6813023f07c69ae6d614b69034f13e4c5ee5da2eed7757a036cab",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_022.jpg"
+    },
+    {
+      "id": "sy_img_023",
+      "cleanFilename": "sy_img_023.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (19).jpeg",
+      "size": 215001,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "207629e96e75fc06db6a743120e499282d42a4da9603d3c5d3017320d0f962e2",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_023.jpg"
+    },
+    {
+      "id": "sy_img_024",
+      "cleanFilename": "sy_img_024.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (2).jpeg",
+      "size": 256948,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "6facb1170b35be0d59ac89e81cd096beac5f86636e29743170d1ddde4110c1bc",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_024.jpg"
+    },
+    {
+      "id": "sy_img_025",
+      "cleanFilename": "sy_img_025.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (20).jpeg",
+      "size": 200270,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "fd5812ed681c206354afaaabb53894e07326c09907029fcf94a51c532dc0f1b0",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_025.jpg"
+    },
+    {
+      "id": "sy_img_026",
+      "cleanFilename": "sy_img_026.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (21).jpeg",
+      "size": 150682,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "cd424cab4228afe3170cad0b271d60ccb5fdfea611332da189ca2f021938ac5d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_026.jpg"
+    },
+    {
+      "id": "sy_img_027",
+      "cleanFilename": "sy_img_027.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (22).jpeg",
+      "size": 192157,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "c5de43880a535ead43136eed169f9820b71e0a022f41d44d273c1d76ec6e28bc",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_027.jpg"
+    },
+    {
+      "id": "sy_img_028",
+      "cleanFilename": "sy_img_028.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (23).jpeg",
+      "size": 186678,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "b659a01f4a6ba4535f952362692c4be340fa94ea6753e223fc98a553a21433c1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_028.jpg"
+    },
+    {
+      "id": "sy_img_029",
+      "cleanFilename": "sy_img_029.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (24).jpeg",
+      "size": 132953,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "f59d0138f78909432e3e5c4ab58433bed0c257ef94c5f5545cb471b9de3585b1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_029.jpg"
+    },
+    {
+      "id": "sy_img_030",
+      "cleanFilename": "sy_img_030.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (25).jpeg",
+      "size": 118567,
+      "width": 1280,
+      "height": 803,
+      "aspectRatio": "1.59",
+      "orientation": "landscape",
+      "hash": "9f9189d9f20a86a98462e7ad716e105448e00a309c86133ebedb58c5b6d132d8",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_030.jpg"
+    },
+    {
+      "id": "sy_img_031",
+      "cleanFilename": "sy_img_031.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (26).jpeg",
+      "size": 124395,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "c1361d8f1232f8bc3300aa03f3e84401e575b8250da34f598b7fa01bc09f3f92",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_031.jpg"
+    },
+    {
+      "id": "sy_img_032",
+      "cleanFilename": "sy_img_032.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (27).jpeg",
+      "size": 233235,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "3fe1e71764f972fef905ec1581f9fa7f9e6981d9b17fa1301b139a41535a1fe0",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_032.jpg"
+    },
+    {
+      "id": "sy_img_033",
+      "cleanFilename": "sy_img_033.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (28).jpeg",
+      "size": 159197,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "752a56aa976446aa43e0c82f4d459c6712bc8b632cf2adbdf7802545be2168e1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_033.jpg"
+    },
+    {
+      "id": "sy_img_034",
+      "cleanFilename": "sy_img_034.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (29).jpeg",
+      "size": 169102,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "9eb40f19c0453c39d2a9aaafe12525f49f3f824dae234c808b6fd7b50f7d6116",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_034.jpg"
+    },
+    {
+      "id": "sy_img_035",
+      "cleanFilename": "sy_img_035.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (3).jpeg",
+      "size": 281338,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "7d107029cd26b216a0d8d3292f43d2148bcd9ca39721596e4dfefc752f00ce56",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_035.jpg"
+    },
+    {
+      "id": "sy_img_036",
+      "cleanFilename": "sy_img_036.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (30).jpeg",
+      "size": 119360,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "1848dfe144f2f844d9126560a253bb3e6bb3b1c0211913754954df3d5be7b8c7",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_036.jpg"
+    },
+    {
+      "id": "sy_img_037",
+      "cleanFilename": "sy_img_037.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (31).jpeg",
+      "size": 137717,
+      "width": 1280,
+      "height": 1102,
+      "aspectRatio": "1.16",
+      "orientation": "landscape",
+      "hash": "8e191882da07a035690a43a3f38167d01fe40e114b6a0853e64ebcd917f599ce",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_037.jpg"
+    },
+    {
+      "id": "sy_img_038",
+      "cleanFilename": "sy_img_038.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (4).jpeg",
+      "size": 251032,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "bd7a76055690aca62d77a5c17fd31d3aa2817650b19bff0f93222a6db893a5a5",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_038.jpg"
+    },
+    {
+      "id": "sy_img_039",
+      "cleanFilename": "sy_img_039.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (5).jpeg",
+      "size": 207571,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "6771f2f03c5e7c10648079bc99d094e8ecd1d8f20a523295c4b0898b8218786b",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_039.jpg"
+    },
+    {
+      "id": "sy_img_040",
+      "cleanFilename": "sy_img_040.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (6).jpeg",
+      "size": 260833,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "d1339382cd9251a18c56154a5546429680e2037299a906178ee1cd206af8196f",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_040.jpg"
+    },
+    {
+      "id": "sy_img_041",
+      "cleanFilename": "sy_img_041.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (7).jpeg",
+      "size": 256396,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "447195050e049d18ab2ace9e2a841e6f9f4f20e037d07f8f8355b21e1a26e267",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_041.jpg"
+    },
+    {
+      "id": "sy_img_042",
+      "cleanFilename": "sy_img_042.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (8).jpeg",
+      "size": 242154,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "8ea6ab5a12afccf8b791bdecc92832c42cb0c58ba5848c98354c7348d843df8a",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_042.jpg"
+    },
+    {
+      "id": "sy_img_043",
+      "cleanFilename": "sy_img_043.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM (9).jpeg",
+      "size": 181720,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "f852d7dd0b379ca4eab32b9eb37a13c682079127d9bb62da0834d4c5a4f5510b",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_043.jpg"
+    },
+    {
+      "id": "sy_img_044",
+      "cleanFilename": "sy_img_044.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.01 PM.jpeg",
+      "size": 259366,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "c5195682c1dd443d9148c854daefee6f84d475fc68bc44419b71bbbeac1035ea",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_044.jpg"
+    },
+    {
+      "id": "sy_img_045",
+      "cleanFilename": "sy_img_045.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM (1).jpeg",
+      "size": 58627,
+      "width": 1280,
+      "height": 394,
+      "aspectRatio": "3.25",
+      "orientation": "landscape",
+      "hash": "d6c09138cc8b2de7986470b913d63bc3c70eb1a9b24b3fef0b5789b307919bf3",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_045.jpg"
+    },
+    {
+      "id": "sy_img_046",
+      "cleanFilename": "sy_img_046.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM (2).jpeg",
+      "size": 127695,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "15c1214fcd2e0758d52cf996ad045ff8c4a285d6758837a01f2985568effb571",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_046.jpg"
+    },
+    {
+      "id": "sy_img_047",
+      "cleanFilename": "sy_img_047.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM (3).jpeg",
+      "size": 140312,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "dac0772795e9ff669d6fe989e1ac4a8c14b2843b0a174f73437ce34818b8f586",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_047.jpg"
+    },
+    {
+      "id": "sy_img_048",
+      "cleanFilename": "sy_img_048.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM (4).jpeg",
+      "size": 129812,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "116d0e2999ac274607b43a4638aa58c61ecbd4aa5ed2da93d39acd162f812ed6",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_048.jpg"
+    },
+    {
+      "id": "sy_img_049",
+      "cleanFilename": "sy_img_049.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM (5).jpeg",
+      "size": 76024,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "06ba1b738d9c8251b322159a377dee44d99522b85377291cf18df9289c0b6ee5",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_049.jpg"
+    },
+    {
+      "id": "sy_img_050",
+      "cleanFilename": "sy_img_050.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM (6).jpeg",
+      "size": 130011,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "4c66041af5b2667b9d21e1415cbb16328e0a6f80c2fa2aef9ac26507fee112b5",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_050.jpg"
+    },
+    {
+      "id": "sy_img_051",
+      "cleanFilename": "sy_img_051.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM (7).jpeg",
+      "size": 79324,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "a5cd58ddc1b6b4e3441f1bd6d6261c22fbed986a3b6db00365bbcb7aa6ee6c9f",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_051.jpg"
+    },
+    {
+      "id": "sy_img_052",
+      "cleanFilename": "sy_img_052.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.29.02 PM.jpeg",
+      "size": 218857,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "8b81cdd7452b37579f90796b4ff47fc5953c98522be2e859fb31531bc07de37f",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_052.jpg"
+    },
+    {
+      "id": "sy_img_053",
+      "cleanFilename": "sy_img_053.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.05 PM.jpeg",
+      "size": 157277,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "07c6ba29f32d782752ef37d608b15176ff3aaecedf52640abe228df641a19a5e",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_053.jpg"
+    },
+    {
+      "id": "sy_img_054",
+      "cleanFilename": "sy_img_054.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM (1).jpeg",
+      "size": 97271,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "83f14dd47b4c55ddf1d9aa6a6ea9a348786e88912fe85f9b5ee700bc4c5ae66c",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_054.jpg"
+    },
+    {
+      "id": "sy_img_055",
+      "cleanFilename": "sy_img_055.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM (2).jpeg",
+      "size": 98096,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "65c31dac35f46abcd694f4d6f130f0764107f333894448b198ff26db14d0f984",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_055.jpg"
+    },
+    {
+      "id": "sy_img_056",
+      "cleanFilename": "sy_img_056.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM (3).jpeg",
+      "size": 143467,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "6b4b824491922dac6361ccee9079355f98985d2f474d68563b704bf33b1ccb5b",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_056.jpg"
+    },
+    {
+      "id": "sy_img_057",
+      "cleanFilename": "sy_img_057.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM (4).jpeg",
+      "size": 120097,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "5101d486ef1fb2c6bd8ecb23fbfa69c5326f076c0032efbe06f7d08fd5fcb451",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_057.jpg"
+    },
+    {
+      "id": "sy_img_058",
+      "cleanFilename": "sy_img_058.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM (5).jpeg",
+      "size": 136742,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "1d3095c08370620e6c1923b711d3f4c2eb605cf41e51ac9a1a5e336156bae752",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_058.jpg"
+    },
+    {
+      "id": "sy_img_059",
+      "cleanFilename": "sy_img_059.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM (6).jpeg",
+      "size": 93362,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "2e1bf27739e2540a2178bc7796b21c8d3ba30d0493329933d0e57bc2e7090081",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_059.jpg"
+    },
+    {
+      "id": "sy_img_060",
+      "cleanFilename": "sy_img_060.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM (7).jpeg",
+      "size": 93165,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "d3ff9b0f7c44d322ad32a695cc2488c6b350761c0050b78ebdc0e48a60c55550",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_060.jpg"
+    },
+    {
+      "id": "sy_img_061",
+      "cleanFilename": "sy_img_061.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.07 PM.jpeg",
+      "size": 144082,
+      "width": 1280,
+      "height": 847,
+      "aspectRatio": "1.51",
+      "orientation": "landscape",
+      "hash": "21c3dadad36e7b796aa9ea8a1e8390b4b88a2430a5fe8004b28f9db93dd0d1c3",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_061.jpg"
+    },
+    {
+      "id": "sy_img_062",
+      "cleanFilename": "sy_img_062.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (1).jpeg",
+      "size": 163605,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "1d559055c12a1c8a8e9b8242b8c345ec514c3db4412eafc23ad3ee17d349172e",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_062.jpg"
+    },
+    {
+      "id": "sy_img_063",
+      "cleanFilename": "sy_img_063.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (10).jpeg",
+      "size": 223886,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "a2e5b1574ecf80c18c4b4c87f138e310db85c79244f78b7d291923e07a1a7a76",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_063.jpg"
+    },
+    {
+      "id": "sy_img_064",
+      "cleanFilename": "sy_img_064.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (11).jpeg",
+      "size": 112893,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "b5755651781091d47eb1e3887f29dded6023764506c09d7521383c35670598d9",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_064.jpg"
+    },
+    {
+      "id": "sy_img_065",
+      "cleanFilename": "sy_img_065.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (12).jpeg",
+      "size": 116313,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "4c2567ead613b170acf5c4ae72b03a2221a0b8e3cb05ccd80aa2f06eaae1bec6",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_065.jpg"
+    },
+    {
+      "id": "sy_img_066",
+      "cleanFilename": "sy_img_066.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (13).jpeg",
+      "size": 226695,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "bc96208962077d57cd1df0da35f8ffab1bb4b8a15b5d294d52430886f4c4ce78",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_066.jpg"
+    },
+    {
+      "id": "sy_img_067",
+      "cleanFilename": "sy_img_067.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (14).jpeg",
+      "size": 182824,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "5e90d7041bdd929e7aa331b9c682a70fc7cd198530147fe600a852eb5bf6d63d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_067.jpg"
+    },
+    {
+      "id": "sy_img_068",
+      "cleanFilename": "sy_img_068.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (15).jpeg",
+      "size": 211402,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "e8dbb4015d7ea60d6f9fad8320c88b4e8fa1bd917feb320ce5e5b66e90f79293",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_068.jpg"
+    },
+    {
+      "id": "sy_img_069",
+      "cleanFilename": "sy_img_069.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (16).jpeg",
+      "size": 180633,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "656c4801107b66b5f44124d2a8864fbd7e98beb15a45dea3ea29b90be7be3bbe",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_069.jpg"
+    },
+    {
+      "id": "sy_img_070",
+      "cleanFilename": "sy_img_070.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (17).jpeg",
+      "size": 168275,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "52134dd1d047a82d515306d6f3615d33168de7705f0eaacee75d9747a494ae60",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_070.jpg"
+    },
+    {
+      "id": "sy_img_071",
+      "cleanFilename": "sy_img_071.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (18).jpeg",
+      "size": 145742,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "755f0e7642d7cc7d4abc87301c65bfdcc828bb8a2f3741fed2b3293c4bf317e8",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_071.jpg"
+    },
+    {
+      "id": "sy_img_072",
+      "cleanFilename": "sy_img_072.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (19).jpeg",
+      "size": 170575,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "cc2124c6f4ee70bc60fb73d2f0d329aeb731c2a4dcb2f0db98e40bda3133e95b",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_072.jpg"
+    },
+    {
+      "id": "sy_img_073",
+      "cleanFilename": "sy_img_073.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (2).jpeg",
+      "size": 110684,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "f69abec69d1c8ab09de7753addb688d7932569c05bda55bb4c5ada140d185f5b",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_073.jpg"
+    },
+    {
+      "id": "sy_img_074",
+      "cleanFilename": "sy_img_074.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (20).jpeg",
+      "size": 125628,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "19aa07a7ab257df63b09a853200be9612ce0b0328380cc9b2d37eda89410d50f",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_074.jpg"
+    },
+    {
+      "id": "sy_img_075",
+      "cleanFilename": "sy_img_075.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (21).jpeg",
+      "size": 135409,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "c6f2e719aa1a105dc3ad31e9e95b292b2b89bfcae35dcc8bbbd37f58c8da3959",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_075.jpg"
+    },
+    {
+      "id": "sy_img_076",
+      "cleanFilename": "sy_img_076.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (22).jpeg",
+      "size": 185925,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "b424ad4bf02f02e2d21e77fe9fa876914cca5253faabc460076aabc01d63617c",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_076.jpg"
+    },
+    {
+      "id": "sy_img_077",
+      "cleanFilename": "sy_img_077.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (23).jpeg",
+      "size": 182517,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "b0a3fbeb03a9c30d426630e92d17f10dd374c19f48c952d16fce1e5a57a663ed",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_077.jpg"
+    },
+    {
+      "id": "sy_img_078",
+      "cleanFilename": "sy_img_078.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (24).jpeg",
+      "size": 114522,
+      "width": 1280,
+      "height": 550,
+      "aspectRatio": "2.33",
+      "orientation": "landscape",
+      "hash": "c71df74ba1a9d7ced35cc4d9c49ab37380aa9373d95b8e2d984ae62165c13bb1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_078.jpg"
+    },
+    {
+      "id": "sy_img_079",
+      "cleanFilename": "sy_img_079.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (25).jpeg",
+      "size": 61635,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "c0858813a823914d57d37cb43d01b3af6778612e13bf3818ee496b090f09f519",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_079.jpg"
+    },
+    {
+      "id": "sy_img_080",
+      "cleanFilename": "sy_img_080.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (26).jpeg",
+      "size": 56875,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "af5138dd896a503bf9cb653cdbbc25e379671bedfcbcbd0985ac2bd849d6eb86",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_080.jpg"
+    },
+    {
+      "id": "sy_img_081",
+      "cleanFilename": "sy_img_081.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (27).jpeg",
+      "size": 62115,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "506272239c6254e88f6635260792bc8cf862b5c3abd033a1d5c14100d637261a",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_081.jpg"
+    },
+    {
+      "id": "sy_img_082",
+      "cleanFilename": "sy_img_082.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (28).jpeg",
+      "size": 96493,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "4ae2b8d631fe2a951844b670cceacf0f2a8b33f2618e849e1acd2e15dcca0129",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_082.jpg"
+    },
+    {
+      "id": "sy_img_083",
+      "cleanFilename": "sy_img_083.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (3).jpeg",
+      "size": 119245,
+      "width": 1280,
+      "height": 435,
+      "aspectRatio": "2.94",
+      "orientation": "landscape",
+      "hash": "1ec9d407307781760b0351d8f2ad1048643060bf69e0d2a2daeba0eff5c77227",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_083.jpg"
+    },
+    {
+      "id": "sy_img_084",
+      "cleanFilename": "sy_img_084.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (4).jpeg",
+      "size": 145975,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "60b8761edab70ae49de254edef6e46b8d745771bc3df55d2e74da9bb6bc17c9d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_084.jpg"
+    },
+    {
+      "id": "sy_img_085",
+      "cleanFilename": "sy_img_085.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (5).jpeg",
+      "size": 196756,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "f29b8f736d498b8c7453afb45c07908574f9b3b137dd048ce96535cbac6733b4",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_085.jpg"
+    },
+    {
+      "id": "sy_img_086",
+      "cleanFilename": "sy_img_086.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (6).jpeg",
+      "size": 216663,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "4e43e73c9227490223b72b34c57c93634a7251e2daf5ad9b458cbd86737ae801",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_086.jpg"
+    },
+    {
+      "id": "sy_img_087",
+      "cleanFilename": "sy_img_087.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (7).jpeg",
+      "size": 154746,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "b45cff0f77a3f4eb65ee12eb02b0495cf10cae41d9700dc239b4f8b1be6405b2",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_087.jpg"
+    },
+    {
+      "id": "sy_img_088",
+      "cleanFilename": "sy_img_088.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (8).jpeg",
+      "size": 110600,
+      "width": 1280,
+      "height": 412,
+      "aspectRatio": "3.11",
+      "orientation": "landscape",
+      "hash": "56463ace0964c5e1f64b699a8cc267548bf9b5b2c9824ee941b7ad22c6dec701",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_088.jpg"
+    },
+    {
+      "id": "sy_img_089",
+      "cleanFilename": "sy_img_089.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM (9).jpeg",
+      "size": 56329,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "fc2d73667c845371dbe293be16d542df9e05e66c7d2a82706ef70c924458aa00",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_089.jpg"
+    },
+    {
+      "id": "sy_img_090",
+      "cleanFilename": "sy_img_090.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.30.08 PM.jpeg",
+      "size": 151003,
+      "width": 1280,
+      "height": 1102,
+      "aspectRatio": "1.16",
+      "orientation": "landscape",
+      "hash": "c9341efaba46d9e64af3e6821a25fedf50a3729d37cf40272401c55f48717a42",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_090.jpg"
+    },
+    {
+      "id": "sy_img_091",
+      "cleanFilename": "sy_img_091.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (1)(1).jpeg",
+      "size": 211801,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "08802637b500a170992c5eca5fce7f753a10d67df0c0a23da09dfbdb32f7ec55",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_091.jpg"
+    },
+    {
+      "id": "sy_img_092",
+      "cleanFilename": "sy_img_092.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (1).jpeg",
+      "size": 285035,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "143d672dd1681422b656694f3b87082382346290e2337f1913a40ac491930b1e",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_092.jpg"
+    },
+    {
+      "id": "sy_img_093",
+      "cleanFilename": "sy_img_093.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (10).jpeg",
+      "size": 382449,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "3425bb14bbedb3df1d79e68d68d4ed9ef3e132dd2ff533b4339f501b565c1895",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_093.jpg"
+    },
+    {
+      "id": "sy_img_094",
+      "cleanFilename": "sy_img_094.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (11).jpeg",
+      "size": 405205,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "b5b489dcdb06b6299b6ec4defd9db87ea2f53f51311bc1be58a815f9220493cc",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_094.jpg"
+    },
+    {
+      "id": "sy_img_095",
+      "cleanFilename": "sy_img_095.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (12).jpeg",
+      "size": 378249,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "25bb6e42a9b7b39515b83a9f8eb27ba4398bacacbf7a4326b8dbc81cc84e8ba3",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_095.jpg"
+    },
+    {
+      "id": "sy_img_096",
+      "cleanFilename": "sy_img_096.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (2)(1).jpeg",
+      "size": 217854,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "c6c603e117aa3bfd27b4b73703d7f148412de80cc98dd97ac3a98515b4dd68c1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_096.jpg"
+    },
+    {
+      "id": "sy_img_097",
+      "cleanFilename": "sy_img_097.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (2).jpeg",
+      "size": 215230,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "76bdf4e200491c40076fd835161f1758539b8a2b14436ac82877693ac79de338",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_097.jpg"
+    },
+    {
+      "id": "sy_img_098",
+      "cleanFilename": "sy_img_098.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (3).jpeg",
+      "size": 169516,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "7c4308c498361d601bbc744b18507e6d39a6f4f6337491fa475d24bbdb5d73e9",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_098.jpg"
+    },
+    {
+      "id": "sy_img_099",
+      "cleanFilename": "sy_img_099.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (4).jpeg",
+      "size": 370115,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "a6fe920e559a981966a5c35278629e95651631efedcba55cf676a3284a08f7ad",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_099.jpg"
+    },
+    {
+      "id": "sy_img_100",
+      "cleanFilename": "sy_img_100.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (5).jpeg",
+      "size": 262525,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "baf2646a538b76940b1e05416460f1893cc2dadbc76652233a98ee41910a991d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_100.jpg"
+    },
+    {
+      "id": "sy_img_101",
+      "cleanFilename": "sy_img_101.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (6).jpeg",
+      "size": 173447,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "164bf66f0a8af52bed5e02fc41ac7124615f2118153760a6303c496e79cc363e",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_101.jpg"
+    },
+    {
+      "id": "sy_img_102",
+      "cleanFilename": "sy_img_102.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM (7).jpeg",
+      "size": 207686,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "6cc8bab31946b35b7eae43b14e110afec0d2e30389f6fafd7c9d5b86ae32e6eb",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_102.jpg"
+    },
+    {
+      "id": "sy_img_103",
+      "cleanFilename": "sy_img_103.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.08 PM.jpeg",
+      "size": 332826,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "3d376e76da7ae02ab65b997b4131bfe86e6d88102d6f109b8036b2afe3d8db7e",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_103.jpg"
+    },
+    {
+      "id": "sy_img_104",
+      "cleanFilename": "sy_img_104.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (1)(1).jpeg",
+      "size": 247977,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "620632e28bddfb15d845bc4e1e34f6831fb852172abca000901204c0993dd5b8",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_104.jpg"
+    },
+    {
+      "id": "sy_img_105",
+      "cleanFilename": "sy_img_105.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (10)(1).jpeg",
+      "size": 172064,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "b5af4b5c1d5d4281a62d6ad668c077be4e7aae18a918b97f8fc141ca76232c46",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_105.jpg"
+    },
+    {
+      "id": "sy_img_106",
+      "cleanFilename": "sy_img_106.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (11)(1).jpeg",
+      "size": 130243,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "8e0bf8b38fe5a30e895c84f1ceb9c167549d091483562439c7a4f38a1829cf8f",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_106.jpg"
+    },
+    {
+      "id": "sy_img_107",
+      "cleanFilename": "sy_img_107.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (11).jpeg",
+      "size": 163398,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "57b6dcd320348a6c2d685de8758ba3aee4c09ce05beee08f562432620e06a397",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_107.jpg"
+    },
+    {
+      "id": "sy_img_108",
+      "cleanFilename": "sy_img_108.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (12)(1).jpeg",
+      "size": 160993,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "44755b514c80da7dfa2480e6d0847ddddfe23df16547084703b8c23d0032354d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_108.jpg"
+    },
+    {
+      "id": "sy_img_109",
+      "cleanFilename": "sy_img_109.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (12).jpeg",
+      "size": 274185,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "0be5a9f2406513514f9290ef52185cd25eda193ed4d4ab4183d9ea31307f6423",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_109.jpg"
+    },
+    {
+      "id": "sy_img_110",
+      "cleanFilename": "sy_img_110.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (14)(1).jpeg",
+      "size": 322907,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "8dc3ade382adbf6f21e65abcda8eedd27368390de770177bedd44e746065d5d0",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_110.jpg"
+    },
+    {
+      "id": "sy_img_111",
+      "cleanFilename": "sy_img_111.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (15)(1).jpeg",
+      "size": 358148,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "1cc2d6bbda2e1a589d353c15f214192a6be1bca74b9d12b427019760b780edfb",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_111.jpg"
+    },
+    {
+      "id": "sy_img_112",
+      "cleanFilename": "sy_img_112.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (16)(1).jpeg",
+      "size": 357554,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "7b97cf30af6422695dc0766b460103bf6d165632182528ae77426d8b8c4b0171",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_112.jpg"
+    },
+    {
+      "id": "sy_img_113",
+      "cleanFilename": "sy_img_113.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (17)(1).jpeg",
+      "size": 250053,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "03f8200eddb03926b064e915fd6376f8c901b3ee698813c327f46803d480f660",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_113.jpg"
+    },
+    {
+      "id": "sy_img_114",
+      "cleanFilename": "sy_img_114.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (17).jpeg",
+      "size": 350105,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "62305fdb5b10472456d6acba81d13c9da5f292997b85110314cc61fe84593050",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_114.jpg"
+    },
+    {
+      "id": "sy_img_115",
+      "cleanFilename": "sy_img_115.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (18)(1).jpeg",
+      "size": 316276,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "67ba0db840d5edc76797735ccc6ef4b55bf71dbd69371a709d961dcd967d32cb",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_115.jpg"
+    },
+    {
+      "id": "sy_img_116",
+      "cleanFilename": "sy_img_116.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (2)(1).jpeg",
+      "size": 260961,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "e5fc6b43de301b181b53e16cf0bc3ee9b84e22fe21bcb1330f9e63e3fa9dc5ea",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_116.jpg"
+    },
+    {
+      "id": "sy_img_117",
+      "cleanFilename": "sy_img_117.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (20)(1).jpeg",
+      "size": 318106,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "f069852c177296d57790d22d1c9e76e87065640da531f17a838720c3df4ea888",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_117.jpg"
+    },
+    {
+      "id": "sy_img_118",
+      "cleanFilename": "sy_img_118.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (21)(1).jpeg",
+      "size": 344264,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "292b1d594a24ca95a05e40db2ada4cae7373432477a62ffd7ca26c22ac32f83f",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_118.jpg"
+    },
+    {
+      "id": "sy_img_119",
+      "cleanFilename": "sy_img_119.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (22)(1).jpeg",
+      "size": 365809,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "c07925989c478bb837dfb209b8ee862e0f60d0c2a87adb657123366ce693e45a",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_119.jpg"
+    },
+    {
+      "id": "sy_img_120",
+      "cleanFilename": "sy_img_120.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (23)(1).jpeg",
+      "size": 351189,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "2cc5882fc287c97112663a834a349d2969529902bbdd21d95f3ce556d332b741",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_120.jpg"
+    },
+    {
+      "id": "sy_img_121",
+      "cleanFilename": "sy_img_121.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (23).jpeg",
+      "size": 263823,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "ce56cf6ed6301b418384faa5f0ffe417002ace65c997ee2813169dda61467e66",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_121.jpg"
+    },
+    {
+      "id": "sy_img_122",
+      "cleanFilename": "sy_img_122.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (24)(1).jpeg",
+      "size": 272329,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "452cf842e3a0d00697d57de4400d0ac9c548f446143bab2613270fa8952cdf5a",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_122.jpg"
+    },
+    {
+      "id": "sy_img_123",
+      "cleanFilename": "sy_img_123.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (26)(1).jpeg",
+      "size": 260965,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "9d11d7851af421ad2423263790ec6c8e37c04ab16f8d7e8578fff403d3adb71d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_123.jpg"
+    },
+    {
+      "id": "sy_img_124",
+      "cleanFilename": "sy_img_124.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (26).jpeg",
+      "size": 196847,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "7b2985e870361fe413bad9bc721171dab3158c5ce82e75614652b6128a2e53e6",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_124.jpg"
+    },
+    {
+      "id": "sy_img_125",
+      "cleanFilename": "sy_img_125.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (27)(1).jpeg",
+      "size": 114973,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "436cbdf25fc505c17ddbd9cbb38d4b010076f05d9876953dd3962f5fdcfb9eca",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_125.jpg"
+    },
+    {
+      "id": "sy_img_126",
+      "cleanFilename": "sy_img_126.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (29)(1).jpeg",
+      "size": 260624,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "1835c08a96244cf07177e8c6d91cfe48015cb4eec74a868d859e628196ebfb10",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_126.jpg"
+    },
+    {
+      "id": "sy_img_127",
+      "cleanFilename": "sy_img_127.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (3)(1).jpeg",
+      "size": 163234,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "72d63f71853f1e2a5dc1ce2f921f69690884eec0dd607cccbec8b80682ca957e",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_127.jpg"
+    },
+    {
+      "id": "sy_img_128",
+      "cleanFilename": "sy_img_128.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (30)(1).jpeg",
+      "size": 277500,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "10ffdf16e15c15aa2981add7980f50820c53aa24a9bea752dec1ef51046809d1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_128.jpg"
+    },
+    {
+      "id": "sy_img_129",
+      "cleanFilename": "sy_img_129.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (31)(1).jpeg",
+      "size": 266525,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "73e6c4d94deb35205349f1e152b2ea99f8ffe6456d53c99efcbd9197ee07c4c6",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_129.jpg"
+    },
+    {
+      "id": "sy_img_130",
+      "cleanFilename": "sy_img_130.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (32)(1).jpeg",
+      "size": 257459,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "55a761571aa4a331c77d5914ea8b998a7839d7c0a67b7466f7c3df5ff1d3c5b0",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_130.jpg"
+    },
+    {
+      "id": "sy_img_131",
+      "cleanFilename": "sy_img_131.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (33)(1).jpeg",
+      "size": 332092,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "2d8141cd12b380430c11b9839cdb67c53beadc0b31520e4f972b4b86c3738753",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_131.jpg"
+    },
+    {
+      "id": "sy_img_132",
+      "cleanFilename": "sy_img_132.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (34)(1).jpeg",
+      "size": 209365,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "2727c621b022543b030532ea570c1cbd1ed5e9e97753733df9588511f3d32a46",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_132.jpg"
+    },
+    {
+      "id": "sy_img_133",
+      "cleanFilename": "sy_img_133.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (35)(1).jpeg",
+      "size": 156393,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "6dd15376d3298f55a26425cdfcd9260657a8b2123a0effd8d7d6eae01d455395",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_133.jpg"
+    },
+    {
+      "id": "sy_img_134",
+      "cleanFilename": "sy_img_134.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (36)(1).jpeg",
+      "size": 81776,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "920afc2c19a78881fb45895f71a304fb6e40a3a3105366097ccf591891b66398",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_134.jpg"
+    },
+    {
+      "id": "sy_img_135",
+      "cleanFilename": "sy_img_135.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (37)(1).jpeg",
+      "size": 111390,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "202cdf2816a47e9b7be645e2b88706d97d778791e94dde575047b8a61297ce2b",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_135.jpg"
+    },
+    {
+      "id": "sy_img_136",
+      "cleanFilename": "sy_img_136.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (38)(1).jpeg",
+      "size": 251211,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "a23586b34adfc7ad28c4d7e841d70bbfd4fb1aa9f47526d0645328f23832329d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_136.jpg"
+    },
+    {
+      "id": "sy_img_137",
+      "cleanFilename": "sy_img_137.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (38).jpeg",
+      "size": 139125,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "45731106f9024426e92421fefb04993c7342fd504d9776f90de482bd3700e390",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_137.jpg"
+    },
+    {
+      "id": "sy_img_138",
+      "cleanFilename": "sy_img_138.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (39)(1).jpeg",
+      "size": 103951,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "e0d8cf27577ac19465d7efc26e9065bc09b7d126d74603cb4003db46e09f3cf7",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_138.jpg"
+    },
+    {
+      "id": "sy_img_139",
+      "cleanFilename": "sy_img_139.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (4)(1).jpeg",
+      "size": 210661,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "b2f45512ff4d383ab8ad13e7f78527173659e8458155205a6a241eb03f57e73d",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_139.jpg"
+    },
+    {
+      "id": "sy_img_140",
+      "cleanFilename": "sy_img_140.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (41)(1).jpeg",
+      "size": 223128,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "27781e30279151708039bef9d3ee69249dcb4837326e87df705013da8f5ca289",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_140.jpg"
+    },
+    {
+      "id": "sy_img_141",
+      "cleanFilename": "sy_img_141.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (41).jpeg",
+      "size": 305390,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "064c13784fc16e2c04b31c76206e18fd9232cffee35505c4ee019acd4f67167a",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_141.jpg"
+    },
+    {
+      "id": "sy_img_142",
+      "cleanFilename": "sy_img_142.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (42)(1).jpeg",
+      "size": 276781,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "6bdb4420fc53dcda91281c947158db91fc0fe4e1123e6cc3da86c518116787cd",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_142.jpg"
+    },
+    {
+      "id": "sy_img_143",
+      "cleanFilename": "sy_img_143.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (5)(1).jpeg",
+      "size": 224326,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "ac545a6a31e6cb305e378e7d1cf52fe28d3f859ead4d125c152e155402d6bc58",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_143.jpg"
+    },
+    {
+      "id": "sy_img_144",
+      "cleanFilename": "sy_img_144.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (6)(1).jpeg",
+      "size": 233054,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "70d0a8da486e45e7b7bce1d851088354df65a27723003182dfad9c219b87ba7c",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_144.jpg"
+    },
+    {
+      "id": "sy_img_145",
+      "cleanFilename": "sy_img_145.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (6).jpeg",
+      "size": 276989,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "db015684a3d4229dc5d40912b27171e917aecb405fa21d0241a0f917de823cdd",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_145.jpg"
+    },
+    {
+      "id": "sy_img_146",
+      "cleanFilename": "sy_img_146.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM (7)(1).jpeg",
+      "size": 252171,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "81570f45d12b176fce54c1f7dcc163fa00a15ffd9146827b40047690242ae423",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_146.jpg"
+    },
+    {
+      "id": "sy_img_147",
+      "cleanFilename": "sy_img_147.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.32.10 PM(1).jpeg",
+      "size": 245352,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "841549ea75819dff937a1dbdfdf83720e7eb26b106e227167e274ee1b19806d1",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_147.jpg"
+    },
+    {
+      "id": "sy_img_148",
+      "cleanFilename": "sy_img_148.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.00 PM(1).jpeg",
+      "size": 124566,
+      "width": 591,
+      "height": 1280,
+      "aspectRatio": "0.46",
+      "orientation": "portrait",
+      "hash": "5e5fbd7d8fcaa84093cc7632a88ce7af3e2750062e859d36626cd03ed811db8c",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_148.jpg"
+    },
+    {
+      "id": "sy_img_149",
+      "cleanFilename": "sy_img_149.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (1)(1).jpeg",
+      "size": 47475,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "5d0ef6fea3680073c1e21cc8030b76259e3d21e32b8e265f805f7fc6928c9ce5",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_149.jpg"
+    },
+    {
+      "id": "sy_img_150",
+      "cleanFilename": "sy_img_150.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (10)(1).jpeg",
+      "size": 122495,
+      "width": 591,
+      "height": 1280,
+      "aspectRatio": "0.46",
+      "orientation": "portrait",
+      "hash": "de10d4a972863fefb4ec6b3ddcf24fbaba0b4bb512e139a6f3e03af8a64fccbb",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_150.jpg"
+    },
+    {
+      "id": "sy_img_151",
+      "cleanFilename": "sy_img_151.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (11)(1).jpeg",
+      "size": 74558,
+      "width": 591,
+      "height": 1280,
+      "aspectRatio": "0.46",
+      "orientation": "portrait",
+      "hash": "8402cca931c5c34548727e5927f7449e873292c8e468c7398a87594d81f58278",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_151.jpg"
+    },
+    {
+      "id": "sy_img_152",
+      "cleanFilename": "sy_img_152.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (12)(1).jpeg",
+      "size": 182265,
+      "width": 591,
+      "height": 1280,
+      "aspectRatio": "0.46",
+      "orientation": "portrait",
+      "hash": "42092c62776c9af2516fa333c2629891b29de77c6f7fe6c000313fe68d5f15db",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_152.jpg"
+    },
+    {
+      "id": "sy_img_153",
+      "cleanFilename": "sy_img_153.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (13)(1).jpeg",
+      "size": 108833,
+      "width": 1280,
+      "height": 591,
+      "aspectRatio": "2.17",
+      "orientation": "landscape",
+      "hash": "3d49b4da1c8572ccb4a30f32f0af653469024608e1ec79508209045b4479dd9a",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_153.jpg"
+    },
+    {
+      "id": "sy_img_154",
+      "cleanFilename": "sy_img_154.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (13).jpeg",
+      "size": 120155,
+      "width": 591,
+      "height": 1280,
+      "aspectRatio": "0.46",
+      "orientation": "portrait",
+      "hash": "fd07362e4e5ab0a970b639913a5b58f3fe710a5671151bf8ddcadb19d5a09b61",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_154.jpg"
+    },
+    {
+      "id": "sy_img_155",
+      "cleanFilename": "sy_img_155.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (2)(1).jpeg",
+      "size": 64116,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "7b1eeb1391b3bdfc3125a031da024839a18a335946fdd9d8bc444c2a08ce6925",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_155.jpg"
+    },
+    {
+      "id": "sy_img_156",
+      "cleanFilename": "sy_img_156.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (3)(1).jpeg",
+      "size": 210484,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "f79395e73fff45ff89d7316e83bf1fd46b58920d380547a3bd7cd0ec68fd196f",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_156.jpg"
+    },
+    {
+      "id": "sy_img_157",
+      "cleanFilename": "sy_img_157.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (4)(1).jpeg",
+      "size": 321052,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "ccf961723f5acdeafc9d8a1a8303b6f6cfb2b54e6fd7983aa6c4d09602daeae8",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_157.jpg"
+    },
+    {
+      "id": "sy_img_158",
+      "cleanFilename": "sy_img_158.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (5)(1).jpeg",
+      "size": 119410,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "fffbdb28c73c37cef382662e645bec1781d1445e1d90b54215c9ba73aac3bafe",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_158.jpg"
+    },
+    {
+      "id": "sy_img_159",
+      "cleanFilename": "sy_img_159.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (6)(1).jpeg",
+      "size": 141613,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "0d1822f03c02a5ab0b72f3294987c15ffb66992de88c2444799d359b2b8cf7a8",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_159.jpg"
+    },
+    {
+      "id": "sy_img_160",
+      "cleanFilename": "sy_img_160.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (7)(1).jpeg",
+      "size": 330698,
+      "width": 960,
+      "height": 1280,
+      "aspectRatio": "0.75",
+      "orientation": "portrait",
+      "hash": "ff0d6a3b2aeaa78df07da4ede1abd6d5a6458f5c182d516aebe3e97d9d4b5d35",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_160.jpg"
+    },
+    {
+      "id": "sy_img_161",
+      "cleanFilename": "sy_img_161.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (8)(1).jpeg",
+      "size": 178377,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "f225be40a2132612c5dc125edb46263c56723cdf01ca0e53c71e991e4ae07210",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_161.jpg"
+    },
+    {
+      "id": "sy_img_162",
+      "cleanFilename": "sy_img_162.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM (9)(1).jpeg",
+      "size": 131108,
+      "width": 591,
+      "height": 1280,
+      "aspectRatio": "0.46",
+      "orientation": "portrait",
+      "hash": "acb9985cf8989cd798c640186e2c3163137d6b3a7772e4dac64bc2fb413e06ae",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_162.jpg"
+    },
+    {
+      "id": "sy_img_163",
+      "cleanFilename": "sy_img_163.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.01 PM(1).jpeg",
+      "size": 93032,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "8a78b752c3971f58f13c462f3ac1479acaea07ad689e99226fd1d33db0f1dcaf",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_163.jpg"
+    },
+    {
+      "id": "sy_img_164",
+      "cleanFilename": "sy_img_164.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.02 PM (1)(1).jpeg",
+      "size": 232500,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "1b2478e95d14d46a41074248ee85eb53c3e5647ea010c572c279207d9d5f2d23",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_164.jpg"
+    },
+    {
+      "id": "sy_img_165",
+      "cleanFilename": "sy_img_165.jpg",
+      "originalName": "WhatsApp Image 2026-10-31 at 10.33.02 PM(1).jpeg",
+      "size": 134603,
+      "width": 1280,
+      "height": 960,
+      "aspectRatio": "1.33",
+      "orientation": "landscape",
+      "hash": "6016a99e9b586858b1f4e1fc04f5993799570948e7f790fd6b5f5ce8958e1451",
+      "publicPath": "/assets/shlloka-yatra/images/sy_img_165.jpg"
+    }
+  ]
+}
