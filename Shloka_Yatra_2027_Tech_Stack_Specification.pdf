@@ -1,0 +1,1699 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Length 9536 >>
+stream
+q
+0.063 0.114 0.208 rg
+40.00 799.89 30.00 30.00 re
+f
+Q
+q
+0.851 0.643 0.255 rg
+BT
+/F2 12 Tf
+1 0 0 1 47.00 808.89 Tm
+(SY) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 13 Tf
+1 0 0 1 78.00 815.89 Tm
+(SHLOKA YATRA) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F2 7 Tf
+1 0 0 1 78.00 803.89 Tm
+(SACRED HIMALAYAN EXPEDITIONS 2027) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 345.28 815.89 Tm
+(Document: Technical Architecture Specification) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 345.28 805.89 Tm
+(Release: Official 2027 Production Architecture) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 345.28 795.89 Tm
+(Date: November 2026 | Noida, UP, India) Tj
+ET
+Q
+q
+0.851 0.643 0.255 RG
+2 w
+40.00 789.89 m
+555.28 789.89 l
+S
+Q
+q
+0.063 0.114 0.208 rg
+40.00 713.89 515.28 68.00 re
+f
+Q
+q
+0.851 0.643 0.255 rg
+40.00 713.89 5.00 68.00 re
+f
+Q
+q
+0.851 0.643 0.255 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 58.00 763.89 Tm
+(OFFICIAL TECHNICAL SPECIFICATION) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 15 Tf
+1 0 0 1 58.00 743.89 Tm
+(Platform Technology Stack & Architecture) Tj
+ET
+Q
+q
+0.827 0.867 0.922 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 58.00 727.89 Tm
+(Comprehensive architectural breakdown of the React SPA, Node.js REST API, and Prisma ORM data layer for Shloka Yatra 2027.) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 11 Tf
+1 0 0 1 40.00 687.89 Tm
+(1. Multi-Tier System Topology) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+1 w
+40.00 683.89 m
+555.28 683.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+0.886 0.902 0.922 RG
+1 w
+40.00 615.89 166.43 58.00 re
+B
+Q
+q
+0.110 0.204 0.333 rg
+40.00 670.89 166.43 3.00 re
+f
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 9 Tf
+1 0 0 1 48.00 659.89 Tm
+(Client Tier \(React SPA\)) Tj
+ET
+Q
+q
+0.110 0.204 0.333 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 48.00 647.89 Tm
+(React 18.3 + Tailwind CSS 3.4) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7 Tf
+1 0 0 1 48.00 636.89 Tm
+(Compiled via Vite 6. Zero video embeds,) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7 Tf
+1 0 0 1 48.00 626.89 Tm
+(100% authentic Himalayan imagery.) Tj
+ET
+Q
+q
+1.000 0.992 0.973 rg
+0.886 0.902 0.922 RG
+1 w
+214.43 615.89 166.43 58.00 re
+B
+Q
+q
+0.851 0.643 0.255 rg
+214.43 670.89 166.43 3.00 re
+f
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 9 Tf
+1 0 0 1 222.43 659.89 Tm
+(Service Tier \(REST API\)) Tj
+ET
+Q
+q
+0.851 0.643 0.255 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 222.43 647.89 Tm
+(Node.js ESM + Express 4.21) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7 Tf
+1 0 0 1 222.43 636.89 Tm
+(Stateless JWT bearer authentication, Zod) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7 Tf
+1 0 0 1 222.43 626.89 Tm
+(schemas, and bcryptjs encryption.) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+0.886 0.902 0.922 RG
+1 w
+388.85 615.89 166.43 58.00 re
+B
+Q
+q
+0.063 0.114 0.208 rg
+388.85 670.89 166.43 3.00 re
+f
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 9 Tf
+1 0 0 1 396.85 659.89 Tm
+(Persistence Tier \(Prisma\)) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 396.85 647.89 Tm
+(Prisma ORM 5.22 + Relational DB) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7 Tf
+1 0 0 1 396.85 636.89 Tm
+(ACID transactions for Users, Batches,) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7 Tf
+1 0 0 1 396.85 626.89 Tm
+(Bookings, and Audit Trail logs.) Tj
+ET
+Q
+q
+0.969 0.965 0.949 rg
+40.00 577.89 515.28 22.00 re
+f
+Q
+q
+0.851 0.643 0.255 rg
+40.00 577.89 3.00 22.00 re
+f
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 50.00 589.89 Tm
+(Core Engineering Standards: 100% pure React + Tailwind CSS utility architecture; zero external template libraries;) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 50.00 580.89 Tm
+(zero video playback; 18-gate automated quality verification; complete tablet and smartphone viewport responsiveness.) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 11 Tf
+1 0 0 1 40.00 561.89 Tm
+(2. Frontend Client Technology Stack) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+1 w
+40.00 557.89 m
+555.28 557.89 l
+S
+Q
+q
+0.063 0.114 0.208 rg
+40.00 529.89 515.28 18.00 re
+f
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 46.00 535.64 Tm
+(Technology) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 171.00 535.64 Tm
+(Version) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 236.00 535.64 Tm
+(Category) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 356.00 535.64 Tm
+(Architectural Scope & Purpose) Tj
+ET
+Q
+q
+0.063 0.114 0.208 RG
+0.75 w
+40.00 529.89 m
+555.28 529.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 512.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 517.89 Tm
+(React.js) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 517.89 Tm
+(v18.3.1) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 517.89 Tm
+(Core UI Framework) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 517.89 Tm
+(Functional components, hooks, Context API, responsive SPA) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 512.39 m
+555.28 512.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 494.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 500.39 Tm
+(Tailwind CSS) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 500.39 Tm
+(v3.4.19) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 500.39 Tm
+(Design & Styling Engine) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 500.39 Tm
+(Utility classes, custom palette \(#101D35, #D9A441, #F7F6F2\)) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 494.89 m
+555.28 494.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 477.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 482.89 Tm
+(Vite) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 482.89 Tm
+(v6.0.7) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 482.89 Tm
+(Build Tool & Bundler) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 482.89 Tm
+(Lightning-fast HMR, Rollup production chunking, gzip optimization) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 477.39 m
+555.28 477.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 459.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 465.39 Tm
+(React Router DOM) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 465.39 Tm
+(v6.28.1) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 465.39 Tm
+(Client-Side Routing) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 465.39 Tm
+(Declarative routing across Home, Packages, Departures, Admin) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 459.89 m
+555.28 459.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 442.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 447.89 Tm
+(React Hook Form) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 447.89 Tm
+(v7.54.2) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 447.89 Tm
+(Form Management) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 447.89 Tm
+(Uncontrolled forms for 8-step booking dossier & registrations) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 442.39 m
+555.28 442.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 424.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 430.39 Tm
+(Zod) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 430.39 Tm
+(v3.24.1) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 430.39 Tm
+(Schema Validation) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 430.39 Tm
+(Strict runtime validation for devotee data & medical consents) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 424.89 m
+555.28 424.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 407.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 412.89 Tm
+(Lucide React) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 412.89 Tm
+(v0.469.0) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 412.89 Tm
+(Vector Iconography) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 412.89 Tm
+(Crisp SVG icons for flight, coach, altitude, calendar, security) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 407.39 m
+555.28 407.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 389.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 395.39 Tm
+(Framer Motion) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 395.39 Tm
+(v11.15.0) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 395.39 Tm
+(Motion Library) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 395.39 Tm
+(Fluid UI drawer transitions, spring animations, modal popovers) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 389.89 m
+555.28 389.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 372.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 377.89 Tm
+(Axios) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 377.89 Tm
+(v1.7.9) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 377.89 Tm
+(HTTP REST Client) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 377.89 Tm
+(Centralized API service layer with JWT auth interceptors) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 372.39 m
+555.28 372.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 354.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 360.39 Tm
+(Google Fonts) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 171.00 360.39 Tm
+(Montserrat / Segoe UI) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 360.39 Tm
+(Typography System) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 360.39 Tm
+(Montserrat for headings & metrics; Segoe UI for body & labels) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 354.89 m
+555.28 354.89 l
+S
+Q
+q
+0.886 0.902 0.922 RG
+1 w
+40.00 38.00 m
+555.28 38.00 l
+S
+Q
+q
+0.549 0.608 0.667 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 40.00 26.00 Tm
+(Shloka Yatra 2027 — Technical Architecture & Technology Stack Specification) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 510.28 26.00 Tm
+(Page 1 of 2) Tj
+ET
+Q
+
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 10447 >>
+stream
+q
+0.063 0.114 0.208 rg
+40.00 799.89 30.00 30.00 re
+f
+Q
+q
+0.851 0.643 0.255 rg
+BT
+/F2 12 Tf
+1 0 0 1 47.00 808.89 Tm
+(SY) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 13 Tf
+1 0 0 1 78.00 815.89 Tm
+(SHLOKA YATRA) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F2 7 Tf
+1 0 0 1 78.00 803.89 Tm
+(SACRED HIMALAYAN EXPEDITIONS 2027) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 365.28 815.89 Tm
+(Section: Backend, Database & Infrastructure) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 365.28 805.89 Tm
+(Status: Production Validated \(18/18 Tests\)) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 365.28 795.89 Tm
+(Confidential & Proprietary Document) Tj
+ET
+Q
+q
+0.851 0.643 0.255 RG
+2 w
+40.00 789.89 m
+555.28 789.89 l
+S
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 11 Tf
+1 0 0 1 40.00 767.89 Tm
+(3. Backend Server & API Stack) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+1 w
+40.00 763.89 m
+555.28 763.89 l
+S
+Q
+q
+0.063 0.114 0.208 rg
+40.00 735.89 515.28 18.00 re
+f
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 46.00 741.64 Tm
+(Technology) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 171.00 741.64 Tm
+(Version) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 236.00 741.64 Tm
+(Category) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 356.00 741.64 Tm
+(Architectural Scope & Purpose) Tj
+ET
+Q
+q
+0.063 0.114 0.208 RG
+0.75 w
+40.00 735.89 m
+555.28 735.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 718.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 723.89 Tm
+(Node.js \(ESM\)) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 723.89 Tm
+(v20+ LTS) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 723.89 Tm
+(Runtime Environment) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 723.89 Tm
+(Asynchronous event-driven server runtime using native ES modules) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 718.39 m
+555.28 718.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 700.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 706.39 Tm
+(Express.js) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 706.39 Tm
+(v4.21.2) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 706.39 Tm
+(Web API Framework) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 706.39 Tm
+(Modular REST endpoints for departures, routes, bookings, & admin) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 700.89 m
+555.28 700.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 683.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 688.89 Tm
+(Prisma ORM) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 688.89 Tm
+(v5.22.0) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 688.89 Tm
+(Database ORM & Client) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 688.89 Tm
+(Type-safe relational schema modeling, migrations, & sanitized queries) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 683.39 m
+555.28 683.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 665.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 671.39 Tm
+(SQLite / PostgreSQL) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 671.39 Tm
+(Prisma Driver) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 671.39 Tm
+(Relational Database) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 671.39 Tm
+(ACID storage for users, departures, routes, pricing, and audit logs) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 665.89 m
+555.28 665.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 648.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 653.89 Tm
+(JSON Web Tokens) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 653.89 Tm
+(v9.0.2) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 653.89 Tm
+(Authentication Security) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 653.89 Tm
+(Stateless bearer tokens for devotee logins & role-based admin access) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 648.39 m
+555.28 648.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 630.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 636.39 Tm
+(bcryptjs) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 636.39 Tm
+(v2.4.3) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 636.39 Tm
+(Credential Hashing) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 636.39 Tm
+(Cryptographic salt-based hashing protecting user & admin passwords) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 630.89 m
+555.28 630.89 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 613.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 618.89 Tm
+(CORS & Morgan) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F4 8.5 Tf
+1 0 0 1 171.00 618.89 Tm
+(v2.8.5 / v1.10) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 236.00 618.89 Tm
+(Security & Telemetry) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 356.00 618.89 Tm
+(Origin lockdown middleware & HTTP request diagnostic logging) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 613.39 m
+555.28 613.39 l
+S
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 11 Tf
+1 0 0 1 40.00 597.39 Tm
+(4. Design System Tokens & Brand Standardization) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+1 w
+40.00 593.39 m
+555.28 593.39 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+0.886 0.902 0.922 RG
+1 w
+40.00 505.39 251.64 78.00 re
+B
+Q
+q
+0.110 0.204 0.333 rg
+40.00 580.39 251.64 3.00 re
+f
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 9 Tf
+1 0 0 1 50.00 569.39 Tm
+(Typography System) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 50.00 555.39 Tm
+(Headings & Numbers:) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 145.00 555.39 Tm
+(Montserrat \(Weights 500, 600, 700, 800\)) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 50.00 541.39 Tm
+(Body, Labels & UI:) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 145.00 541.39 Tm
+(Segoe UI \(Regular, Semibold, Bold\)) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 50.00 527.39 Tm
+(Public Brand Name:) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 145.00 527.39 Tm
+(Shloka Yatra \(Standardized across all pages\)) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 50.00 513.39 Tm
+(Media Restriction:) Tj
+ET
+Q
+q
+0.851 0.643 0.255 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 145.00 513.39 Tm
+(Zero videos, 100% authentic curated imagery) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+0.886 0.902 0.922 RG
+1 w
+303.64 505.39 251.64 78.00 re
+B
+Q
+q
+0.851 0.643 0.255 rg
+303.64 580.39 251.64 3.00 re
+f
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 9 Tf
+1 0 0 1 313.64 569.39 Tm
+(Approved Color Palette Tokens) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+0.549 0.608 0.667 RG
+0.5 w
+313.64 551.39 10.00 10.00 re
+B
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 329.64 553.39 Tm
+(Primary Navy \(#101D35\)) Tj
+ET
+Q
+q
+0.110 0.204 0.333 rg
+0.549 0.608 0.667 RG
+0.5 w
+313.64 537.39 10.00 10.00 re
+B
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 329.64 539.39 Tm
+(Secondary Navy \(#1C3455\)) Tj
+ET
+Q
+q
+0.851 0.643 0.255 rg
+0.549 0.608 0.667 RG
+0.5 w
+313.64 523.39 10.00 10.00 re
+B
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 329.64 525.39 Tm
+(Sacred Gold \(#D9A441\)) Tj
+ET
+Q
+q
+0.969 0.965 0.949 rg
+0.549 0.608 0.667 RG
+0.5 w
+313.64 509.39 10.00 10.00 re
+B
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 329.64 511.39 Tm
+(Page Ivory \(#F7F6F2\)) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 11 Tf
+1 0 0 1 40.00 487.39 Tm
+(5. Production Verification & Deployment Topology) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+1 w
+40.00 483.39 m
+555.28 483.39 l
+S
+Q
+q
+0.063 0.114 0.208 rg
+40.00 455.39 515.28 18.00 re
+f
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 46.00 461.14 Tm
+(Architecture Layer) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 171.00 461.14 Tm
+(Platform) Tj
+ET
+Q
+q
+1.000 1.000 1.000 rg
+BT
+/F2 8 Tf
+1 0 0 1 286.00 461.14 Tm
+(Technical Guarantees & Implementation) Tj
+ET
+Q
+q
+0.063 0.114 0.208 RG
+0.75 w
+40.00 455.39 m
+555.28 455.39 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 437.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 443.39 Tm
+(Frontend Distribution) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 171.00 443.39 Tm
+(Netlify Edge CDN) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 286.00 443.39 Tm
+(Direct drag-and-drop Netlify Drop bundle with _redirects & 404.html) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 437.89 m
+555.28 437.89 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 420.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 425.89 Tm
+(Backend API Service) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 171.00 425.89 Tm
+(Container / Node VPS) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 286.00 425.89 Tm
+(Express API service with health endpoints, CORS isolation, & JWT) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 420.39 m
+555.28 420.39 l
+S
+Q
+q
+1.000 1.000 1.000 rg
+40.00 402.89 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 408.39 Tm
+(Automated Quality Audit) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 171.00 408.39 Tm
+(Node Test Runner) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 286.00 408.39 Tm
+(18-gate automated test suite \(ui_and_brand_audit.test.js\) passing 100%) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 402.89 m
+555.28 402.89 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 385.39 515.28 17.50 re
+f
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F2 8.5 Tf
+1 0 0 1 46.00 390.89 Tm
+(Production Asset Footprint) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 171.00 390.89 Tm
+(Vite Optimized Bundle) Tj
+ET
+Q
+q
+0.125 0.165 0.212 rg
+BT
+/F1 8.5 Tf
+1 0 0 1 286.00 390.89 Tm
+(HTML \(1.14 kB\), CSS \(7.80 kB gzip\), JavaScript \(211.98 kB gzip\)) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+0.75 w
+40.00 385.39 m
+555.28 385.39 l
+S
+Q
+q
+0.969 0.965 0.949 rg
+40.00 339.39 515.28 32.00 re
+f
+Q
+q
+0.851 0.643 0.255 rg
+40.00 339.39 4.00 32.00 re
+f
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 8 Tf
+1 0 0 1 52.00 361.39 Tm
+(Official Package Codification Standard:) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 52.00 351.39 Tm
+(All travel itineraries are standardized as Package 1 \(Classic Overland Bus via Kerung, 14D\), Package 2 \(Fly to Lhasa, Continue by Road,) Tj
+ET
+Q
+q
+0.369 0.420 0.478 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 52.00 342.39 Tm
+(10D/15D\), and Package 3 \(VIP Twin Flights to Ali/Pulan, 9D/11D\) across search widgets, comparison tables, and booking agreements.) Tj
+ET
+Q
+q
+0.886 0.902 0.922 RG
+1 w
+40.00 38.00 m
+555.28 38.00 l
+S
+Q
+q
+0.549 0.608 0.667 rg
+BT
+/F1 7.5 Tf
+1 0 0 1 40.00 26.00 Tm
+(Shloka Yatra Private Limited — Registered Office: Sector 104, Noida, UP 201304, India) Tj
+ET
+Q
+q
+0.063 0.114 0.208 rg
+BT
+/F2 7.5 Tf
+1 0 0 1 510.28 26.00 Tm
+(Page 2 of 2) Tj
+ET
+Q
+
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 8 0 R >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000019 00000 n 
+0000000068 00000 n 
+0000000131 00000 n 
+0000000233 00000 n 
+0000000338 00000 n 
+0000000433 00000 n 
+0000010021 00000 n 
+0000010183 00000 n 
+0000020683 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+20845
+%%EOF

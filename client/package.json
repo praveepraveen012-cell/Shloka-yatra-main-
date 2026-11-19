@@ -1,0 +1,29 @@
+{
+  "name": "shlloka-yatra-client",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node -e \"const fs = require('fs'); fs.copyFileSync('dist/index.html', 'dist/404.html')\"",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.1",
+    "axios": "^1.7.9",
+    "framer-motion": "^11.15.0",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2",
+    "react-router-dom": "^6.28.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.6.2",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^3.4.19",
+    "vite": "^6.0.7"
+  }
+}

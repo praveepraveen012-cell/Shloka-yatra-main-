@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, ::before, ::after {
+    box-sizing: border-box;
+  }
+
+  :root {
+    --heading: "Montserrat", sans-serif;
+    --sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --color-navy: #101D35;
+    --color-royal: #1C3455;
+    --color-gold: #D9A441;
+    --color-ivory: #F7F6F2;
+    --color-text-dark: #202A36;
+    --color-text-muted: #5E6B7A;
+    --color-border: #E2E6EB;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--sans);
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-[#F7F6F2] text-[#202A36] antialiased;
+    font-family: var(--sans);
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--heading);
+    @apply font-semibold text-[#101D35];
+  }
+}
+
+@layer components {
+  /* Clean Tailwind utility aliases using @apply */
+  .wrap {
+    @apply w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .wrap-sm {
+    @apply w-full max-w-[1040px] mx-auto px-4 sm:px-6;
+  }
+  .wrap-full {
+    @apply w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .sec {
+    @apply w-full py-12 sm:py-16 lg:py-20 relative;
+  }
+  .sec-dark {
+    @apply bg-[#101D35] text-white;
+  }
+  .sec-dark h1,
+  .sec-dark h2,
+  .sec-dark h3,
+  .sec-dark h4 {
+    @apply text-white;
+  }
+  .sec-dark p {
+    @apply text-[#D3DDEB];
+  }
+  .sec-white {
+    @apply bg-white;
+  }
+  .sec-ivory {
+    @apply bg-[#F7F6F2];
+  }
+  .card-premium {
+    @apply bg-white rounded-xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden;
+  }
+  .card-dark {
+    @apply bg-[#152542] border border-white/10 rounded-xl text-white;
+  }
+  .eyebrow {
+    @apply inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#D9A441] mb-2 font-sans;
+  }
+  .gold-stripe {
+    @apply h-1 w-full bg-gradient-to-r from-[#D9A441] via-[#1C3455] to-[#6FA8B2];
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-sm transition-all duration-200 border cursor-pointer;
+  }
+  .btn-gold {
+    @apply bg-[#D9A441] text-[#101D35] border-[#D9A441] hover:bg-[#C89432] shadow-sm hover:shadow font-bold;
+  }
+  .btn-blue {
+    @apply bg-[#1C3455] text-white border-[#1C3455] hover:bg-[#101D35] shadow-sm;
+  }
+  .btn-outline {
+    @apply bg-transparent text-[#101D35] border-[#101D35] hover:bg-[#101D35] hover:text-white;
+  }
+  .btn-outline-white {
+    @apply bg-white/10 text-white border-white/40 hover:bg-white hover:text-[#101D35] backdrop-blur-sm;
+  }
+  .btn-sm {
+    @apply px-4 py-2 text-xs;
+  }
+  .btn-go {
+    @apply bg-[#D9A441] text-[#101D35] border-[#D9A441] hover:bg-[#C89432] font-bold;
+  }
+  .btn-out {
+    @apply bg-transparent text-[#101D35] border-slate-300 hover:border-[#101D35];
+  }
+  .badge-pill {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide;
+  }
+  .badge-gold {
+    @apply bg-amber-50 text-amber-800 border border-amber-300;
+  }
+  .badge-blue {
+    @apply bg-blue-50 text-blue-900 border border-blue-200;
+  }
+  .badge-teal {
+    @apply bg-teal-50 text-teal-800 border border-teal-200;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}

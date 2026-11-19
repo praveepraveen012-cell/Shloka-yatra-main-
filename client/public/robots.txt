@@ -1,0 +1,10 @@
+# Robots.txt for Shloka Yatra Private Limited
+# Official Domain: https://shllokayatra.com
+
+User-agent: *
+Disallow: /admin/
+Disallow: /membership/
+Disallow: /account/
+Disallow: /booking-success/
+
+Sitemap: https://shllokayatra.com/sitemap.xml
