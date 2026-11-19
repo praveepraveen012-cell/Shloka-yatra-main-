@@ -35,10 +35,11 @@ jobs:
       - name: Build Client for GitHub Pages
         run: |
           cd client
-          export BASE_PATH="/shlloka-yatra/"
+          export BASE_PATH="/Shloka-yatra-main-/"
           npm run build
-          # Enable direct client-side routing on GitHub Pages
+          # Enable direct client-side routing on GitHub Pages and bypass Jekyll
           cp dist/index.html dist/404.html
+          touch dist/.nojekyll
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
