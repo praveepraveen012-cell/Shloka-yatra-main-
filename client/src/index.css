@@ -34,9 +34,13 @@
     position: relative;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--heading);
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--heading) !important;
     @apply font-semibold text-[#101D35];
+  }
+
+  .font-body, .font-sans {
+    font-family: var(--sans) !important;
   }
 }
 

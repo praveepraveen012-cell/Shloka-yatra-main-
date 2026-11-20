@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
             {/* 1. Summary Cards Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {/* Card 1: Total Bookings */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-[#2F6FED] rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
                 <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
                   <span>Total Bookings</span>
                   <Calendar size={18} className="text-[#2F6FED]" />
@@ -91,19 +91,19 @@ export default function AdminDashboardPage() {
                   {stats.totalBookings || 0}
                 </div>
                 <div className="mt-2 text-xs text-[#8CA8CC] flex items-center gap-2">
-                  <span className="text-amber-400">{stats.newBookings || 0} New</span>
+                  <span className="text-amber-400 font-semibold">{stats.newBookings || 0} New</span>
                   <span>•</span>
-                  <span className="text-emerald-400">{stats.confirmedBookings || 0} Confirmed</span>
+                  <span className="text-emerald-400 font-semibold">{stats.confirmedBookings || 0} Confirmed</span>
                 </div>
               </div>
 
               {/* Card 2: Registered Devotees */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
-                <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-[#D9A441] rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#D9A441] uppercase tracking-wider mb-2">
                   <span>Registered Devotees</span>
                   <Users size={18} className="text-[#D9A441]" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-heading font-bold text-white">
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-[#D9A441]">
                   {stats.totalRegisteredDevotees || 0}
                 </div>
                 <div className="mt-2 text-xs text-[#8CA8CC]">
@@ -112,35 +112,35 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Card 3: Confirmed Bookings */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-emerald-400 rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
                 <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
                   <span>Confirmed Bookings</span>
                   <CheckCircle size={18} className="text-emerald-400" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-heading font-bold text-white">
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-emerald-400">
                   {stats.confirmedBookings || 0}
                 </div>
-                <div className="mt-2 text-xs text-emerald-400">
+                <div className="mt-2 text-xs text-emerald-400 font-medium">
                   Deposit or full payment secured
                 </div>
               </div>
 
               {/* Card 4: Pending Bookings */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-amber-400 rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
                 <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
                   <span>Pending Bookings</span>
                   <Clock size={18} className="text-amber-400" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-heading font-bold text-white">
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-amber-300">
                   {stats.pendingBookings || 0}
                 </div>
-                <div className="mt-2 text-xs text-amber-300">
+                <div className="mt-2 text-xs text-amber-300 font-medium">
                   Awaiting payment / verification
                 </div>
               </div>
 
               {/* Card 5: Amount Collected */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-[#2F6FED] rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
                 <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
                   <span>Total Collected</span>
                   <CreditCard size={18} className="text-[#2F6FED]" />
@@ -154,26 +154,26 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Card 6: Pending Balance */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-amber-400 rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
                 <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
                   <span>Pending Payments</span>
                   <DollarSign size={18} className="text-amber-400" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-heading font-bold text-white">
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-amber-300">
                   ₹{(stats.pendingPaymentsAmount || 0).toLocaleString('en-IN')}
                 </div>
-                <div className="mt-2 text-xs text-amber-300">
+                <div className="mt-2 text-xs text-amber-300 font-medium">
                   Remaining receivable on active bookings
                 </div>
               </div>
 
               {/* Card 7: Refunds Processed */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-purple-400 rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
                 <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
                   <span>Refunds Processed</span>
                   <RotateCcw size={18} className="text-purple-400" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-heading font-bold text-white">
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-purple-300">
                   ₹{(stats.refundsProcessed || 0).toLocaleString('en-IN')}
                 </div>
                 <div className="mt-2 text-xs text-[#8CA8CC]">
@@ -182,12 +182,12 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Card 8: Season Seat Occupancy */}
-              <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-xl p-4 sm:p-5">
+              <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-cyan-400 rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">
                 <div className="flex items-center justify-between text-xs font-semibold text-[#8CA8CC] uppercase tracking-wider mb-2">
                   <span>Total Occupancy</span>
                   <TrendingUp size={18} className="text-cyan-400" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-heading font-bold text-white">
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-cyan-300">
                   {stats.occupancyRate || 0}%
                 </div>
                 <div className="mt-2 text-xs text-[#8CA8CC]">

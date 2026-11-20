@@ -16,9 +16,18 @@ router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({
+    let user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
+
+    if (!user) {
+      const altEmail = email.toLowerCase().includes('@shlloka.com')
+        ? email.toLowerCase().replace('@shlloka.com', '@shloka.com')
+        : email.toLowerCase().replace('@shloka.com', '@shlloka.com');
+      user = await prisma.user.findUnique({
+        where: { email: altEmail },
+      });
+    }
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password credentials.' });

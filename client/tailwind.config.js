@@ -22,6 +22,7 @@ export default {
         heading: ['Montserrat', 'sans-serif'],
         serif: ['Montserrat', 'sans-serif'],
         sans: ["'Segoe UI'", 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+        body: ["'Segoe UI'", 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
       },
       maxWidth: {
         'site': '1440px',

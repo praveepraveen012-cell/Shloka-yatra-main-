@@ -25,9 +25,24 @@ export default function AdminLayout({ children, title, subtitle }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('shlloka_admin_user');
+      if (stored) {
+        setUser(JSON.parse(stored));
+      } else {
+        api.getAdminProfile().then((res) => {
+          if (res?.user) setUser(res.user);
+        }).catch(() => {});
+      }
+    } catch (e) {}
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('shlloka_admin_token');
+    localStorage.removeItem('shlloka_admin_user');
     navigate('/admin/login');
   };
 
@@ -70,14 +85,16 @@ export default function AdminLayout({ children, title, subtitle }) {
             <Link
               to="/admin/dashboard"
               onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-2.5 text-white"
+              className="flex items-center gap-3 text-white group"
             >
-              <span className="text-2xl text-[#2F6FED]">ॐ</span>
+              <div className="w-10 h-10 rounded-xl bg-[#D9A441]/15 border border-[#D9A441]/40 flex items-center justify-center text-[#D9A441] text-xl font-bold shadow-md shadow-[#D9A441]/10 group-hover:border-[#D9A441] transition-colors">
+                ॐ
+              </div>
               <div>
                 <b className="block text-sm tracking-widest font-heading text-white">
                   SHLOKA ADMIN
                 </b>
-                <small className="text-[10px] text-[#8CA8CC] tracking-wider block">
+                <small className="text-[10px] text-[#D9A441] tracking-wider block font-semibold">
                   PILGRIMAGE COMMAND
                 </small>
               </div>
@@ -103,13 +120,13 @@ export default function AdminLayout({ children, title, subtitle }) {
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-[#2F6FED]/25 text-white border border-[#2F6FED] font-semibold'
-                      : 'text-[#D9E2EF] hover:bg-white/5 border border-transparent'
+                      ? 'bg-gradient-to-r from-[#D9A441]/20 to-[#2F6FED]/20 text-[#D9A441] border border-[#D9A441]/40 font-semibold shadow-sm'
+                      : 'text-[#D3DDEB] hover:bg-white/5 border border-transparent hover:text-white'
                   }`}
                 >
-                  <Icon size={16} className={isActive ? 'text-[#2F6FED]' : 'text-[#8CA8CC]'} />
+                  <Icon size={16} className={isActive ? 'text-[#D9A441]' : 'text-[#8CA8CC]'} />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -164,10 +181,19 @@ export default function AdminLayout({ children, title, subtitle }) {
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2F6FED]/20 text-white text-[11px] sm:text-xs border border-[#2F6FED]">
-              <Shield size={12} className="text-[#2F6FED]" />
-              <span className="hidden sm:inline">Admin Session Active</span>
-              <span className="sm:hidden">Active</span>
+            <Link
+              to="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold border border-white/10 transition-colors"
+            >
+              <ExternalLink size={13} />
+              <span>Public Portal</span>
+            </Link>
+
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#D9A441]/15 text-[#D9A441] text-xs font-bold border border-[#D9A441]/35 shadow-sm">
+              <Shield size={13} className="text-[#D9A441]" />
+              <span>{user?.role ? user.role.replace('_', ' ') : 'SUPER ADMIN'}</span>
             </span>
           </div>
         </header>

@@ -38,7 +38,17 @@ async function main() {
     data: {
       email: 'admin@shlloka.com',
       passwordHash: superAdminHash,
-      name: 'Shlloka Super Admin',
+      name: 'Shloka Super Admin',
+      phone: '+91 6366852888',
+      role: 'SUPER_ADMIN',
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      email: 'admin@shloka.com',
+      passwordHash: superAdminHash,
+      name: 'Shloka Super Admin',
       phone: '+91 6366852888',
       role: 'SUPER_ADMIN',
     },
