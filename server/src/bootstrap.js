@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import prisma from './prisma.js';
 
 export const ADMIN_INITIAL_EMAIL = 'admin@shloka.com';
-export const ADMIN_TEMPORARY_PASSWORD = 'Shloka#2027$AdminKailash!Secure';
+export const ADMIN_TEMPORARY_PASSWORD = 'ShlokaAdmin@2027';
 
 export async function bootstrapAdmin() {
   try {
@@ -23,6 +23,7 @@ export async function bootstrapAdmin() {
           mustChangePassword: true,
         },
       });
+      console.log('✅ Master Admin account bootstrapped: admin@shloka.com');
     } else {
       await prisma.user.update({
         where: { id: primaryAdmin.id },

@@ -362,7 +362,7 @@ export const api = {
 
       const isAdmin =
         (inputEmail === 'admin' || inputEmail === 'admin@shloka.com' || inputEmail === 'admin@shlloka.com') &&
-        (inputPass === 'Shloka#Admin2027$Pass!' || inputPass === 'ShllokaAdmin@2027');
+        (inputPass === 'ShlokaAdmin@2027' || inputPass === 'ShllokaAdmin@2027');
 
       if (isAdmin) {
         const mockUser = {

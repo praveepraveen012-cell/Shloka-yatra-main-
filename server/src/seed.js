@@ -28,7 +28,7 @@ async function main() {
   await prisma.user.deleteMany();
 
   // 1. Seed RBAC Users
-  const adminHash = await bcrypt.hash('Shloka#2027$AdminKailash!Secure', 10);
+  const adminHash = await bcrypt.hash('ShlokaAdmin@2027', 10);
   const memberHash = await bcrypt.hash('Devotee@2027', 10);
 
   const admin = await prisma.user.create({

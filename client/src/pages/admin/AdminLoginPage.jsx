@@ -145,8 +145,8 @@ export default function AdminLoginPage() {
                 <label className="block text-xs font-semibold text-[#D3DDEB] uppercase tracking-wider mb-2 font-body">
                   Admin Email / Username
                 </label>
-                <div className="relative group">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#041021] border border-white/5 flex items-center justify-center text-[#8CA8CC] group-focus-within:text-[#D9A441] group-focus-within:border-[#D9A441]/40 transition-colors">
+                <div className="relative group flex items-center">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#041021] border border-white/5 flex items-center justify-center text-[#8CA8CC] group-focus-within:text-[#D9A441] group-focus-within:border-[#D9A441]/40 transition-colors pointer-events-none z-10">
                     <Mail size={16} />
                   </div>
                   <input
@@ -156,7 +156,8 @@ export default function AdminLoginPage() {
                     placeholder="Enter admin email or username"
                     required
                     autoComplete="username"
-                    className="w-full bg-[#041021]/80 border border-[#D9E2EF]/20 focus:border-[#D9A441] focus:ring-2 focus:ring-[#D9A441]/20 text-white rounded-xl pl-13 pr-4 py-3.5 text-sm placeholder:text-[#8CA8CC]/50 transition-all outline-none font-body shadow-inner"
+                    style={{ paddingLeft: '56px', paddingRight: '16px' }}
+                    className="w-full bg-[#041021]/80 border border-[#D9E2EF]/20 focus:border-[#D9A441] focus:ring-2 focus:ring-[#D9A441]/20 text-white rounded-xl py-3.5 text-sm placeholder:text-[#8CA8CC]/60 transition-all outline-none font-body shadow-inner box-border"
                   />
                 </div>
               </div>
@@ -166,8 +167,8 @@ export default function AdminLoginPage() {
                 <label className="block text-xs font-semibold text-[#D3DDEB] uppercase tracking-wider mb-2 font-body">
                   Password
                 </label>
-                <div className="relative group">
-                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#041021] border border-white/5 flex items-center justify-center text-[#8CA8CC] group-focus-within:text-[#D9A441] group-focus-within:border-[#D9A441]/40 transition-colors">
+                <div className="relative group flex items-center">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#041021] border border-white/5 flex items-center justify-center text-[#8CA8CC] group-focus-within:text-[#D9A441] group-focus-within:border-[#D9A441]/40 transition-colors pointer-events-none z-10">
                     <LockKeyhole size={16} />
                   </div>
                   <input
@@ -177,12 +178,13 @@ export default function AdminLoginPage() {
                     placeholder="Enter admin password"
                     required
                     autoComplete="current-password"
-                    className="w-full bg-[#041021]/80 border border-[#D9E2EF]/20 focus:border-[#D9A441] focus:ring-2 focus:ring-[#D9A441]/20 text-white rounded-xl pl-13 pr-12 py-3.5 text-sm placeholder:text-[#8CA8CC]/50 transition-all outline-none font-body shadow-inner"
+                    style={{ paddingLeft: '56px', paddingRight: '48px' }}
+                    className="w-full bg-[#041021]/80 border border-[#D9E2EF]/20 focus:border-[#D9A441] focus:ring-2 focus:ring-[#D9A441]/20 text-white rounded-xl py-3.5 text-sm placeholder:text-[#8CA8CC]/60 transition-all outline-none font-body shadow-inner box-border"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8CA8CC] hover:text-[#D9A441] transition-colors p-1.5 rounded-lg hover:bg-white/5 cursor-pointer"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8CA8CC] hover:text-[#D9A441] transition-colors p-1.5 rounded-lg hover:bg-white/5 cursor-pointer z-10"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
