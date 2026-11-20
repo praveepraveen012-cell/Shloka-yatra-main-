@@ -14,6 +14,7 @@ import adminRoutes from './routes/admin.routes.js';
 import membershipRoutes from './routes/membership.routes.js';
 import legalRoutes from './routes/legal.routes.js';
 import galleryRoutes from './routes/gallery.routes.js';
+import { bootstrapAdmin } from './bootstrap.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -85,10 +86,12 @@ app.use(errorHandler);
 
 const isDirectRun = process.argv[1] && (process.argv[1].endsWith('index.js') || process.argv[1].endsWith('src\\index.js') || process.argv[1].endsWith('src/index.js'));
 if (isDirectRun && process.env.NODE_ENV !== 'test' && !process.env.npm_lifecycle_event?.includes('test')) {
-  app.listen(PORT, () => {
-    console.log(`Shloka Yatra Unified Web & API Server listening on port ${PORT}`);
-    console.log(`Public Website: http://localhost:${PORT}`);
-    console.log(`Health endpoint: http://localhost:${PORT}/api/health`);
+  bootstrapAdmin().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Shloka Yatra Unified Web & API Server listening on port ${PORT}`);
+      console.log(`Public Website: http://localhost:${PORT}`);
+      console.log(`Health endpoint: http://localhost:${PORT}/api/health`);
+    });
   });
 }
 

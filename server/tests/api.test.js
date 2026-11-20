@@ -81,8 +81,8 @@ describe('Shlloka Yatra 2027 Full Stack API & Business Logic Test Suite', () => 
     const res = await request(app)
       .post('/api/auth/login')
       .send({
-        email: 'admin@shlloka.com',
-        password: 'ShllokaAdmin@2027',
+        email: 'admin@shloka.com',
+        password: 'Shloka#2027$AdminKailash!Secure',
       });
 
     assert.strictEqual(res.status, 200);

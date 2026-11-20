@@ -56,6 +56,7 @@ import AdminPricingPage from './pages/admin/AdminPricingPage';
 import AdminAuditLogsPage from './pages/admin/AdminAuditLogsPage';
 import AdminDocumentsPage from './pages/admin/AdminDocumentsPage';
 import AdminRefundsPage from './pages/admin/AdminRefundsPage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
 function PublicLayout() {
   return (
@@ -208,6 +209,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <AdminUsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute>
+            <AdminSettingsPage />
           </ProtectedRoute>
         }
       />

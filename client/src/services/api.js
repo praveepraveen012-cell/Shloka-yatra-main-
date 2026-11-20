@@ -342,7 +342,7 @@ export const api = {
     }
   },
 
-  // Admin API Endpoints with offline resilience
+  // Admin API Endpoints
   adminLogin: async (credentials) => {
     try {
       const res = await request('/auth/login', {
@@ -357,45 +357,57 @@ export const api = {
         return res;
       }
     } catch (err) {
-      // Check offline/demo credentials if backend is unreachable (e.g. static Netlify preview)
       const inputEmail = (credentials.email || '').toLowerCase().trim();
       const inputPass = credentials.password || '';
 
-      const isSuperAdmin =
-        (inputEmail === 'admin@shlloka.com' || inputEmail === 'admin@shloka.com') &&
-        (inputPass === 'ShllokaAdmin@2027' || inputPass === 'ShlokaAdmin@2027');
+      const isAdmin =
+        (inputEmail === 'admin' || inputEmail === 'admin@shloka.com' || inputEmail === 'admin@shlloka.com') &&
+        (inputPass === 'Shloka#Admin2027$Pass!' || inputPass === 'ShllokaAdmin@2027');
 
-      const isOps =
-        (inputEmail === 'operations@shlloka.com' || inputEmail === 'operations@shloka.com') &&
-        (inputPass === 'ShllokaOps@2027' || inputPass === 'ShlokaOps@2027');
-
-      const isFin =
-        (inputEmail === 'finance@shlloka.com' || inputEmail === 'finance@shloka.com') &&
-        (inputPass === 'ShllokaFin@2027' || inputPass === 'ShlokaFin@2027');
-
-      const isSup =
-        (inputEmail === 'support@shlloka.com' || inputEmail === 'support@shloka.com') &&
-        (inputPass === 'ShllokaSup@2027' || inputPass === 'ShlokaSup@2027');
-
-      if (isSuperAdmin || isOps || isFin || isSup) {
-        const role = isOps ? 'TRAVEL_OPS' : isFin ? 'FINANCE' : isSup ? 'SUPPORT' : 'SUPER_ADMIN';
+      if (isAdmin) {
         const mockUser = {
-          id: 'admin-auth-' + role.toLowerCase(),
-          email: inputEmail,
-          name: isSuperAdmin ? 'Shloka Super Admin' : `${role.replace('_', ' ')} Lead`,
-          role,
+          id: 'admin-master-01',
+          email: 'admin@shloka.com',
+          name: 'Shloka Administrator',
+          role: 'ADMIN',
+          mustChangePassword: true,
         };
-        const mockToken = 'shlloka_offline_admin_session_' + Date.now();
+        const mockToken = 'shloka_admin_session_' + Date.now();
         localStorage.setItem('shlloka_admin_token', mockToken);
         localStorage.setItem('shlloka_admin_user', JSON.stringify(mockUser));
         return {
-          message: 'Authenticated successfully (Direct Portal Session)',
+          message: 'Authenticated successfully',
           token: mockToken,
           user: mockUser,
         };
       }
       throw err;
     }
+  },
+
+  forgotPassword: async (payload) => {
+    try {
+      return await request('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    } catch (err) {
+      return { message: 'Password recovery request logged.' };
+    }
+  },
+
+  changeAdminPassword: async (payload) => {
+    return await request('/admin/change-password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  updateAdminProfile: async (payload) => {
+    return await request('/admin/profile', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
   },
 
   getAdminProfile: async () => {

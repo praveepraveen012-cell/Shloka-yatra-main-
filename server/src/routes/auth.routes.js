@@ -8,7 +8,7 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = Router();
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().min(1, 'Username or email is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -16,14 +16,17 @@ router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 
+    const input = email.trim().toLowerCase();
+    const resolvedEmail = input.includes('@') ? input : `${input}@shloka.com`;
+
     let user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+      where: { email: resolvedEmail },
     });
 
     if (!user) {
-      const altEmail = email.toLowerCase().includes('@shlloka.com')
-        ? email.toLowerCase().replace('@shlloka.com', '@shloka.com')
-        : email.toLowerCase().replace('@shloka.com', '@shlloka.com');
+      const altEmail = resolvedEmail.includes('@shlloka.com')
+        ? resolvedEmail.replace('@shlloka.com', '@shloka.com')
+        : resolvedEmail.replace('@shloka.com', '@shlloka.com');
       user = await prisma.user.findUnique({
         where: { email: altEmail },
       });
@@ -64,6 +67,7 @@ router.post('/login', async (req, res, next) => {
         email: user.email,
         name: user.name,
         role: user.role,
+        mustChangePassword: !!user.mustChangePassword,
       },
     });
   } catch (error) {
@@ -71,8 +75,63 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+router.post('/forgot-password', async (req, res, next) => {
+  try {
+    const { email } = z.object({ email: z.string().min(1) }).parse(req.body);
+    const input = email.trim().toLowerCase();
+    const resolvedEmail = input.includes('@') ? input : `${input}@shloka.com`;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: resolvedEmail },
+          { email: resolvedEmail.replace('@shlloka.com', '@shloka.com') },
+          { email: resolvedEmail.replace('@shloka.com', '@shlloka.com') },
+        ],
+      },
+    });
+
+    if (user) {
+      const resetToken = jwt.sign(
+        { userId: user.id, purpose: 'PASSWORD_RESET' },
+        process.env.JWT_SECRET || 'shlloka_yatra_jwt_secret_dev_key_2027_secure_key',
+        { expiresIn: '1h' }
+      );
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          resetPasswordToken: resetToken,
+          resetPasswordExpires: new Date(Date.now() + 3600000),
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          userEmail: user.email,
+          action: 'PASSWORD_RESET_REQUESTED',
+          entity: 'USER',
+          entityId: user.id,
+          details: JSON.stringify({ ip: req.ip }),
+        },
+      });
+    }
+
+    res.json({
+      message: 'If the administrative email exists, instructions have been logged to the secure audit trail.',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/me', authenticateToken, async (req, res) => {
-  res.json({ user: req.user });
+  const fullUser = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    select: { id: true, email: true, name: true, phone: true, role: true, mustChangePassword: true },
+  });
+  res.json({ user: fullUser || req.user });
 });
 
 export default router;

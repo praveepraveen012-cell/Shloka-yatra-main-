@@ -1475,4 +1475,101 @@ router.put('/support-tickets/:id', async (req, res, next) => {
   }
 });
 
+// 17. Admin Profile & Master Password Change
+router.post('/change-password', async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = z.object({
+      currentPassword: z.string().min(1, 'Current password is required'),
+      newPassword: z.string().min(8, 'New password must be at least 8 characters long'),
+    }).parse(req.body);
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Administrator account not found.' });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isValid) {
+      return res.status(400).json({ error: 'Current password does not match.' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: newHash,
+        mustChangePassword: false,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        userEmail: user.email,
+        action: 'ADMIN_PASSWORD_CHANGED',
+        entity: 'USER',
+        entityId: user.id,
+        details: JSON.stringify({ ip: req.ip, timestamp: new Date().toISOString() }),
+      },
+    });
+
+    res.json({
+      message: 'Password changed successfully. Your account is secured.',
+      user: {
+        id: updated.id,
+        email: updated.email,
+        name: updated.name,
+        role: updated.role,
+        mustChangePassword: false,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/profile', async (req, res, next) => {
+  try {
+    const { name, phone } = z.object({
+      name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+      phone: z.string().min(8, 'Phone must be at least 8 digits').optional(),
+    }).parse(req.body);
+
+    const updated = await prisma.user.update({
+      where: { id: req.user.id },
+      data: {
+        ...(name && { name }),
+        ...(phone && { phone }),
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        action: 'ADMIN_PROFILE_UPDATED',
+        entity: 'USER',
+        entityId: req.user.id,
+        details: JSON.stringify({ ip: req.ip, updatedFields: { name, phone } }),
+      },
+    });
+
+    res.json({
+      message: 'Admin profile updated successfully',
+      user: {
+        id: updated.id,
+        email: updated.email,
+        name: updated.name,
+        phone: updated.phone,
+        role: updated.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

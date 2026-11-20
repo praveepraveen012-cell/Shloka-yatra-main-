@@ -28,59 +28,28 @@ async function main() {
   await prisma.user.deleteMany();
 
   // 1. Seed RBAC Users
-  const superAdminHash = await bcrypt.hash('ShllokaAdmin@2027', 10);
-  const opsHash = await bcrypt.hash('ShllokaOps@2027', 10);
-  const finHash = await bcrypt.hash('ShllokaFin@2027', 10);
-  const supHash = await bcrypt.hash('ShllokaSup@2027', 10);
+  const adminHash = await bcrypt.hash('Shloka#2027$AdminKailash!Secure', 10);
   const memberHash = await bcrypt.hash('Devotee@2027', 10);
 
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@shlloka.com',
-      passwordHash: superAdminHash,
-      name: 'Shloka Super Admin',
+      email: 'admin@shloka.com',
+      passwordHash: adminHash,
+      name: 'Shloka Administrator',
       phone: '+91 6366852888',
-      role: 'SUPER_ADMIN',
+      role: 'ADMIN',
+      mustChangePassword: true,
     },
   });
 
   await prisma.user.create({
     data: {
-      email: 'admin@shloka.com',
-      passwordHash: superAdminHash,
-      name: 'Shloka Super Admin',
+      email: 'admin@shlloka.com',
+      passwordHash: adminHash,
+      name: 'Shloka Administrator',
       phone: '+91 6366852888',
-      role: 'SUPER_ADMIN',
-    },
-  });
-
-  const opsUser = await prisma.user.create({
-    data: {
-      email: 'operations@shlloka.com',
-      passwordHash: opsHash,
-      name: 'Travel Operations Lead',
-      phone: '+91 9810170023',
-      role: 'TRAVEL_OPS',
-    },
-  });
-
-  const finUser = await prisma.user.create({
-    data: {
-      email: 'finance@shlloka.com',
-      passwordHash: finHash,
-      name: 'Finance & Invoicing Manager',
-      phone: '+91 6366852888',
-      role: 'FINANCE',
-    },
-  });
-
-  const supUser = await prisma.user.create({
-    data: {
-      email: 'support@shlloka.com',
-      passwordHash: supHash,
-      name: 'Pilgrim Grievance Officer',
-      phone: '+91 6366852888',
-      role: 'SUPPORT',
+      role: 'ADMIN',
+      mustChangePassword: true,
     },
   });
 

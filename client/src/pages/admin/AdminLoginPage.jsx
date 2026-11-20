@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Shield,
-  Lock,
   Mail,
   ArrowRight,
   AlertCircle,
@@ -12,10 +11,9 @@ import {
   Square,
   Sparkles,
   KeyRound,
-  CheckCircle2,
   LockKeyhole,
 } from 'lucide-react';
-import api from '../../services/api';
+import { api } from '../../services/api';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -25,6 +23,9 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [forgotModal, setForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSubmitted, setForgotSubmitted] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,18 +68,17 @@ export default function AdminLoginPage() {
     }
   };
 
-  const handleQuickAutofill = (role = 'SUPER_ADMIN') => {
-    if (role === 'SUPER_ADMIN') {
-      setEmail('admin@shlloka.com');
-      setPassword('ShllokaAdmin@2027');
-    } else if (role === 'TRAVEL_OPS') {
-      setEmail('operations@shlloka.com');
-      setPassword('ShllokaOps@2027');
-    } else if (role === 'FINANCE') {
-      setEmail('finance@shlloka.com');
-      setPassword('ShllokaFin@2027');
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    try {
+      await api.forgotPassword({ email: forgotEmail });
+      setForgotSubmitted(true);
+    } catch (err) {
+      setForgotSubmitted(true);
+    } finally {
+      setForgotLoading(false);
     }
-    setError(null);
   };
 
   return (
@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
       <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#D9A441]/15 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#1C3455]/40 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Decorative Himalayan Contour Grid Lines */}
+      {/* Decorative Himalayan Grid Contour */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
@@ -123,10 +123,10 @@ export default function AdminLoginPage() {
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white tracking-wider mt-1">
-                Admin Command Portal
+                Shloka Yatra 2027 – Admin Portal
               </h1>
               <p className="text-[#8CA8CC] text-xs sm:text-sm mt-1.5 font-body leading-relaxed max-w-sm mx-auto">
-                Authorized authentication for Shloka Yatra pilgrimage leadership, operations & advisors
+                Secure administrative access to manage Shloka Yatra bookings, payments, customers and pilgrimage operations.
               </p>
             </div>
 
@@ -140,7 +140,7 @@ export default function AdminLoginPage() {
 
             {/* Login Form */}
             <form onSubmit={handleLogin} className="space-y-5">
-              {/* Email Input Field */}
+              {/* Email / Username Input Field */}
               <div>
                 <label className="block text-xs font-semibold text-[#D3DDEB] uppercase tracking-wider mb-2 font-body">
                   Admin Email / Username
@@ -150,12 +150,12 @@ export default function AdminLoginPage() {
                     <Mail size={16} />
                   </div>
                   <input
-                    type="email"
+                    type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@shlloka.com"
+                    placeholder="Enter admin email or username"
                     required
-                    autoComplete="email"
+                    autoComplete="username"
                     className="w-full bg-[#041021]/80 border border-[#D9E2EF]/20 focus:border-[#D9A441] focus:ring-2 focus:ring-[#D9A441]/20 text-white rounded-xl pl-13 pr-4 py-3.5 text-sm placeholder:text-[#8CA8CC]/50 transition-all outline-none font-body shadow-inner"
                   />
                 </div>
@@ -164,7 +164,7 @@ export default function AdminLoginPage() {
               {/* Password Input Field with Toggle */}
               <div>
                 <label className="block text-xs font-semibold text-[#D3DDEB] uppercase tracking-wider mb-2 font-body">
-                  Secure Password
+                  Password
                 </label>
                 <div className="relative group">
                   <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#041021] border border-white/5 flex items-center justify-center text-[#8CA8CC] group-focus-within:text-[#D9A441] group-focus-within:border-[#D9A441]/40 transition-colors">
@@ -174,7 +174,7 @@ export default function AdminLoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    placeholder="Enter admin password"
                     required
                     autoComplete="current-password"
                     className="w-full bg-[#041021]/80 border border-[#D9E2EF]/20 focus:border-[#D9A441] focus:ring-2 focus:ring-[#D9A441]/20 text-white rounded-xl pl-13 pr-12 py-3.5 text-sm placeholder:text-[#8CA8CC]/50 transition-all outline-none font-body shadow-inner"
@@ -204,19 +204,22 @@ export default function AdminLoginPage() {
                   ) : (
                     <Square size={16} className="text-[#8CA8CC]" />
                   )}
-                  <span className="font-medium">Remember on this device</span>
+                  <span className="font-medium">Remember Me</span>
                 </label>
 
                 <button
                   type="button"
-                  onClick={() => setForgotModal(true)}
+                  onClick={() => {
+                    setForgotSubmitted(false);
+                    setForgotModal(true);
+                  }}
                   className="text-[#D9A441] hover:text-amber-300 font-semibold transition-colors cursor-pointer"
                 >
                   Forgot password?
                 </button>
               </div>
 
-              {/* Advanced Submit CTA with Gradient Hover */}
+              {/* Submit CTA */}
               <button
                 type="submit"
                 disabled={loading}
@@ -225,56 +228,19 @@ export default function AdminLoginPage() {
                 {loading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-[#071322] border-t-transparent rounded-full animate-spin" />
-                    <span>Verifying Security Token...</span>
+                    <span>Signing In...</span>
                   </>
                 ) : (
                   <>
-                    <span>Sign In to Pilgrimage Command</span>
+                    <span>Sign In</span>
                     <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                   </>
                 )}
               </button>
             </form>
 
-            {/* Quick Demo Autofill Helper Pills */}
-            <div className="mt-7 pt-5 border-t border-white/10">
-              <div className="flex items-center justify-between text-xs text-[#8CA8CC] mb-2.5">
-                <span className="font-semibold uppercase tracking-wider text-[10px] text-[#D9A441]">
-                  Quick Demo Access:
-                </span>
-                <span className="text-[11px] text-[#8CA8CC]">Click to autofill:</span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickAutofill('SUPER_ADMIN')}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#041021] hover:bg-[#D9A441]/15 border border-[#D9A441]/30 hover:border-[#D9A441] text-[11px] text-[#D3DDEB] hover:text-white font-medium transition-all text-center truncate cursor-pointer"
-                  title="Super Admin: admin@shlloka.com / ShllokaAdmin@2027"
-                >
-                  Super Admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickAutofill('TRAVEL_OPS')}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#041021] hover:bg-[#2F6FED]/20 border border-white/10 hover:border-[#2F6FED] text-[11px] text-[#D3DDEB] hover:text-white font-medium transition-all text-center truncate cursor-pointer"
-                  title="Travel Ops: operations@shlloka.com / ShllokaOps@2027"
-                >
-                  Travel Ops
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickAutofill('FINANCE')}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#041021] hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-400 text-[11px] text-[#D3DDEB] hover:text-white font-medium transition-all text-center truncate cursor-pointer"
-                  title="Finance: finance@shlloka.com / ShllokaFin@2027"
-                >
-                  Finance
-                </button>
-              </div>
-            </div>
-
-            {/* Footer Return Link */}
-            <div className="mt-6 pt-4 border-t border-white/5 text-center">
+            {/* Return to Public Portal */}
+            <div className="mt-8 pt-5 border-t border-white/10 text-center">
               <Link
                 to="/"
                 className="text-xs text-[#8CA8CC] hover:text-[#D9A441] transition-colors inline-flex items-center gap-1.5 font-medium"
@@ -285,7 +251,7 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        {/* Security & Regulatory Strip below Card */}
+        {/* Security Strip */}
         <div className="mt-6 text-center text-[11px] text-[#8CA8CC] flex flex-wrap items-center justify-center gap-4">
           <span className="flex items-center gap-1.5">
             <Shield size={13} className="text-[#D9A441]" />
@@ -305,21 +271,49 @@ export default function AdminLoginPage() {
             <div className="w-14 h-14 rounded-2xl bg-[#D9A441]/15 border border-[#D9A441] flex items-center justify-center mx-auto mb-4 text-[#D9A441] shadow-lg shadow-[#D9A441]/20">
               <KeyRound size={26} />
             </div>
-            <h3 className="text-xl font-bold font-heading text-white mb-2">Administrative Reset</h3>
-            <p className="text-xs text-[#D3DDEB] leading-relaxed mb-6 font-body">
-              For operational security, administrative credentials cannot be reset through public email self-service.
-              Please contact the Super Administrator directly:
-              <br />
-              <strong className="text-[#D9A441] text-sm mt-3 block font-mono">
-                admin@shlloka.com
-              </strong>
-            </p>
-            <button
-              onClick={() => setForgotModal(false)}
-              className="w-full py-3 px-4 bg-gradient-to-r from-[#D9A441] to-[#C99331] text-[#071322] rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-95 transition-opacity cursor-pointer font-heading"
-            >
-              Close Window
-            </button>
+            <h3 className="text-xl font-bold font-heading text-white mb-2">Reset Password</h3>
+
+            {forgotSubmitted ? (
+              <div className="space-y-4">
+                <p className="text-xs text-emerald-300 leading-relaxed font-body">
+                  If this email is registered as an administrator, password recovery instructions have been initiated.
+                </p>
+                <button
+                  onClick={() => setForgotModal(false)}
+                  className="w-full py-3 px-4 bg-[#D9A441] text-[#071322] rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-95 transition-opacity cursor-pointer font-heading"
+                >
+                  Close Window
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <p className="text-xs text-[#D3DDEB] leading-relaxed font-body">
+                  Enter your registered administrator email to receive secure recovery instructions.
+                </p>
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="admin@shloka.com"
+                  required
+                  className="w-full bg-[#041021] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:border-[#D9A441] outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  className="w-full py-3 px-4 bg-gradient-to-r from-[#D9A441] to-[#C99331] text-[#071322] rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-95 transition-opacity cursor-pointer font-heading"
+                >
+                  {forgotLoading ? 'Submitting...' : 'Send Recovery Request'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForgotModal(false)}
+                  className="block w-full text-center text-xs text-[#8CA8CC] hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
