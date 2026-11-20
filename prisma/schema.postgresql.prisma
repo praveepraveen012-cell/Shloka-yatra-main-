@@ -109,6 +109,8 @@ model Booking {
   refunds              Refund[]
   uploadedDocuments    UploadedDocument[]
   consentRecords       ConsentRecord[]
+  whatsAppMessages     WhatsAppMessage[]
+  bookingNotes         BookingNote[]
 }
 
 model Traveller {
@@ -145,12 +147,16 @@ model Payment {
   bookingId       String
   booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   transactionId   String   @unique
-  paymentMethod   String   @default("MOCK_GATEWAY")
+  paymentMethod   String   @default("MOCK_GATEWAY") // MOCK_GATEWAY, RAZORPAY, UPI, CARD, NET_BANKING, CASH, BANK_TRANSFER, OFFLINE
+  paymentMode     String?  // UPI, CREDIT_CARD, DEBIT_CARD, NET_BANKING, BANK_TRANSFER, CASH
   installmentType String   @default("REGISTRATION") // REGISTRATION, FIRST_INSTALLMENT, FINAL_BALANCE, FULL
   receiptNumber   String?  @unique
+  referenceNumber String?
+  recordedBy      String?
+  adminNotes      String?
   amount          Int
   currency        String   @default("INR")
-  status          String   @default("SUCCESS") // SUCCESS, PENDING, FAILED
+  status          String   @default("SUCCESS") // SUCCESS, PENDING, FAILED, REFUNDED
   gatewayResponse String? // JSON metadata
   webhookVerified Boolean  @default(false)
   createdAt       DateTime @default(now())
@@ -321,4 +327,28 @@ model Member {
   status              String   @default("ACTIVE") // ACTIVE, PENDING, SUSPENDED
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+}
+
+model WhatsAppMessage {
+  id             String   @id @default(uuid())
+  bookingId      String?
+  booking        Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  recipientPhone String
+  recipientName  String
+  templateKey    String?
+  messageContent String
+  sentBy         String?   // Admin email or username
+  providerMsgId  String?
+  status         String   @default("SENT") // SENT, CLICK_TO_CHAT, FAILED, DELIVERED
+  createdAt      DateTime @default(now())
+}
+
+model BookingNote {
+  id          String   @id @default(uuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorEmail String
+  authorName  String?
+  content     String
+  createdAt   DateTime @default(now())
 }

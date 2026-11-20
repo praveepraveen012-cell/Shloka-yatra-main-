@@ -21,7 +21,7 @@ describe('Shlloka Yatra 2027 Full Stack API & Business Logic Test Suite', () => 
     const res = await request(app).get('/api/health');
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.status, 'ok');
-    assert.strictEqual(res.body.service, 'Shlloka Yatra Backend API');
+    assert.strictEqual(res.body.service, 'Shloka Yatra Backend API');
   });
 
   // TEST 2: Departures and Batches
@@ -163,7 +163,7 @@ describe('Shlloka Yatra 2027 Full Stack API & Business Logic Test Suite', () => 
 
     const res = await request(app).post('/api/bookings').send(bookingPayload);
     assert.strictEqual(res.status, 201);
-    assert.ok(res.body.booking.bookingReference.startsWith('SKY-2027-'));
+    assert.ok(res.body.booking.bookingReference.startsWith('SHY-2027-'));
     assert.strictEqual(res.body.booking.status, 'PENDING');
     assert.strictEqual(res.body.booking.totalTravellers, 1);
     // Base 437000 + 5% GST = 458850

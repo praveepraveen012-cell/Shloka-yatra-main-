@@ -49,10 +49,10 @@ const createBookingSchema = z.object({
     .optional(),
 });
 
-// Helper to generate unique booking reference: e.g. SKY-2027-1084
+// Helper to generate unique booking reference: e.g. SHY-2027-104829
 function generateBookingReference() {
-  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  return `SKY-2027-${randomSuffix}`;
+  const randomSuffix = Math.floor(100000 + Math.random() * 900000);
+  return `SHY-2027-${randomSuffix}`;
 }
 
 // POST create a new booking with transactional capacity check and price calculation

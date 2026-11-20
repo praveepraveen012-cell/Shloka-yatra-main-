@@ -1,436 +1,395 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Search, CheckCircle, XCircle, Clock, Eye, ShieldCheck, ChevronDown, ChevronUp, Download, Filter } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Users,
+  Search,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Eye,
+  Filter,
+  Download,
+  Calendar,
+  CreditCard,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  MessageCircle,
+} from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import api from '../../services/api';
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(15);
+  const [loading, setLoading] = useState(true);
+
+  // Filters & Search
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [paymentFilter, setPaymentFilter] = useState('ALL');
+  const [departureFilter, setDepartureFilter] = useState('ALL');
+  const [routeFilter, setRouteFilter] = useState('ALL');
+
   const [departures, setDepartures] = useState([]);
   const [routes, setRoutes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [departureFilter, setDepartureFilter] = useState('');
-  const [routeFilter, setRouteFilter] = useState('');
-  const [expandedId, setExpandedId] = useState(null);
-  const [statusMsg, setStatusMsg] = useState(null);
 
-  const loadData = async () => {
-    try {
-      const [depRes, routeRes] = await Promise.all([api.getDepartures(), api.getRoutes()]);
-      setDepartures(depRes.departures || []);
-      setRoutes(routeRes.routes || []);
-    } catch (err) {
-      console.error(err);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadMetadata() {
+      try {
+        const [depRes, routeRes] = await Promise.all([
+          api.getDepartures(),
+          api.getRoutes(),
+        ]);
+        setDepartures(depRes.departures || []);
+        setRoutes(routeRes.routes || []);
+      } catch (err) {
+        console.error('Failed to load filter metadata', err);
+      }
     }
-  };
+    loadMetadata();
+  }, []);
 
   const loadBookings = async () => {
     try {
+      setLoading(true);
       const params = new URLSearchParams();
-      if (statusFilter) params.append('status', statusFilter);
-      if (departureFilter) params.append('departureId', departureFilter);
-      if (routeFilter) params.append('routeId', routeFilter);
+      if (search.trim()) params.append('search', search.trim());
+      if (statusFilter !== 'ALL') params.append('status', statusFilter);
+      if (paymentFilter !== 'ALL') params.append('paymentStatus', paymentFilter);
+      if (departureFilter !== 'ALL') params.append('departureId', departureFilter);
+      if (routeFilter !== 'ALL') params.append('routeId', routeFilter);
+      params.append('page', String(page));
+      params.append('limit', String(limit));
 
       const res = await api.getAdminBookings(params.toString());
       setBookings(res.bookings || []);
+      setTotal(res.total || 0);
+      setTotalPages(res.totalPages || 1);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load bookings', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
     loadBookings();
-  }, [statusFilter, departureFilter, routeFilter]);
+  }, [page, statusFilter, paymentFilter, departureFilter, routeFilter]);
 
-  const handleStatusUpdate = async (id, newStatus) => {
-    try {
-      await api.updateAdminBookingStatus(id, { status: newStatus });
-      setStatusMsg(`Booking status updated to ${newStatus}`);
-      loadBookings();
-      setTimeout(() => setStatusMsg(null), 3000);
-    } catch (err) {
-      alert('Failed to update booking status: ' + err.message);
-    }
-  };
-
-  const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setPage(1);
+    loadBookings();
   };
 
   const handleExportCsv = () => {
-    if (bookings.length === 0) return alert('No booking records to export.');
-
-    const headers = [
-      'Booking Reference',
-      'Contact Name',
-      'Contact Email',
-      'Contact Phone',
-      'Departure Batch',
-      'Travel Route',
-      'Passport Type',
-      'Total Travellers',
-      'Total Amount (INR)',
-      'Status',
-      'Created At',
-      'Traveller Names',
-    ];
-
-    const rows = [
-      headers,
-      ...bookings.map((b) => [
-        b.bookingReference,
-        b.contactName,
-        b.contactEmail,
-        b.contactPhone,
-        b.departure?.name || '',
-        b.route?.name || '',
-        b.passportType,
-        b.totalTravellers,
-        b.totalAmount,
-        b.status,
-        new Date(b.createdAt).toLocaleString(),
-        (b.travellers || []).map((t) => `${t.fullName} (${t.passportNumber})`).join('; '),
-      ]),
-    ];
-
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      rows
-        .map((row) =>
-          row
-            .map((val) => {
-              const str = val === null || val === undefined ? '' : String(val);
-              return `"${str.replace(/"/g, '""')}"`;
-            })
-            .join(',')
-        )
-        .join('\n');
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `shlloka_yatra_bookings_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(api.getAdminReportCsvUrl('bookings'), '_blank');
   };
 
   return (
-    <AdminLayout title="Bookings & Yatri Manifest" subtitle="Review pilgrim reservations, traveller rosters, and manage booking statuses">
-      {statusMsg && (
-        <div style={{ background: 'rgba(47, 111, 237, 0.15)', border: '1px solid #2F6FED', color: '#FFFFFF', padding: '12px 18px', borderRadius: '10px', marginBottom: '20px' }}>
-          {statusMsg}
-        </div>
-      )}
+    <AdminLayout
+      title="Booking Management System"
+      subtitle="Search, verify, inspect financial ledgers, and manage 2027 pilgrimage bookings"
+    >
+      <div className="space-y-6 font-body">
+        {/* Top Control Bar: Search & Actions */}
+        <div className="bg-[#071B3A] p-4 sm:p-5 rounded-2xl border border-[#D9E2EF]/15 space-y-4">
+          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8CA8CC]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by Booking ID (SHY-...), Devotee Name, Phone, Email, or Yatri Name..."
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 focus:border-[#2F6FED] focus:ring-1 focus:ring-[#2F6FED] text-white rounded-xl pl-11 pr-4 py-2.5 text-sm placeholder:text-[#8CA8CC]/60 outline-none transition-colors"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-5 py-2.5 bg-[#2F6FED] hover:bg-[#2557c4] text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <span>Search Records</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <Download size={15} />
+              <span>Export CSV</span>
+            </button>
+          </form>
 
-      {/* Control Bar: Filters & CSV Export */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-          marginBottom: '24px',
-          background: '#071B3A',
-          padding: '16px 20px',
-          borderRadius: '14px',
-          border: '1px solid #102C52',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          {/* Status Filter */}
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {['', 'PENDING', 'CONFIRMED', 'CANCELLED'].map((st) => (
-              <button
-                key={st}
-                onClick={() => setStatusFilter(st)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: '999px',
-                  border: statusFilter === st ? '1px solid #2F6FED' : '1px solid #102C52',
-                  background: statusFilter === st ? '#2F6FED' : 'transparent',
-                  color: statusFilter === st ? '#FFFFFF' : '#D9E2EF',
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
+          {/* Filter Dropdowns Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-white/5 text-xs">
+            <div>
+              <label className="block text-[#8CA8CC] font-medium mb-1">Booking Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
                 }}
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg px-2.5 py-1.5 outline-none"
               >
-                {st === '' ? 'All' : st}
-              </button>
-            ))}
+                <option value="ALL">All Statuses</option>
+                <option value="PENDING">Pending</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[#8CA8CC] font-medium mb-1">Payment Status</label>
+              <select
+                value={paymentFilter}
+                onChange={(e) => {
+                  setPaymentFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg px-2.5 py-1.5 outline-none"
+              >
+                <option value="ALL">All Payments</option>
+                <option value="UNPAID">Unpaid</option>
+                <option value="PARTIALLY_PAID">Partially Paid</option>
+                <option value="PAID">Fully Paid</option>
+                <option value="REFUNDED">Refunded</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[#8CA8CC] font-medium mb-1">Departure Batch</label>
+              <select
+                value={departureFilter}
+                onChange={(e) => {
+                  setDepartureFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg px-2.5 py-1.5 outline-none truncate"
+              >
+                <option value="ALL">All Batches (2027)</option>
+                {departures.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[#8CA8CC] font-medium mb-1">Route Package</label>
+              <select
+                value={routeFilter}
+                onChange={(e) => {
+                  setRouteFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg px-2.5 py-1.5 outline-none truncate"
+              >
+                <option value="ALL">All Routes</option>
+                {routes.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count Banner */}
+        <div className="flex items-center justify-between text-xs text-[#8CA8CC] px-1">
+          <span>
+            Showing <strong className="text-white">{bookings.length}</strong> of{' '}
+            <strong className="text-white">{total}</strong> total database records
+          </span>
+          {loading && <span className="text-[#2F6FED]">Refreshing table...</span>}
+        </div>
+
+        {/* Table of Bookings */}
+        <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-2xl overflow-hidden shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-[#041329] text-[#8CA8CC] uppercase tracking-wider font-semibold border-b border-[#D9E2EF]/15">
+                  <th className="py-3.5 px-4">Booking ID</th>
+                  <th className="py-3.5 px-4">Devotee Name</th>
+                  <th className="py-3.5 px-4">Contact</th>
+                  <th className="py-3.5 px-4">Batch & Route</th>
+                  <th className="py-3.5 px-4 text-center">Yatris</th>
+                  <th className="py-3.5 px-4 text-right">Financials</th>
+                  <th className="py-3.5 px-4 text-center">Status</th>
+                  <th className="py-3.5 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {bookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-16 text-[#8CA8CC]">
+                      {loading ? (
+                        <span>Loading bookings...</span>
+                      ) : (
+                        <div className="max-w-md mx-auto">
+                          <p className="font-semibold text-white mb-1">No Bookings Found</p>
+                          <p className="text-xs">
+                            No database records match your active search or filter criteria. New bookings made on the website will appear here in real-time.
+                          </p>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ) : (
+                  bookings.map((b) => {
+                    const totalPaid = (b.payments || [])
+                      .filter((p) => p.status === 'SUCCESS')
+                      .reduce((sum, p) => sum + p.amount, 0);
+                    const balance = Math.max(0, b.totalAmount - totalPaid);
+
+                    return (
+                      <tr key={b.id} className="hover:bg-white/5 transition-colors">
+                        {/* Booking ID & Date */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <Link
+                            to={`/admin/bookings/${b.id}`}
+                            className="font-bold text-[#2F6FED] hover:underline block font-mono text-xs"
+                          >
+                            {b.bookingReference}
+                          </Link>
+                          <span className="text-[11px] text-[#8CA8CC]">
+                            {new Date(b.createdAt).toLocaleDateString()}
+                          </span>
+                        </td>
+
+                        {/* Devotee Name */}
+                        <td className="py-3.5 px-4">
+                          <div className="font-semibold text-white">{b.contactName}</div>
+                          <div className="text-[10px] text-[#8CA8CC]">
+                            Passport: {b.passportType}
+                          </div>
+                        </td>
+
+                        {/* Contact details */}
+                        <td className="py-3.5 px-4">
+                          <div className="text-white">{b.contactPhone}</div>
+                          <div className="text-[11px] text-[#8CA8CC] truncate max-w-[160px]">
+                            {b.contactEmail}
+                          </div>
+                        </td>
+
+                        {/* Batch & Route */}
+                        <td className="py-3.5 px-4 max-w-[220px]">
+                          <div className="text-white font-medium truncate">
+                            {b.departure?.name}
+                          </div>
+                          <div className="text-[11px] text-[#8CA8CC] truncate">
+                            {b.route?.name}
+                          </div>
+                        </td>
+
+                        {/* Number of Yatris */}
+                        <td className="py-3.5 px-4 text-center">
+                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/10 text-white font-bold text-xs">
+                            {b.totalTravellers}
+                          </span>
+                        </td>
+
+                        {/* Financials: Total, Paid, Balance */}
+                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                          <div className="font-bold text-white">
+                            ₹{b.totalAmount.toLocaleString('en-IN')}
+                          </div>
+                          <div className="text-[11px] text-emerald-400">
+                            Paid: ₹{totalPaid.toLocaleString('en-IN')}
+                          </div>
+                          {balance > 0 && (
+                            <div className="text-[10px] text-amber-300">
+                              Bal: ₹{balance.toLocaleString('en-IN')}
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Status Badges */}
+                        <td className="py-3.5 px-4 text-center whitespace-nowrap space-y-1">
+                          <span
+                            className={`inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                              b.status === 'CONFIRMED'
+                                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
+                                : b.status === 'CANCELLED'
+                                ? 'bg-red-500/15 border-red-500/40 text-red-400'
+                                : 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                            }`}
+                          >
+                            {b.status}
+                          </span>
+                          <div>
+                            <span
+                              className={`text-[9px] uppercase font-semibold ${
+                                b.paymentStatus === 'PAID'
+                                  ? 'text-emerald-400'
+                                  : b.paymentStatus === 'PARTIALLY_PAID'
+                                  ? 'text-cyan-400'
+                                  : 'text-amber-300'
+                              }`}
+                            >
+                              {b.paymentStatus.replace('_', ' ')}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Action Link */}
+                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                          <Link
+                            to={`/admin/bookings/${b.id}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2F6FED]/20 hover:bg-[#2F6FED]/35 text-[#2F6FED] hover:text-white border border-[#2F6FED]/40 font-semibold text-xs transition-colors"
+                          >
+                            <Eye size={13} />
+                            <span>Manage</span>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
 
-          {/* Departure Batch Dropdown */}
-          <select
-            value={departureFilter}
-            onChange={(e) => setDepartureFilter(e.target.value)}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
-              background: '#102C52',
-              border: '1px solid #2F6FED',
-              color: '#FFFFFF',
-              fontSize: '0.82rem',
-              outline: 'none',
-            }}
-          >
-            <option value="">All Batches</option>
-            {departures.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-
-          {/* Route Dropdown */}
-          <select
-            value={routeFilter}
-            onChange={(e) => setRouteFilter(e.target.value)}
-            style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
-              background: '#102C52',
-              border: '1px solid #2F6FED',
-              color: '#FFFFFF',
-              fontSize: '0.82rem',
-              outline: 'none',
-            }}
-          >
-            <option value="">All Packages</option>
-            {routes.map((r) => (
-              <option key={r.id} value={r.id}>
-                Option {r.routeNumber}: {r.name.split('—')[1] || r.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Export to CSV Button */}
-        <button
-          onClick={handleExportCsv}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '0.82rem',
-            padding: '8px 18px',
-            borderRadius: '999px',
-            background: '#2F6FED',
-            color: '#FFFFFF',
-            border: 'none',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          <Download size={14} />
-          <span>Export Manifest to CSV</span>
-        </button>
-      </div>
-
-      {loading ? (
-        <p style={{ color: '#D9E2EF' }}>Loading booking records...</p>
-      ) : bookings.length === 0 ? (
-        <div style={{ background: '#071B3A', padding: '40px', borderRadius: '16px', textAlign: 'center', color: '#D9E2EF', border: '1px solid #102C52' }}>
-          No bookings found for the selected filter criteria.
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {bookings.map((b) => {
-            const isExpanded = expandedId === b.id;
-            return (
-              <div
-                key={b.id}
-                style={{
-                  background: '#071B3A',
-                  borderRadius: '16px',
-                  border: isExpanded ? '1px solid #2F6FED' : '1px solid #102C52',
-                  overflow: 'hidden',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {/* Header row */}
-                <div
-                  style={{
-                    padding: '20px 24px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '16px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => toggleExpand(b.id)}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ background: '#102C52', padding: '8px 14px', borderRadius: '8px', border: '1px solid #2F6FED' }}>
-                      <b style={{ color: '#FFFFFF', fontFamily: 'monospace', fontSize: '0.95rem' }}>
-                        {b.bookingReference}
-                      </b>
-                    </div>
-                    <div>
-                      <b style={{ color: '#FFFFFF', fontSize: '1.05rem', display: 'block' }}>{b.contactName}</b>
-                      <small style={{ color: '#D9E2EF' }}>{b.contactEmail} • {b.contactPhone}</small>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div style={{ textAlign: 'right' }}>
-                      <small style={{ color: '#D9E2EF', display: 'block', fontSize: '0.75rem' }}>{b.departure?.name}</small>
-                      <b style={{ color: '#FFFFFF', fontSize: '0.95rem' }}>{b.route?.name?.split('—')[0]}</b>
-                    </div>
-
-                    <div style={{ textAlign: 'right' }}>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          padding: '3px 10px',
-                          borderRadius: '999px',
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          background: b.status === 'CONFIRMED' ? '#2F6FED' : b.status === 'PENDING' ? '#102C52' : '#DC2626',
-                          color: '#FFFFFF',
-                          border: b.status === 'PENDING' ? '1px solid #2F6FED' : 'none',
-                        }}
-                      >
-                        {b.status}
-                      </span>
-                      <small style={{ display: 'block', color: '#FFFFFF', marginTop: '3px', fontWeight: 600 }}>
-                        ₹{b.totalAmount.toLocaleString('en-IN')}
-                      </small>
-                    </div>
-
-                    <div style={{ color: '#D9E2EF' }}>
-                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Expanded Details View */}
-                {isExpanded && (
-                  <div
-                    style={{
-                      padding: '24px',
-                      background: '#041329',
-                      borderTop: '1px solid #102C52',
-                      fontSize: '0.88rem',
-                    }}
-                  >
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '24px' }}>
-                      <div>
-                        <span style={{ color: '#D9E2EF', display: 'block', fontSize: '0.78rem' }}>Passport Category</span>
-                        <b style={{ color: '#FFFFFF' }}>{b.passportType}</b>
-                      </div>
-                      <div>
-                        <span style={{ color: '#D9E2EF', display: 'block', fontSize: '0.78rem' }}>Created At</span>
-                        <span style={{ color: '#FFFFFF' }}>{new Date(b.createdAt).toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span style={{ color: '#D9E2EF', display: 'block', fontSize: '0.78rem' }}>Payment Status</span>
-                        <b style={{ color: b.paymentStatus === 'PAID' ? '#2F6FED' : '#FFFFFF' }}>{b.paymentStatus}</b>
-                      </div>
-                      <div>
-                        <span style={{ color: '#D9E2EF', display: 'block', fontSize: '0.78rem' }}>Special Notes</span>
-                        <span style={{ color: '#FFFFFF' }}>{b.notes || 'None'}</span>
-                      </div>
-                    </div>
-
-                    {/* Travellers Roster */}
-                    <div style={{ marginBottom: '24px' }}>
-                      <h4 style={{ color: '#FFFFFF', marginBottom: '12px', fontSize: '0.95rem' }}>
-                        Registered Yatris ({b.travellers?.length || 0})
-                      </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {b.travellers?.map((t, idx) => (
-                          <div
-                            key={t.id}
-                            style={{
-                              background: '#102C52',
-                              padding: '12px 16px',
-                              borderRadius: '8px',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              flexWrap: 'wrap',
-                              gap: '8px',
-                            }}
-                          >
-                            <div>
-                              <b style={{ color: '#FFFFFF' }}>{idx + 1}. {t.fullName}</b>
-                              <span style={{ color: '#D9E2EF', marginLeft: '10px' }}>
-                                Passport: {t.passportNumber} | {t.nationality} | {t.age} yrs ({t.gender})
-                              </span>
-                            </div>
-                            <div style={{ color: '#D9E2EF' }}>
-                              Diet: <b style={{ color: '#FFFFFF' }}>{t.dietaryPreference}</b> | Emergency: {t.emergencyContactName} ({t.emergencyContactPhone})
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Change Status Buttons */}
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', borderTop: '1px solid #102C52', paddingTop: '16px' }}>
-                      <span style={{ color: '#D9E2EF', fontSize: '0.85rem' }}>Update Status:</span>
-                      <button
-                        onClick={() => handleStatusUpdate(b.id, 'CONFIRMED')}
-                        style={{
-                          padding: '6px 16px',
-                          borderRadius: '999px',
-                          background: '#2F6FED',
-                          color: '#FFFFFF',
-                          border: 'none',
-                          fontSize: '0.82rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Mark Confirmed
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(b.id, 'PENDING')}
-                        style={{
-                          padding: '6px 16px',
-                          borderRadius: '999px',
-                          background: '#102C52',
-                          color: '#FFFFFF',
-                          border: '1px solid #2F6FED',
-                          fontSize: '0.82rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Mark Pending
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(b.id, 'CANCELLED')}
-                        style={{
-                          padding: '6px 16px',
-                          borderRadius: '999px',
-                          background: '#DC2626',
-                          color: '#FFFFFF',
-                          border: 'none',
-                          fontSize: '0.82rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Mark Cancelled
-                      </button>
-                    </div>
-                  </div>
-                )}
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="p-4 bg-[#041329] border-t border-[#D9E2EF]/15 flex items-center justify-between text-xs text-[#8CA8CC]">
+              <div>
+                Page <strong className="text-white">{page}</strong> of{' '}
+                <strong className="text-white">{totalPages}</strong>
               </div>
-            );
-          })}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center gap-1 transition-colors"
+                >
+                  <ChevronLeft size={14} />
+                  <span>Previous</span>
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center gap-1 transition-colors"
+                >
+                  <span>Next</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </AdminLayout>
   );
 }

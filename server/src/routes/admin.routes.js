@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import prisma from '../prisma.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 
@@ -9,37 +10,132 @@ const router = Router();
 router.use(authenticateToken);
 router.use(requireAdmin);
 
-// 1. GET Dashboard Metrics Overview
+// 1. GET Dashboard Metrics Overview (Calculated strictly from live DB records)
 router.get('/dashboard-stats', async (req, res, next) => {
   try {
     const totalBookings = await prisma.booking.count();
+    const newBookings = await prisma.booking.count({ where: { status: 'PENDING' } });
     const confirmedBookings = await prisma.booking.count({ where: { status: 'CONFIRMED' } });
     const pendingBookings = await prisma.booking.count({ where: { status: 'PENDING' } });
-    const totalTravellers = await prisma.traveller.count();
+    const cancelledBookings = await prisma.booking.count({ where: { status: 'CANCELLED' } });
 
-    const departures = await prisma.departure.findMany();
+    // Total registered devotees: count of registered travellers
+    const totalTravellers = await prisma.traveller.count();
+    const totalMembers = await prisma.member.count();
+
+    // Total amount collected: sum of all successful payments
+    const successfulPayments = await prisma.payment.findMany({
+      where: { status: 'SUCCESS' },
+      select: { amount: true },
+    });
+    const totalAmountCollected = successfulPayments.reduce((sum, p) => sum + p.amount, 0);
+
+    // Pending payments: for non-cancelled bookings, booking.totalAmount - (sum of successful payments for that booking)
+    const activeBookings = await prisma.booking.findMany({
+      where: { status: { not: 'CANCELLED' } },
+      include: {
+        payments: {
+          where: { status: 'SUCCESS' },
+          select: { amount: true },
+        },
+      },
+    });
+
+    let pendingPaymentsAmount = 0;
+    for (const b of activeBookings) {
+      const paid = b.payments.reduce((sum, p) => sum + p.amount, 0);
+      const diff = b.totalAmount - paid;
+      if (diff > 0) {
+        pendingPaymentsAmount += diff;
+      }
+    }
+
+    // Refunds processed: sum of processed refunds
+    const processedRefunds = await prisma.refund.findMany({
+      where: { status: 'PROCESSED' },
+      select: { netRefundAmount: true },
+    });
+    const refundsProcessed = processedRefunds.reduce((sum, r) => sum + r.netRefundAmount, 0);
+
+    // Departures & occupancy
+    const departures = await prisma.departure.findMany({ orderBy: { batchNumber: 'asc' } });
     const totalCapacity = departures.reduce((sum, d) => sum + d.totalCapacity, 0);
     const totalBookedSeats = departures.reduce((sum, d) => sum + d.bookedSeats, 0);
+    const occupancyRate = totalCapacity > 0 ? Math.round((totalBookedSeats / totalCapacity) * 100) : 0;
 
-    const payments = await prisma.payment.findMany({ where: { status: 'SUCCESS' } });
-    const totalRevenueInr = payments.reduce((sum, p) => sum + p.amount, 0);
-
+    // Enquiries
     const totalEnquiries = await prisma.enquiry.count();
     const newEnquiries = await prisma.enquiry.count({ where: { status: 'NEW' } });
+
+    // Pending document/yatri verifications count
+    const pendingVerificationsCount = await prisma.traveller.count({
+      where: { docVerificationStatus: 'PENDING' },
+    });
+
+    // Recent Bookings (up to 6)
+    const recentBookings = await prisma.booking.findMany({
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        departure: true,
+        route: true,
+        payments: true,
+      },
+    });
+
+    // Recent Payments (up to 6)
+    const recentPayments = await prisma.payment.findMany({
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        booking: {
+          select: {
+            id: true,
+            bookingReference: true,
+            contactName: true,
+            contactPhone: true,
+          },
+        },
+      },
+    });
+
+    // Recent Enquiries (up to 5)
+    const recentEnquiries = await prisma.enquiry.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Recent Audit Logs (up to 6)
+    const recentAuditLogs = await prisma.auditLog.findMany({
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+    });
 
     res.json({
       stats: {
         totalBookings,
+        newBookings,
         confirmedBookings,
         pendingBookings,
+        cancelledBookings,
+        totalRegisteredDevotees: totalTravellers,
         totalTravellers,
+        totalMembers,
+        totalAmountCollected,
+        pendingPaymentsAmount,
+        refundsProcessed,
         totalCapacity,
         totalBookedSeats,
-        occupancyRate: Math.round((totalBookedSeats / (totalCapacity || 1)) * 100),
-        totalRevenueInr,
+        occupancyRate,
         totalEnquiries,
         newEnquiries,
+        pendingVerificationsCount,
       },
+      recentBookings,
+      recentPayments,
+      recentEnquiries,
+      recentAuditLogs,
+      upcomingDepartures: departures.slice(0, 4),
     });
   } catch (error) {
     next(error);
@@ -99,32 +195,134 @@ router.put('/departures/:id', async (req, res, next) => {
   }
 });
 
-// 3. Bookings Management
+// 3. Bookings Management (Filterable, Searchable, with Pagination)
 router.get('/bookings', async (req, res, next) => {
   try {
-    const { status, departureId } = req.query;
+    const { status, departureId, routeId, paymentStatus, search, q, page = '1', limit = '20' } = req.query;
 
     const where = {};
-    if (status) where.status = String(status);
-    if (departureId) where.departureId = String(departureId);
+    if (status && status !== 'ALL') where.status = String(status);
+    if (paymentStatus && paymentStatus !== 'ALL') where.paymentStatus = String(paymentStatus);
+    if (departureId && departureId !== 'ALL') where.departureId = String(departureId);
+    if (routeId && routeId !== 'ALL') where.routeId = String(routeId);
 
-    const bookings = await prisma.booking.findMany({
-      where,
-      include: {
-        departure: true,
-        route: true,
-        travellers: true,
-        payments: true,
-      },
-      orderBy: { createdAt: 'desc' },
+    const searchTerm = (search || q || '').trim();
+    if (searchTerm) {
+      where.OR = [
+        { bookingReference: { contains: searchTerm } },
+        { contactName: { contains: searchTerm } },
+        { contactEmail: { contains: searchTerm.toLowerCase() } },
+        { contactPhone: { contains: searchTerm } },
+        {
+          travellers: {
+            some: {
+              fullName: { contains: searchTerm },
+            },
+          },
+        },
+      ];
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+    const skip = (pageNum - 1) * take;
+
+    const [total, bookings] = await Promise.all([
+      prisma.booking.count({ where }),
+      prisma.booking.findMany({
+        where,
+        include: {
+          departure: true,
+          route: true,
+          travellers: true,
+          payments: {
+            orderBy: { createdAt: 'desc' },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+    ]);
+
+    res.json({
+      bookings,
+      total,
+      page: pageNum,
+      limit: take,
+      totalPages: Math.ceil(total / take),
     });
-
-    res.json({ bookings });
   } catch (error) {
     next(error);
   }
 });
 
+// Dedicated Booking Detail: GET /api/admin/bookings/:id
+router.get('/bookings/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await prisma.booking.findFirst({
+      where: {
+        OR: [{ id }, { bookingReference: id }],
+      },
+      include: {
+        departure: true,
+        route: {
+          include: {
+            pricingTiers: true,
+          },
+        },
+        travellers: {
+          include: {
+            uploadedDocuments: true,
+          },
+        },
+        payments: {
+          orderBy: { createdAt: 'desc' },
+        },
+        refunds: {
+          orderBy: { createdAt: 'desc' },
+        },
+        uploadedDocuments: true,
+        consentRecords: true,
+        bookingNotes: {
+          orderBy: { createdAt: 'desc' },
+        },
+        whatsAppMessages: {
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking reference not found in database' });
+    }
+
+    // Compute live balance
+    const totalSuccessfulPaid = booking.payments
+      .filter((p) => p.status === 'SUCCESS')
+      .reduce((sum, p) => sum + p.amount, 0);
+
+    const balanceDue = Math.max(0, booking.totalAmount - totalSuccessfulPaid);
+
+    res.json({
+      booking: {
+        ...booking,
+        financialSummary: {
+          totalAmount: booking.totalAmount,
+          totalPaid: totalSuccessfulPaid,
+          balanceDue,
+          isFullyPaid: totalSuccessfulPaid >= booking.totalAmount,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update Booking Status / Payment Status / Notes
 const updateBookingStatusSchema = z.object({
   status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']),
   paymentStatus: z.enum(['UNPAID', 'PARTIALLY_PAID', 'PAID', 'REFUNDED']).optional(),
@@ -172,7 +370,654 @@ router.put('/bookings/:id/status', async (req, res, next) => {
   }
 });
 
-// 4. Enquiries Management
+// Add Internal Administrative Note to Booking
+router.post('/bookings/:id/notes', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { content } = z.object({
+      content: z.string().min(1, 'Note content cannot be empty'),
+    }).parse(req.body);
+
+    const booking = await prisma.booking.findUnique({ where: { id } });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const note = await prisma.bookingNote.create({
+      data: {
+        bookingId: id,
+        authorEmail: req.user.email,
+        authorName: req.user.name || 'Admin Officer',
+        content,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        action: 'BOOKING_NOTE_ADDED',
+        entity: 'BOOKING_NOTE',
+        entityId: note.id,
+        details: JSON.stringify({ bookingReference: booking.bookingReference, contentSnippet: content.slice(0, 80) }),
+      },
+    });
+
+    res.status(201).json({ message: 'Internal note saved successfully', note });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Record WhatsApp Message Sent
+router.post('/bookings/:id/whatsapp', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { templateKey, recipientPhone, recipientName, messageContent, providerMsgId, status = 'SENT' } = z.object({
+      templateKey: z.string().optional().nullable(),
+      recipientPhone: z.string().min(5, 'Valid recipient phone is required'),
+      recipientName: z.string().min(1, 'Recipient name is required'),
+      messageContent: z.string().min(1, 'Message content is required'),
+      providerMsgId: z.string().optional().nullable(),
+      status: z.enum(['SENT', 'CLICK_TO_CHAT', 'FAILED', 'DELIVERED']).default('SENT'),
+    }).parse(req.body);
+
+    const booking = await prisma.booking.findUnique({ where: { id } });
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const msg = await prisma.whatsappMessage.create({
+      data: {
+        bookingId: id,
+        templateKey: templateKey || 'CUSTOM_MESSAGE',
+        recipientPhone,
+        recipientName,
+        messageContent,
+        sentBy: req.user.email,
+        providerMsgId: providerMsgId || `WAMSG-${Date.now()}`,
+        status,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        action: 'WHATSAPP_UPDATE_SENT',
+        entity: 'WHATSAPP_MESSAGE',
+        entityId: msg.id,
+        details: JSON.stringify({
+          bookingReference: booking.bookingReference,
+          recipientPhone,
+          templateKey,
+        }),
+      },
+    });
+
+    res.status(201).json({ message: 'WhatsApp message logged successfully', messageRecord: msg });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// List All WhatsApp Messages: GET /api/admin/whatsapp/messages
+router.get('/whatsapp/messages', async (req, res, next) => {
+  try {
+    const messages = await prisma.whatsappMessage.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+      include: {
+        booking: {
+          select: {
+            id: true,
+            bookingReference: true,
+            contactName: true,
+          },
+        },
+      },
+    });
+
+    res.json({ messages });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 4. Payments Management: GET /api/admin/payments
+router.get('/payments', async (req, res, next) => {
+  try {
+    const { status, paymentMode, search } = req.query;
+
+    const where = {};
+    if (status && status !== 'ALL') where.status = String(status);
+    if (paymentMode && paymentMode !== 'ALL') where.paymentMode = String(paymentMode);
+
+    if (search) {
+      const q = String(search).trim();
+      where.OR = [
+        { transactionId: { contains: q } },
+        { receiptNumber: { contains: q } },
+        { referenceNumber: { contains: q } },
+        {
+          booking: {
+            OR: [
+              { bookingReference: { contains: q } },
+              { contactName: { contains: q } },
+              { contactPhone: { contains: q } },
+            ],
+          },
+        },
+      ];
+    }
+
+    const [payments, allSuccessful] = await Promise.all([
+      prisma.payment.findMany({
+        where,
+        include: {
+          booking: {
+            select: {
+              id: true,
+              bookingReference: true,
+              contactName: true,
+              contactEmail: true,
+              contactPhone: true,
+              totalAmount: true,
+              paymentStatus: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.payment.findMany({
+        where: { status: 'SUCCESS' },
+        select: { amount: true },
+      }),
+    ]);
+
+    const totalCollected = allSuccessful.reduce((sum, p) => sum + p.amount, 0);
+
+    res.json({
+      payments,
+      count: payments.length,
+      totalCollected,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Record Offline Payment: POST /api/admin/payments/offline
+const recordOfflinePaymentSchema = z.object({
+  bookingId: z.string().min(1, 'Booking reference is required'),
+  amount: z.number().int().positive('Payment amount must be greater than zero'),
+  paymentMode: z.enum(['CASH', 'BANK_TRANSFER', 'NEFT_RTGS', 'CHEQUE', 'UPI']),
+  referenceNumber: z.string().min(2, 'Transaction / Reference / UTR number is required'),
+  installmentType: z.enum(['REGISTRATION', 'FIRST_INSTALLMENT', 'FINAL_BALANCE', 'FULL']).default('REGISTRATION'),
+  adminNotes: z.string().optional().nullable(),
+});
+
+router.post('/payments/offline', async (req, res, next) => {
+  try {
+    const data = recordOfflinePaymentSchema.parse(req.body);
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: data.bookingId },
+      include: {
+        payments: {
+          where: { status: 'SUCCESS' },
+        },
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Target booking not found' });
+    }
+
+    // Generate unique offline receipt number
+    const receiptNumber = `REC-OFF-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+    const transactionId = `TXN-OFF-${data.referenceNumber.trim().toUpperCase()}`;
+
+    // Execute in transaction
+    const result = await prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.create({
+        data: {
+          bookingId: data.bookingId,
+          transactionId,
+          receiptNumber,
+          referenceNumber: data.referenceNumber.trim(),
+          paymentMethod: `OFFLINE_${data.paymentMode}`,
+          paymentMode: data.paymentMode,
+          installmentType: data.installmentType,
+          amount: data.amount,
+          currency: booking.currency || 'INR',
+          status: 'SUCCESS',
+          recordedBy: req.user.email,
+          adminNotes: data.adminNotes || `Manual offline payment verified by ${req.user.name || req.user.email}`,
+          gatewayResponse: JSON.stringify({
+            verifiedBy: req.user.email,
+            mode: data.paymentMode,
+            ref: data.referenceNumber,
+            date: new Date().toISOString(),
+          }),
+        },
+      });
+
+      // Recalculate total paid
+      const previouslyPaid = booking.payments.reduce((sum, p) => sum + p.amount, 0);
+      const newTotalPaid = previouslyPaid + data.amount;
+
+      let newPaymentStatus = booking.paymentStatus;
+      if (newTotalPaid >= booking.totalAmount) {
+        newPaymentStatus = 'PAID';
+      } else if (newTotalPaid > 0) {
+        newPaymentStatus = 'PARTIALLY_PAID';
+      }
+
+      // If status was PENDING and deposit/payment is received, auto-confirm booking if desired
+      let newBookingStatus = booking.status;
+      if (booking.status === 'PENDING' && newTotalPaid >= 25000) {
+        newBookingStatus = 'CONFIRMED';
+      }
+
+      const updatedBooking = await tx.booking.update({
+        where: { id: data.bookingId },
+        data: {
+          paymentStatus: newPaymentStatus,
+          status: newBookingStatus,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId: req.user.id,
+          userEmail: req.user.email,
+          action: 'OFFLINE_PAYMENT_RECORDED',
+          entity: 'PAYMENT',
+          entityId: payment.id,
+          details: JSON.stringify({
+            bookingReference: booking.bookingReference,
+            amount: data.amount,
+            mode: data.paymentMode,
+            ref: data.referenceNumber,
+            newPaymentStatus,
+          }),
+        },
+      });
+
+      return { payment, updatedBooking };
+    });
+
+    res.status(201).json({
+      message: `Offline payment of ₹${data.amount.toLocaleString()} successfully recorded`,
+      payment: result.payment,
+      booking: result.updatedBooking,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 5. Customer Management: GET /api/admin/customers (Aggregated from Bookings & Members)
+router.get('/customers', async (req, res, next) => {
+  try {
+    const { search } = req.query;
+
+    const [bookings, members] = await Promise.all([
+      prisma.booking.findMany({
+        include: {
+          payments: {
+            where: { status: 'SUCCESS' },
+          },
+          departure: true,
+          route: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.member.findMany({
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    // Aggregate map keyed by normalized email
+    const customerMap = new Map();
+
+    for (const b of bookings) {
+      const email = b.contactEmail.toLowerCase().trim();
+      const existing = customerMap.get(email) || {
+        email,
+        name: b.contactName,
+        phone: b.contactPhone,
+        totalBookings: 0,
+        totalSpent: 0,
+        bookings: [],
+        member: null,
+        status: 'CUSTOMER',
+        createdAt: b.createdAt,
+      };
+
+      const paidForBooking = b.payments.reduce((sum, p) => sum + p.amount, 0);
+      existing.totalBookings += 1;
+      existing.totalSpent += paidForBooking;
+      existing.bookings.push({
+        id: b.id,
+        bookingReference: b.bookingReference,
+        status: b.status,
+        paymentStatus: b.paymentStatus,
+        departureName: b.departure.name,
+        totalAmount: b.totalAmount,
+        createdAt: b.createdAt,
+      });
+
+      customerMap.set(email, existing);
+    }
+
+    for (const m of members) {
+      const email = m.email.toLowerCase().trim();
+      const existing = customerMap.get(email);
+      if (existing) {
+        existing.member = {
+          membershipReference: m.membershipReference,
+          membershipType: m.membershipType,
+          status: m.status,
+        };
+      } else {
+        customerMap.set(email, {
+          email,
+          name: `${m.firstName} ${m.lastName}`.trim(),
+          phone: m.mobile,
+          totalBookings: 0,
+          totalSpent: 0,
+          bookings: [],
+          member: {
+            membershipReference: m.membershipReference,
+            membershipType: m.membershipType,
+            status: m.status,
+          },
+          status: 'REGISTERED_MEMBER',
+          createdAt: m.createdAt,
+        });
+      }
+    }
+
+    let customers = Array.from(customerMap.values());
+
+    if (search) {
+      const q = String(search).toLowerCase().trim();
+      customers = customers.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.email.toLowerCase().includes(q) ||
+          c.phone.includes(q)
+      );
+    }
+
+    res.json({
+      customers,
+      count: customers.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 6. Reports & CSV Export: GET /api/admin/reports/export/csv
+router.get('/reports/export/csv', async (req, res, next) => {
+  try {
+    const { type = 'bookings' } = req.query;
+
+    if (type === 'yatris') {
+      const travellers = await prisma.traveller.findMany({
+        include: {
+          booking: {
+            include: { departure: true, route: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const headers = [
+        'Booking Ref',
+        'Departure Batch',
+        'Route',
+        'Yatri Name',
+        'Age',
+        'Gender',
+        'Nationality',
+        'Passport / Govt ID',
+        'Dietary Preference',
+        'Emergency Contact',
+        'Emergency Phone',
+        'Verification Status',
+      ];
+
+      const rows = travellers.map((t) => [
+        `"${t.booking.bookingReference}"`,
+        `"${t.booking.departure.name.replace(/"/g, '""')}"`,
+        `"${t.booking.route.name.replace(/"/g, '""')}"`,
+        `"${t.fullName.replace(/"/g, '""')}"`,
+        t.age,
+        `"${t.gender}"`,
+        `"${t.nationality}"`,
+        `"${t.passportNumber}"`,
+        `"${t.dietaryPreference}"`,
+        `"${t.emergencyContactName.replace(/"/g, '""')}"`,
+        `"${t.emergencyContactPhone}"`,
+        `"${t.docVerificationStatus}"`,
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="shloka-yatris-manifest-${new Date().toISOString().slice(0, 10)}.csv"`);
+      return res.status(200).send(csvContent);
+    }
+
+    if (type === 'payments') {
+      const payments = await prisma.payment.findMany({
+        include: {
+          booking: {
+            select: { bookingReference: true, contactName: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const headers = [
+        'Receipt No',
+        'Booking Ref',
+        'Devotee Name',
+        'Amount (INR)',
+        'Payment Method',
+        'Payment Mode',
+        'Reference No',
+        'Status',
+        'Recorded Date',
+      ];
+
+      const rows = payments.map((p) => [
+        `"${p.receiptNumber || ''}"`,
+        `"${p.booking.bookingReference}"`,
+        `"${p.booking.contactName.replace(/"/g, '""')}"`,
+        p.amount,
+        `"${p.paymentMethod}"`,
+        `"${p.paymentMode || ''}"`,
+        `"${p.referenceNumber || ''}"`,
+        `"${p.status}"`,
+        `"${new Date(p.createdAt).toISOString()}"`,
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="shloka-financial-ledger-${new Date().toISOString().slice(0, 10)}.csv"`);
+      return res.status(200).send(csvContent);
+    }
+
+    // Default: Bookings CSV
+    const bookings = await prisma.booking.findMany({
+      include: {
+        departure: true,
+        route: true,
+        payments: { where: { status: 'SUCCESS' } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const headers = [
+      'Booking Ref',
+      'Contact Devotee',
+      'Mobile Phone',
+      'Email',
+      'Departure Batch',
+      'Route Name',
+      'Total Yatris',
+      'Total Package Amount',
+      'Amount Paid',
+      'Balance Due',
+      'Booking Status',
+      'Payment Status',
+      'Booking Date',
+    ];
+
+    const rows = bookings.map((b) => {
+      const paid = b.payments.reduce((sum, p) => sum + p.amount, 0);
+      const balance = Math.max(0, b.totalAmount - paid);
+      return [
+        `"${b.bookingReference}"`,
+        `"${b.contactName.replace(/"/g, '""')}"`,
+        `"${b.contactPhone}"`,
+        `"${b.contactEmail}"`,
+        `"${b.departure.name.replace(/"/g, '""')}"`,
+        `"${b.route.name.replace(/"/g, '""')}"`,
+        b.totalTravellers,
+        b.totalAmount,
+        paid,
+        balance,
+        `"${b.status}"`,
+        `"${b.paymentStatus}"`,
+        `"${new Date(b.createdAt).toISOString()}"`,
+      ];
+    });
+
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="shloka-master-bookings-${new Date().toISOString().slice(0, 10)}.csv"`);
+    return res.status(200).send(csvContent);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 7. Staff & RBAC Users Management
+router.get('/users', async (req, res, next) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    res.json({ users });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/users/:id/role', async (req, res, next) => {
+  try {
+    // Only SUPER_ADMIN can alter staff roles
+    if (req.user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: 'Only Super Administrators can modify staff roles.' });
+    }
+
+    const { id } = req.params;
+    const { role } = z.object({
+      role: z.enum(['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'TRAVEL_OPS', 'SUPPORT', 'CONTENT_MANAGER']),
+    }).parse(req.body);
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, email: true, name: true, role: true },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        action: 'USER_ROLE_CHANGED',
+        entity: 'USER',
+        entityId: id,
+        details: JSON.stringify({ targetUser: updated.email, newRole: role }),
+      },
+    });
+
+    res.json({ message: 'User role updated successfully', user: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/users', async (req, res, next) => {
+  try {
+    if (req.user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: 'Only Super Administrators can create administrative staff accounts.' });
+    }
+
+    const data = z.object({
+      email: z.string().email(),
+      name: z.string().min(2),
+      phone: z.string().optional(),
+      role: z.enum(['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'TRAVEL_OPS', 'SUPPORT', 'CONTENT_MANAGER']).default('ADMIN'),
+      password: z.string().min(8, 'Password must be at least 8 characters long'),
+    }).parse(req.body);
+
+    const existing = await prisma.user.findUnique({ where: { email: data.email } });
+    if (existing) {
+      return res.status(400).json({ error: 'A staff member with this email address already exists.' });
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 10);
+    const user = await prisma.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+        phone: data.phone || null,
+        role: data.role,
+        passwordHash,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        action: 'STAFF_ACCOUNT_CREATED',
+        entity: 'USER',
+        entityId: user.id,
+        details: JSON.stringify({ email: user.email, role: user.role }),
+      },
+    });
+
+    res.status(201).json({ message: 'Staff member account created', user });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 8. Enquiries Management
 router.get('/enquiries', async (req, res, next) => {
   try {
     const enquiries = await prisma.enquiry.findMany({
@@ -187,11 +1032,19 @@ router.get('/enquiries', async (req, res, next) => {
 router.put('/enquiries/:id/status', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { status } = z.object({ status: z.enum(['NEW', 'CONTACTED', 'RESOLVED']) }).parse(req.body);
+    const { status, assignedTo, internalNotes } = z.object({
+      status: z.enum(['NEW', 'CONTACTED', 'CONVERTED', 'RESOLVED']),
+      assignedTo: z.string().optional(),
+      internalNotes: z.string().optional(),
+    }).parse(req.body);
 
     const updated = await prisma.enquiry.update({
       where: { id },
-      data: { status },
+      data: {
+        status,
+        ...(assignedTo !== undefined && { assignedTo }),
+        ...(internalNotes !== undefined && { internalNotes }),
+      },
     });
 
     res.json({ message: 'Enquiry updated successfully', enquiry: updated });
@@ -200,7 +1053,7 @@ router.put('/enquiries/:id/status', async (req, res, next) => {
   }
 });
 
-// 5. Pricing Tiers Management
+// 9. Pricing Tiers Management
 router.get('/pricing', async (req, res, next) => {
   try {
     const tiers = await prisma.pricingTier.findMany({
@@ -247,7 +1100,7 @@ router.put('/pricing/:id', async (req, res, next) => {
   }
 });
 
-// 6. Audit Logs
+// 10. Audit Logs
 router.get('/audit-logs', async (req, res, next) => {
   try {
     const logs = await prisma.auditLog.findMany({
@@ -260,7 +1113,7 @@ router.get('/audit-logs', async (req, res, next) => {
   }
 });
 
-// 7. Member Management
+// 11. Member Management
 router.get('/members', async (req, res, next) => {
   try {
     const { search, status } = req.query;
@@ -351,80 +1204,7 @@ router.put('/members/:id/status', async (req, res, next) => {
   }
 });
 
-router.get('/members/export/csv', async (req, res, next) => {
-  try {
-    const members = await prisma.member.findMany({
-      select: {
-        membershipReference: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        mobile: true,
-        whatsapp: true,
-        nationality: true,
-        country: true,
-        city: true,
-        membershipType: true,
-        yatraInterest: true,
-        preferredBatch: true,
-        preferredPackage: true,
-        status: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    // Generate CSV
-    const headers = [
-      'Membership Ref',
-      'First Name',
-      'Last Name',
-      'Email',
-      'Mobile',
-      'WhatsApp',
-      'Nationality',
-      'Country',
-      'City',
-      'Type',
-      'Yatra Interest',
-      'Batch',
-      'Package',
-      'Status',
-      'Registration Date',
-    ];
-
-    const rows = members.map((m) => [
-      `"${m.membershipReference}"`,
-      `"${m.firstName.replace(/"/g, '""')}"`,
-      `"${m.lastName.replace(/"/g, '""')}"`,
-      `"${m.email}"`,
-      `"${m.mobile}"`,
-      `"${m.whatsapp || ''}"`,
-      `"${m.nationality}"`,
-      `"${m.country}"`,
-      `"${m.city}"`,
-      `"${m.membershipType}"`,
-      `"${m.yatraInterest || ''}"`,
-      `"${m.preferredBatch || ''}"`,
-      `"${m.preferredPackage || ''}"`,
-      `"${m.status}"`,
-      `"${new Date(m.createdAt).toISOString()}"`,
-    ]);
-
-    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="shlloka-members-${new Date().toISOString().slice(0, 10)}.csv"`
-    );
-    res.status(200).send(csvContent);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// 8. Documents Verification Management
+// 12. Documents Verification Management
 router.get('/documents', async (req, res, next) => {
   try {
     const { status, type } = req.query;
@@ -509,7 +1289,7 @@ router.put('/documents/:id/verify', async (req, res, next) => {
   }
 });
 
-// 9. Refunds Management
+// 13. Refunds Management
 router.get('/refunds', async (req, res, next) => {
   try {
     const refunds = await prisma.refund.findMany({
@@ -572,7 +1352,7 @@ router.put('/refunds/:id/status', async (req, res, next) => {
   }
 });
 
-// 10. Legal Documents CMS
+// 14. Legal Documents CMS
 router.get('/legal-documents', async (req, res, next) => {
   try {
     const documents = await prisma.legalDocument.findMany({
@@ -619,7 +1399,7 @@ router.put('/legal-documents/:id', async (req, res, next) => {
   }
 });
 
-// 11. Gallery CMS
+// 15. Gallery CMS
 router.get('/gallery', async (req, res, next) => {
   try {
     const items = await prisma.galleryItem.findMany({
@@ -661,7 +1441,7 @@ router.delete('/gallery/:id', async (req, res, next) => {
   }
 });
 
-// 12. Support Tickets
+// 16. Support Tickets
 router.get('/support-tickets', async (req, res, next) => {
   try {
     const tickets = await prisma.supportTicket.findMany({

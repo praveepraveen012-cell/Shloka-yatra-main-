@@ -15,6 +15,10 @@ import {
   RotateCcw,
   Menu,
   X,
+  CreditCard,
+  MessageCircle,
+  FileSpreadsheet,
+  UserCog,
 } from 'lucide-react';
 
 export default function AdminLayout({ children, title, subtitle }) {
@@ -28,14 +32,19 @@ export default function AdminLayout({ children, title, subtitle }) {
   };
 
   const menuItems = [
-    { label: 'Overview', path: '/admin/dashboard', icon: LayoutDashboard },
-    { label: 'Member Registrations', path: '/admin/members', icon: UserCheck },
+    { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+    { label: 'Bookings & Yatris', path: '/admin/bookings', icon: Calendar },
+    { label: 'Customer Management', path: '/admin/customers', icon: Users },
+    { label: 'Payments & Revenue', path: '/admin/payments', icon: CreditCard },
     { label: 'Departures (2027)', path: '/admin/departures', icon: Calendar },
-    { label: 'Bookings & Yatris', path: '/admin/bookings', icon: Users },
+    { label: 'Route Pricing', path: '/admin/pricing', icon: DollarSign },
     { label: 'Document Verification', path: '/admin/documents', icon: FileCheck },
     { label: 'Refund Requests', path: '/admin/refunds', icon: RotateCcw },
     { label: 'Enquiries & Leads', path: '/admin/enquiries', icon: MessageSquare },
-    { label: 'Route Pricing', path: '/admin/pricing', icon: DollarSign },
+    { label: 'WhatsApp Updates', path: '/admin/whatsapp', icon: MessageCircle },
+    { label: 'Reports & Export', path: '/admin/reports', icon: FileSpreadsheet },
+    { label: 'Member Registrations', path: '/admin/members', icon: UserCheck },
+    { label: 'Staff & Roles', path: '/admin/users', icon: UserCog },
     { label: 'Audit Trail', path: '/admin/audit-logs', icon: Activity },
   ];
 
@@ -65,7 +74,7 @@ export default function AdminLayout({ children, title, subtitle }) {
             >
               <span className="text-2xl text-[#2F6FED]">ॐ</span>
               <div>
-                <b className="block text-sm tracking-widest font-heading">
+                <b className="block text-sm tracking-widest font-heading text-white">
                   SHLOKA ADMIN
                 </b>
                 <small className="text-[10px] text-[#8CA8CC] tracking-wider block">
@@ -83,22 +92,24 @@ export default function AdminLayout({ children, title, subtitle }) {
           </div>
 
           {/* Nav List */}
-          <nav className="p-3 flex flex-col gap-1.5 overflow-y-auto max-h-[calc(100vh-190px)]">
+          <nav className="p-3 flex flex-col gap-1 overflow-y-auto max-h-[calc(100vh-190px)]">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+              const isActive =
+                location.pathname === item.path ||
+                (item.path === '/admin/bookings' && location.pathname.startsWith('/admin/bookings/'));
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                     isActive
                       ? 'bg-[#2F6FED]/25 text-white border border-[#2F6FED] font-semibold'
                       : 'text-[#D9E2EF] hover:bg-white/5 border border-transparent'
                   }`}
                 >
-                  <Icon size={18} className={isActive ? 'text-white' : 'text-[#8CA8CC]'} />
+                  <Icon size={16} className={isActive ? 'text-[#2F6FED]' : 'text-[#8CA8CC]'} />
                   <span>{item.label}</span>
                 </Link>
               );

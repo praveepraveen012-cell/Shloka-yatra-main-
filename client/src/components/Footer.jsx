@@ -186,7 +186,7 @@ export default function Footer() {
           <Link to="/risk-acknowledgement" className="text-[#D3DDEB] hover:text-white transition-colors">{language === 'HI' ? t('footer.riskLink') : 'High-Altitude Risk Acknowledgement'}</Link>
           <Link to="/service-schedule" className="text-[#D3DDEB] hover:text-white transition-colors">{language === 'HI' ? t('footer.serviceScheduleLink') : 'Service Schedule (Annex A)'}</Link>
           <Link to="/privacy-policy" className="text-[#D3DDEB] hover:text-white transition-colors">{language === 'HI' ? t('footer.privacyLink') : 'Privacy Notice'}</Link>
-          <Link to="/admin/login" className="text-[#D9A441] ml-auto hover:text-amber-300 transition-colors">{language === 'HI' ? t('footer.adminPortalLink') : 'Admin Portal'}</Link>
+          <Link to="/admin/login" className="text-[#D9A441] ml-auto hover:text-amber-300 transition-colors">{t('footer.adminPortalLink') || 'Admin Panel'}</Link>
         </div>
 
         {/* Bottom Copyright & Grexotix Strip */}

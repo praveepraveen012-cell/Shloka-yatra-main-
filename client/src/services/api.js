@@ -366,6 +366,19 @@ export const api = {
   getAdminGallery: () => request('/admin/gallery'),
   createAdminGalleryItem: (payload) => request('/admin/gallery', { method: 'POST', body: JSON.stringify(payload) }),
   deleteAdminGalleryItem: (id) => request(`/admin/gallery/${id}`, { method: 'DELETE' }),
+
+  // Real Booking & Customer Operations
+  getAdminBookingDetail: (id) => request(`/admin/bookings/${id}`),
+  addAdminBookingNote: (id, payload) => request(`/admin/bookings/${id}/notes`, { method: 'POST', body: JSON.stringify(payload) }),
+  sendAdminWhatsAppMessage: (id, payload) => request(`/admin/bookings/${id}/whatsapp`, { method: 'POST', body: JSON.stringify(payload) }),
+  getAdminWhatsAppMessages: () => request('/admin/whatsapp/messages'),
+  getAdminPayments: (query = '') => request(`/admin/payments${query ? `?${query}` : ''}`),
+  recordAdminOfflinePayment: (payload) => request('/admin/payments/offline', { method: 'POST', body: JSON.stringify(payload) }),
+  getAdminCustomers: (query = '') => request(`/admin/customers${query ? `?${query}` : ''}`),
+  getAdminUsers: () => request('/admin/users'),
+  updateAdminUserRole: (id, payload) => request(`/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify(payload) }),
+  createAdminUser: (payload) => request('/admin/users', { method: 'POST', body: JSON.stringify(payload) }),
+  getAdminReportCsvUrl: (type = 'bookings') => `${API_BASE}/admin/reports/export/csv?type=${type}`,
 };
 
 export default api;

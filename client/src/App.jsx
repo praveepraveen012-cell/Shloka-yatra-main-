@@ -45,7 +45,13 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminMembersPage from './pages/admin/AdminMembersPage';
 import AdminDeparturesPage from './pages/admin/AdminDeparturesPage';
 import AdminBookingsPage from './pages/admin/AdminBookingsPage';
+import AdminBookingDetailPage from './pages/admin/AdminBookingDetailPage';
+import AdminCustomersPage from './pages/admin/AdminCustomersPage';
+import AdminPaymentsPage from './pages/admin/AdminPaymentsPage';
 import AdminEnquiriesPage from './pages/admin/AdminEnquiriesPage';
+import AdminWhatsAppPage from './pages/admin/AdminWhatsAppPage';
+import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminPricingPage from './pages/admin/AdminPricingPage';
 import AdminAuditLogsPage from './pages/admin/AdminAuditLogsPage';
 import AdminDocumentsPage from './pages/admin/AdminDocumentsPage';
@@ -154,6 +160,54 @@ export default function App() {
         element={
           <ProtectedRoute>
             <AdminBookingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/bookings/:id"
+        element={
+          <ProtectedRoute>
+            <AdminBookingDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/customers"
+        element={
+          <ProtectedRoute>
+            <AdminCustomersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/payments"
+        element={
+          <ProtectedRoute>
+            <AdminPaymentsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/whatsapp"
+        element={
+          <ProtectedRoute>
+            <AdminWhatsAppPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/reports"
+        element={
+          <ProtectedRoute>
+            <AdminReportsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <AdminUsersPage />
           </ProtectedRoute>
         }
       />
