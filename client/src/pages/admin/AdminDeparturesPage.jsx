@@ -162,12 +162,12 @@ export default function AdminDeparturesPage() {
                             borderRadius: '999px',
                             fontSize: '0.72rem',
                             fontWeight: 600,
-                            background: dep.status === 'AVAILABLE' ? '#2F6FED' : dep.status === 'FAST_FILLING' ? '#102C52' : '#DC2626',
+                            background: (dep.status || 'AVAILABLE') === 'AVAILABLE' ? '#2F6FED' : dep.status === 'FAST_FILLING' ? '#102C52' : '#DC2626',
                             color: '#FFFFFF',
                             border: dep.status === 'FAST_FILLING' ? '1px solid #2F6FED' : 'none',
                           }}
                         >
-                          {dep.status}
+                          {dep.status || 'AVAILABLE'}
                         </span>
                       )}
                     </td>

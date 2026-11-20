@@ -338,7 +338,7 @@ export default function AdminBookingsPage() {
                                   : 'text-amber-300'
                               }`}
                             >
-                              {b.paymentStatus.replace('_', ' ')}
+                              {(b.paymentStatus || 'UNPAID').replace('_', ' ')}
                             </span>
                           </div>
                         </td>

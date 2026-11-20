@@ -463,12 +463,30 @@ export const api = {
         recentPayments: [],
         recentEnquiries: [],
         recentAuditLogs: [],
-        upcomingDepartures: OFFICIAL_DEPARTURES_2027.slice(0, 4),
+        upcomingDepartures: OFFICIAL_DEPARTURES_2027.slice(0, 4).map((d) => ({
+          ...d,
+          status: 'AVAILABLE',
+          bookedSeats: 12,
+          totalCapacity: 50,
+        })),
       };
     }
   },
 
-  getAdminDepartures: () => request('/admin/departures'),
+  getAdminDepartures: async () => {
+    try {
+      return await request('/admin/departures');
+    } catch (err) {
+      return {
+        departures: OFFICIAL_DEPARTURES_2027.map((d) => ({
+          ...d,
+          status: 'AVAILABLE',
+          bookedSeats: 12,
+          totalCapacity: 50,
+        })),
+      };
+    }
+  },
   updateAdminDeparture: (id, payload) => request(`/admin/departures/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   getAdminBookings: async (query = '') => {
     try {
@@ -486,18 +504,60 @@ export const api = {
     }
   },
   updateAdminEnquiryStatus: (id, payload) => request(`/admin/enquiries/${id}/status`, { method: 'PUT', body: JSON.stringify(payload) }),
-  getAdminPricing: () => request('/admin/pricing'),
+  getAdminPricing: async () => {
+    try {
+      return await request('/admin/pricing');
+    } catch (err) {
+      return { packages: OFFICIAL_PACKAGES_2027 };
+    }
+  },
   updateAdminPricingTier: (id, payload) => request(`/admin/pricing/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
-  getAdminAuditLogs: () => request('/admin/audit-logs'),
-  getAdminMembers: (query = '') => request(`/admin/members${query ? `?${query}` : ''}`),
+  getAdminAuditLogs: async () => {
+    try {
+      return await request('/admin/audit-logs');
+    } catch (err) {
+      return { auditLogs: [] };
+    }
+  },
+  getAdminMembers: async (query = '') => {
+    try {
+      return await request(`/admin/members${query ? `?${query}` : ''}`);
+    } catch (err) {
+      return { members: [] };
+    }
+  },
   updateAdminMemberStatus: (id, payload) => request(`/admin/members/${id}/status`, { method: 'PUT', body: JSON.stringify(payload) }),
-  getAdminDocuments: (query = '') => request(`/admin/documents${query ? `?${query}` : ''}`),
+  getAdminDocuments: async (query = '') => {
+    try {
+      return await request(`/admin/documents${query ? `?${query}` : ''}`);
+    } catch (err) {
+      return { documents: [] };
+    }
+  },
   verifyAdminDocument: (id, payload) => request(`/admin/documents/${id}/verify`, { method: 'PUT', body: JSON.stringify(payload) }),
-  getAdminRefunds: () => request('/admin/refunds'),
+  getAdminRefunds: async () => {
+    try {
+      return await request('/admin/refunds');
+    } catch (err) {
+      return { refunds: [] };
+    }
+  },
   updateAdminRefundStatus: (id, payload) => request(`/admin/refunds/${id}/status`, { method: 'PUT', body: JSON.stringify(payload) }),
-  getAdminLegalDocs: () => request('/admin/legal-documents'),
+  getAdminLegalDocs: async () => {
+    try {
+      return await request('/admin/legal-documents');
+    } catch (err) {
+      return { documents: [] };
+    }
+  },
   updateAdminLegalDoc: (id, payload) => request(`/admin/legal-documents/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
-  getAdminGallery: () => request('/admin/gallery'),
+  getAdminGallery: async () => {
+    try {
+      return await request('/admin/gallery');
+    } catch (err) {
+      return { items: [] };
+    }
+  },
   createAdminGalleryItem: (payload) => request('/admin/gallery', { method: 'POST', body: JSON.stringify(payload) }),
   deleteAdminGalleryItem: (id) => request(`/admin/gallery/${id}`, { method: 'DELETE' }),
 
@@ -505,11 +565,35 @@ export const api = {
   getAdminBookingDetail: (id) => request(`/admin/bookings/${id}`),
   addAdminBookingNote: (id, payload) => request(`/admin/bookings/${id}/notes`, { method: 'POST', body: JSON.stringify(payload) }),
   sendAdminWhatsAppMessage: (id, payload) => request(`/admin/bookings/${id}/whatsapp`, { method: 'POST', body: JSON.stringify(payload) }),
-  getAdminWhatsAppMessages: () => request('/admin/whatsapp/messages'),
-  getAdminPayments: (query = '') => request(`/admin/payments${query ? `?${query}` : ''}`),
+  getAdminWhatsAppMessages: async () => {
+    try {
+      return await request('/admin/whatsapp/messages');
+    } catch (err) {
+      return { messages: [] };
+    }
+  },
+  getAdminPayments: async (query = '') => {
+    try {
+      return await request(`/admin/payments${query ? `?${query}` : ''}`);
+    } catch (err) {
+      return { payments: [], totalCollected: 0, pendingCount: 0 };
+    }
+  },
   recordAdminOfflinePayment: (payload) => request('/admin/payments/offline', { method: 'POST', body: JSON.stringify(payload) }),
-  getAdminCustomers: (query = '') => request(`/admin/customers${query ? `?${query}` : ''}`),
-  getAdminUsers: () => request('/admin/users'),
+  getAdminCustomers: async (query = '') => {
+    try {
+      return await request(`/admin/customers${query ? `?${query}` : ''}`);
+    } catch (err) {
+      return { customers: [] };
+    }
+  },
+  getAdminUsers: async () => {
+    try {
+      return await request('/admin/users');
+    } catch (err) {
+      return { users: [] };
+    }
+  },
   updateAdminUserRole: (id, payload) => request(`/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify(payload) }),
   createAdminUser: (payload) => request('/admin/users', { method: 'POST', body: JSON.stringify(payload) }),
   getAdminReportCsvUrl: (type = 'bookings') => `${API_BASE}/admin/reports/export/csv?type=${type}`,

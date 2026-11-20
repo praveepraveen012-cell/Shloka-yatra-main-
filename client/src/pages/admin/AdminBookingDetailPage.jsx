@@ -263,7 +263,7 @@ export default function AdminBookingDetailPage() {
       setWhatsAppSending(true);
 
       // Clean phone number: remove spaces, dashes, parentheses
-      const cleanPhone = recipientPhone.replace(/[^0-9+]/g, '').replace(/^0+/, '');
+      const cleanPhone = String(recipientPhone || '').replace(/[^0-9+]/g, '').replace(/^0+/, '');
 
       // 1. Log to backend database
       await api.sendAdminWhatsAppMessage(booking.id, {
@@ -370,7 +370,7 @@ export default function AdminBookingDetailPage() {
                       : 'bg-amber-500/20 text-amber-300'
                   }`}
                 >
-                  {booking.paymentStatus.replace('_', ' ')}
+                  {(booking.paymentStatus || 'UNPAID').replace('_', ' ')}
                 </span>
               </div>
               <p className="text-xs text-[#8CA8CC] mt-0.5">
@@ -436,7 +436,7 @@ export default function AdminBookingDetailPage() {
                     {booking.contactPhone}
                   </a>
                   <a
-                    href={`https://wa.me/${booking.contactPhone.replace(/[^0-9]/g, '')}`}
+                    href={`https://wa.me/${String(booking.contactPhone || '').replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"

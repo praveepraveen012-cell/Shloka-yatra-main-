@@ -240,7 +240,7 @@ export default function AdminPaymentsPage() {
                         {p.referenceNumber || '—'}
                       </td>
                       <td className="py-3 px-4 text-right font-bold text-emerald-400">
-                        ₹{p.amount.toLocaleString('en-IN')}
+                        ₹{Number(p.amount || 0).toLocaleString('en-IN')}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span
@@ -254,7 +254,7 @@ export default function AdminPaymentsPage() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right text-[#8CA8CC] whitespace-nowrap">
-                        {new Date(p.createdAt).toLocaleDateString()}
+                        {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—'}
                       </td>
                     </tr>
                   ))

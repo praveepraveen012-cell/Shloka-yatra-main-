@@ -285,7 +285,7 @@ export default function AdminDashboardPage() {
                           </div>
                           <div className="text-right shrink-0">
                             <div className="text-xs font-bold text-white">
-                              ₹{b.totalAmount.toLocaleString('en-IN')}
+                              ₹{Number(b.totalAmount || 0).toLocaleString('en-IN')}
                             </div>
                             <span
                               className={`text-[10px] font-semibold mt-1 inline-block ${
@@ -296,7 +296,7 @@ export default function AdminDashboardPage() {
                                   : 'text-amber-300'
                               }`}
                             >
-                              {b.paymentStatus}
+                              {b.paymentStatus || 'UNPAID'}
                             </span>
                           </div>
                         </div>
@@ -345,10 +345,10 @@ export default function AdminDashboardPage() {
                         </div>
                         <div className="text-right shrink-0">
                           <div className="font-bold text-emerald-400 text-sm">
-                            +₹{p.amount.toLocaleString('en-IN')}
+                            +₹{Number(p.amount || 0).toLocaleString('en-IN')}
                           </div>
                           <div className="text-[10px] text-[#8CA8CC] mt-0.5">
-                            {new Date(p.createdAt).toLocaleDateString()}
+                            {p.createdAt ? new Date(p.createdAt).toLocaleDateString() : 'N/A'}
                           </div>
                         </div>
                       </div>
@@ -380,7 +380,10 @@ export default function AdminDashboardPage() {
 
                 <div className="space-y-3">
                   {upcomingDepartures.map((d) => {
-                    const percent = Math.round((d.bookedSeats / d.totalCapacity) * 100);
+                    const booked = Number(d.bookedSeats) || 0;
+                    const capacity = Number(d.totalCapacity) || 50;
+                    const percent = Math.min(100, Math.round((booked / capacity) * 100));
+                    const statusVal = String(d.status || 'AVAILABLE');
                     return (
                       <div
                         key={d.id}
@@ -390,18 +393,18 @@ export default function AdminDashboardPage() {
                           <span className="font-bold text-white">{d.name}</span>
                           <span
                             className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${
-                              d.status === 'AVAILABLE'
+                              statusVal === 'AVAILABLE'
                                 ? 'bg-emerald-500/15 text-emerald-400'
-                                : d.status === 'FAST_FILLING'
+                                : statusVal === 'FAST_FILLING'
                                 ? 'bg-amber-500/15 text-amber-300'
                                 : 'bg-red-500/15 text-red-400'
                             }`}
                           >
-                            {d.status.replace('_', ' ')}
+                            {statusVal.replace('_', ' ')}
                           </span>
                         </div>
                         <div className="text-[11px] text-[#8CA8CC] mb-2">
-                          Dates: {new Date(d.arrivalDate).toLocaleDateString()} – {new Date(d.departureDate).toLocaleDateString()} ({d.totalDays} Days)
+                          Dates: {d.arrivalDate ? new Date(d.arrivalDate).toLocaleDateString() : 'TBA'} – {d.departureDate ? new Date(d.departureDate).toLocaleDateString() : 'TBA'} ({d.totalDays || 15} Days)
                         </div>
                         {/* Progress Bar */}
                         <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden flex">
@@ -411,7 +414,7 @@ export default function AdminDashboardPage() {
                           />
                         </div>
                         <div className="flex justify-between items-center text-[10px] text-[#8CA8CC] mt-1.5">
-                          <span>{d.bookedSeats} / {d.totalCapacity} Seats Booked</span>
+                          <span>{booked} / {capacity} Seats Booked</span>
                           <span>{percent}% Filled</span>
                         </div>
                       </div>
