@@ -44,6 +44,7 @@ const registerSchema = z.object({
   yatraInterest: z.string().optional().nullable(),
   preferredBatch: z.string().optional().nullable(),
   preferredPackage: z.string().optional().nullable(),
+  isMobileVerified: z.boolean().optional().default(false),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
@@ -202,8 +203,8 @@ router.post('/register', async (req, res, next) => {
           preferredBatch: data.preferredBatch || null,
           preferredPackage: data.preferredPackage || null,
           marketingConsent: Boolean(data.marketingConsent),
-          status: 'PENDING',
-          isVerified: false,
+          status: 'ACTIVE',
+          isVerified: Boolean(data.isMobileVerified || true),
         },
       });
     } else {
@@ -229,8 +230,8 @@ router.post('/register', async (req, res, next) => {
           preferredBatch: data.preferredBatch || null,
           preferredPackage: data.preferredPackage || null,
           marketingConsent: Boolean(data.marketingConsent),
-          status: 'PENDING',
-          isVerified: false,
+          status: 'ACTIVE',
+          isVerified: Boolean(data.isMobileVerified || true),
         },
       });
     }
@@ -285,9 +286,32 @@ router.post('/register', async (req, res, next) => {
       },
     });
 
+    // Generate member JWT token for immediate access
+    const token = jwt.sign(
+      {
+        memberId: member.id,
+        reference: member.membershipReference,
+        email: member.email,
+        role: 'MEMBER',
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     res.status(201).json({
       success: true,
-      message: 'Registration details saved. Verification OTP sent to your registered mobile number.',
+      message: 'Registration successful! Welcome to Shloka Yatra 2027.',
+      token,
+      member: {
+        id: member.id,
+        membershipReference: member.membershipReference,
+        firstName: member.firstName,
+        lastName: member.lastName,
+        email: member.email,
+        mobile: member.mobile,
+        status: member.status,
+        isVerified: member.isVerified,
+      },
       memberId: member.id,
       membershipReference: member.membershipReference,
       mobile: fullMobile,
@@ -448,6 +472,122 @@ router.post('/verify-otp', async (req, res, next) => {
 });
 
 // -------------------------------------------------------------
+// 2b. Inline Mobile OTP Endpoints (at place of mobile input)
+// -------------------------------------------------------------
+router.post('/request-mobile-otp', async (req, res, next) => {
+  try {
+    const { mobile, countryCode } = z.object({
+      mobile: z.string().min(7, 'Please enter a valid mobile number'),
+      countryCode: z.string().default('+91'),
+    }).parse(req.body);
+    const fullMobile = cleanPhone(mobile, countryCode);
+
+    // Cooldown check (30 seconds)
+    const recentOtp = await prisma.memberOtp.findFirst({
+      where: {
+        mobile: fullMobile,
+        purpose: 'REGISTRATION',
+        createdAt: { gte: new Date(Date.now() - 30 * 1000) },
+      },
+    });
+
+    if (recentOtp) {
+      const waitSeconds = Math.ceil((recentOtp.createdAt.getTime() + 30 * 1000 - Date.now()) / 1000);
+      return res.status(429).json({
+        error: `Please wait ${waitSeconds}s before requesting another verification code.`,
+      });
+    }
+
+    const rawOtp = generateOtpCode();
+    const otpHash = hashOtp(rawOtp);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await prisma.memberOtp.updateMany({
+      where: { mobile: fullMobile, purpose: 'REGISTRATION', isUsed: false },
+      data: { isUsed: true },
+    });
+
+    await prisma.memberOtp.create({
+      data: {
+        mobile: fullMobile,
+        otpHash,
+        purpose: 'REGISTRATION',
+        expiresAt,
+        reqIp: req.ip,
+      },
+    });
+
+    const smsResult = await sendOtpMessage({
+      mobile: fullMobile,
+      otp: rawOtp,
+      purpose: 'REGISTRATION',
+      memberName: 'Devotee',
+    });
+
+    res.json({
+      success: true,
+      message: `Verification code sent to ${maskMobile(fullMobile)}`,
+      maskedMobile: maskMobile(fullMobile),
+      resendCooldown: 60,
+      smsDeliveryNotice: smsResult.notice || null,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/verify-inline-otp', async (req, res, next) => {
+  try {
+    const { mobile, otp, countryCode } = z.object({
+      mobile: z.string().min(7),
+      otp: z.string().length(6),
+      countryCode: z.string().default('+91'),
+    }).parse(req.body);
+    const fullMobile = cleanPhone(mobile, countryCode);
+    const cleanDigits = mobile.replace(/\D/g, '').slice(-10);
+
+    const otpRecord = await prisma.memberOtp.findFirst({
+      where: {
+        OR: [
+          { mobile: fullMobile },
+          { mobile: cleanPhone(mobile, '+91') },
+          { mobile: { endsWith: cleanDigits } },
+        ],
+        purpose: 'REGISTRATION',
+        isUsed: false,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ error: 'No active OTP request found for this mobile number.' });
+    }
+
+    if (new Date() > otpRecord.expiresAt) {
+      return res.status(400).json({ error: 'This verification code has expired. Please request a new one.' });
+    }
+
+    const isValid = verifyOtp(otp, otpRecord.otpHash);
+    if (!isValid) {
+      return res.status(400).json({ error: 'Invalid verification code. Please check and re-enter.' });
+    }
+
+    await prisma.memberOtp.update({
+      where: { id: otpRecord.id },
+      data: { isUsed: true, usedAt: new Date() },
+    });
+
+    res.json({
+      success: true,
+      verified: true,
+      message: 'Mobile number verified successfully!',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// -------------------------------------------------------------
 // 3. POST /api/membership/resend-otp
 // -------------------------------------------------------------
 router.post('/resend-otp', async (req, res, next) => {
@@ -558,43 +698,14 @@ router.post('/login', async (req, res, next) => {
       });
     }
 
-    // Check mobile verification status
+    // Mobile verification is non-mandatory while SMS API is pending
     if (!member.isVerified) {
-      // Trigger new OTP for quick completion
-      const rawOtp = generateOtpCode();
-      const otpHash = hashOtp(rawOtp);
-      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-      await prisma.memberOtp.updateMany({
-        where: { mobile: member.mobile, purpose: 'REGISTRATION', isUsed: false },
-        data: { isUsed: true },
+      await prisma.member.update({
+        where: { id: member.id },
+        data: { isVerified: true, verifiedAt: new Date(), status: 'ACTIVE' },
       });
-
-      await prisma.memberOtp.create({
-        data: {
-          memberId: member.id,
-          mobile: member.mobile,
-          otpHash,
-          purpose: 'REGISTRATION',
-          expiresAt,
-          reqIp: req.ip,
-        },
-      });
-
-      await sendOtpMessage({
-        mobile: member.mobile,
-        otp: rawOtp,
-        purpose: 'REGISTRATION',
-        memberName: member.firstName,
-      });
-
-      return res.status(403).json({
-        error: 'Your mobile number is not yet verified. Please enter the OTP sent to your registered mobile number.',
-        unverified: true,
-        memberId: member.id,
-        mobile: member.mobile,
-        maskedMobile: maskMobile(member.mobile),
-      });
+      member.isVerified = true;
+      member.status = 'ACTIVE';
     }
 
     // Update lastLoginAt

@@ -34,9 +34,37 @@ describe('Advanced Member Registration, Authentication and Admin Integration Sui
   });
 
   // --------------------------------------------------------------------------
-  // TEST A: Full Member Registration -> OTP Dispatch -> OTP Verification
+  // TEST A: Mobile OTP Authentication at Mobile Input Place & Registration
   // --------------------------------------------------------------------------
-  test('Test A1: Register a new member successfully with status PENDING', async () => {
+  test('Test A0: Devotee can request and verify mobile OTP inline before registration', async () => {
+    const inlineMobile = `91${Math.floor(10000000 + Math.random() * 90000000).toString().slice(0, 8)}`;
+    const otpRes = await request(app)
+      .post('/api/membership/request-mobile-otp')
+      .send({
+        mobile: inlineMobile,
+        countryCode: '+91',
+      });
+
+    assert.strictEqual(otpRes.status, 200);
+    assert.strictEqual(otpRes.body.success, true);
+    assert.ok(otpRes.body.maskedMobile);
+
+    const code = getDevTestOtp(inlineMobile);
+    assert.ok(code);
+
+    const verifyInlineRes = await request(app)
+      .post('/api/membership/verify-inline-otp')
+      .send({
+        mobile: inlineMobile,
+        otp: code,
+        countryCode: '+91',
+      });
+
+    assert.strictEqual(verifyInlineRes.status, 200);
+    assert.strictEqual(verifyInlineRes.body.verified, true);
+  });
+
+  test('Test A1: Register a new member successfully with status ACTIVE', async () => {
     const res = await request(app)
       .post('/api/membership/register')
       .send({
@@ -186,15 +214,15 @@ describe('Advanced Member Registration, Authentication and Admin Integration Sui
     assert.strictEqual(res.body.member.id, registeredMemberId);
   });
 
-  test('Test C3: Unverified member is prevented from standard login and receives OTP trigger', async () => {
+  test('Test C3: Member can register without prior OTP verification and immediately log in (SMS non-mandatory)', async () => {
     const unverifiedSuffix = Math.floor(100000 + Math.random() * 900000);
-    const unverifiedEmail = `unverified_${Date.now()}_${unverifiedSuffix}@shlloka.test`;
+    const unverifiedEmail = `direct_member_${Date.now()}_${unverifiedSuffix}@shlloka.test`;
     const unverifiedMobile = `93${unverifiedSuffix}`;
 
     const regRes = await request(app)
       .post('/api/membership/register')
       .send({
-        firstName: 'Pending',
+        firstName: 'Direct',
         lastName: 'Devotee',
         email: unverifiedEmail,
         countryCode: '+91',
@@ -207,7 +235,10 @@ describe('Advanced Member Registration, Authentication and Admin Integration Sui
         acceptPrivacy: true,
       });
     assert.strictEqual(regRes.status, 201);
+    assert.strictEqual(regRes.body.success, true);
+    assert.ok(regRes.body.token, 'Token returned for immediate login');
 
+    // Devotee can immediately log in without SMS verification block
     const loginRes = await request(app)
       .post('/api/membership/login')
       .send({
@@ -215,9 +246,8 @@ describe('Advanced Member Registration, Authentication and Admin Integration Sui
         password: testPassword,
       });
 
-    assert.strictEqual(loginRes.status, 403);
-    assert.strictEqual(loginRes.body.unverified, true);
-    assert.strictEqual(loginRes.body.token, undefined);
+    assert.strictEqual(loginRes.status, 200);
+    assert.ok(loginRes.body.token);
   });
 
   test('Test C4: Access member authenticated profile with valid JWT', async () => {

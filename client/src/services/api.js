@@ -302,6 +302,12 @@ export const api = {
   registerMember: (payload) =>
     request('/membership/register', { method: 'POST', body: JSON.stringify(payload) }),
 
+  requestMobileOtp: (payload) =>
+    request('/membership/request-mobile-otp', { method: 'POST', body: JSON.stringify(payload) }),
+
+  verifyInlineOtp: (payload) =>
+    request('/membership/verify-inline-otp', { method: 'POST', body: JSON.stringify(payload) }),
+
   verifyRegistrationOtp: (payload) =>
     request('/membership/verify-otp', { method: 'POST', body: JSON.stringify(payload) }),
 
