@@ -24,7 +24,7 @@ describe('Mobile Responsiveness & Viewport Audit Tests', () => {
     assert.match(code, /setMobileOpen\(false\)/, 'Mobile drawer must close on navigation click');
   });
 
-  test('3. FAQ Page & FaqAccordion: responsive headings, wrapped filter pills, and contained search input', () => {
+  test('3. FAQ Page & FaqAccordion: responsive headings, continuous accordion, and high-contrast styling', () => {
     const pageCode = fs.readFileSync(path.join(clientSrcDir, 'pages', 'FaqsPage.jsx'), 'utf8');
     const accordionCode = fs.readFileSync(path.join(clientSrcDir, 'components', 'FaqAccordion.jsx'), 'utf8');
 
@@ -32,8 +32,9 @@ describe('Mobile Responsiveness & Viewport Audit Tests', () => {
     assert.ok(!pageCode.includes('clamp(38px, 5.5vw, 72px)'), 'FaqsPage heading must not use oversized desktop clamp');
     assert.match(pageCode, /text-2xl\s+sm:text-4xl/, 'FaqsPage heading must scale responsively');
 
-    // Filter pills wrapped
-    assert.match(accordionCode, /flex-wrap/, 'FaqAccordion category buttons must wrap properly on mobile');
+    // High contrast styling & continuous list without category tabs
+    assert.ok(accordionCode.includes('max-w-3xl mx-auto'), 'FaqAccordion must render centered responsive accordion');
+    assert.ok(!accordionCode.includes('activeCategory'), 'FaqAccordion must not use category tabs as per UI cleanup specifications');
   });
 
   test('4. Booking Page: eliminates fixed desktop columns and employs responsive grid with full-width mobile inputs', () => {
@@ -50,11 +51,12 @@ describe('Mobile Responsiveness & Viewport Audit Tests', () => {
     assert.match(code, /flex-col-reverse\s+sm:flex-row/, 'Booking buttons must stack on mobile screens');
   });
 
-  test('5. Terms & Conditions Page: eliminates 1fr 340px blowout and wraps long legal identifiers', () => {
+  test('5. Terms & Conditions Page: clean full-width layout without sidebar blowout and wraps long legal identifiers', () => {
     const code = fs.readFileSync(path.join(clientSrcDir, 'pages', 'TermsPage.jsx'), 'utf8');
 
     assert.ok(!code.includes("gridTemplateColumns: '1fr 340px'"), 'TermsPage must not use fixed 1fr 340px grid');
-    assert.match(code, /grid-cols-1\s+lg:grid-cols-\[1fr_340px\]/, 'TermsPage must use responsive grid');
+    assert.ok(!code.includes("lg:grid-cols-[1fr_340px]"), 'TermsPage must not use 2-column sidebar grid');
+    assert.match(code, /max-w-4xl\s+mx-auto/, 'TermsPage must use clean full-width max-w-4xl container');
     assert.match(code, /break-words/, 'TermsPage must wrap long contractual text');
   });
 

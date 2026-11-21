@@ -34,13 +34,13 @@ describe('Coworker Build Functional Integration & Architecture Tests', () => {
     assert.ok(floatingContent.includes('z-40'), 'Must float above content with elevated z-index');
   });
 
-  test('3. Privacy Policy Page renders all 17 DPDP clauses and TOC navigation', () => {
+  test('3. Privacy Policy Page renders all 17 DPDP clauses in clean full-width layout', () => {
     const privacyPageContent = fs.readFileSync(path.join(clientSrc, 'pages', 'PrivacyPolicyPage.jsx'), 'utf8');
     assert.ok(privacyPageContent.includes('PRIVACY_POLICY'), 'Must consume authoritative PRIVACY_POLICY array');
     assert.ok(privacyPageContent.includes('CONTRACT_METADATA'), 'Must consume CONTRACT_METADATA');
     assert.ok(privacyPageContent.includes('DPDP ACT 2023 COMPLIANT'), 'Must feature DPDP compliance badge');
-    assert.ok(privacyPageContent.includes('Table of Contents'), 'Must include quick Table of Contents navigation');
-    assert.ok(privacyPageContent.includes('handlePrint'), 'Must include print functionality');
+    assert.ok(privacyPageContent.includes('max-w-4xl mx-auto'), 'Must render in clean full-width container');
+    assert.ok(!privacyPageContent.includes('handlePrint'), 'Must not include print button as per UI cleanup requirements');
 
     const legalDataContent = fs.readFileSync(path.join(clientSrc, 'data', 'legalData.js'), 'utf8');
     for (let i = 1; i <= 17; i++) {

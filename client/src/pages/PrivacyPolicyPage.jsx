@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ShieldCheck, Search, Printer, ArrowRight, Lock, CheckCircle, FileText, ArrowUp } from 'lucide-react';
+import { Search, CheckCircle, ArrowUp } from 'lucide-react';
 import { PRIVACY_POLICY, CONTRACT_METADATA } from '../data/legalData';
 
 export default function PrivacyPolicyPage() {
@@ -30,10 +29,6 @@ export default function PrivacyPolicyPage() {
       clause.body.toLowerCase().includes(q)
     );
   });
-
-  const handlePrint = () => {
-    window.print();
-  };
 
   return (
     <div className="bg-[#F5F8FC] min-h-screen w-full max-w-full overflow-x-hidden">
@@ -79,8 +74,8 @@ export default function PrivacyPolicyPage() {
       <section className="py-8 sm:py-12 bg-[#F5F8FC]">
         <div className="wrap px-4 sm:px-6">
           {/* Controls Bar */}
-          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-[#D9E2EF] shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-6 sm:mb-8">
-            <div className="relative w-full md:max-w-md min-w-0">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-[#D9E2EF] shadow-sm flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto">
+            <div className="relative w-full sm:max-w-md min-w-0">
               <Search
                 size={18}
                 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8CA8CC] pointer-events-none"
@@ -94,165 +89,51 @@ export default function PrivacyPolicyPage() {
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-between md:justify-end gap-3">
-              <button
-                onClick={handlePrint}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-[#F5F8FC] border border-[#D9E2EF] text-[#102C52] text-xs sm:text-sm font-semibold hover:bg-slate-100 transition-colors"
-              >
-                <Printer size={16} />
-                Print Privacy Policy
-              </button>
-              <span className="text-xs sm:text-sm text-[#3B4E68]">
+            <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+              <span className="text-xs sm:text-sm text-[#3B4E68] font-medium">
                 Showing {filteredClauses.length} of {PRIVACY_POLICY.length} clauses
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start w-full max-w-full box-border">
-            {/* Clauses List */}
-            <div className="flex flex-col gap-4 sm:gap-6 min-w-0 w-full">
-              {filteredClauses.map((clause) => (
-                <article
-                  key={clause.id}
-                  id={clause.id}
-                  className="bg-white rounded-2xl border border-[#D9E2EF] shadow-sm p-4 sm:p-7 transition-colors hover:border-[#2F6FED]/40 w-full max-w-full box-border scroll-mt-24"
-                >
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
-                      <span className="inline-block bg-[#102C52] text-white font-bold text-xs sm:text-sm px-2.5 py-1 rounded-md font-mono shrink-0">
-                        {clause.id}
-                      </span>
-                      <h2 className="text-base sm:text-lg font-heading font-semibold text-[#071B3A] break-words">
-                        {clause.title}
-                      </h2>
-                    </div>
+          {/* Clean Full-Width Clauses Container */}
+          <div className="max-w-4xl mx-auto flex flex-col gap-4 sm:gap-6 min-w-0 w-full">
+            {filteredClauses.map((clause) => (
+              <article
+                key={clause.id}
+                id={clause.id}
+                className="bg-white rounded-2xl border border-[#D9E2EF] shadow-sm p-4 sm:p-7 transition-colors hover:border-[#2F6FED]/40 w-full max-w-full box-border scroll-mt-24"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
+                    <span className="inline-block bg-[#102C52] text-white font-bold text-xs sm:text-sm px-2.5 py-1 rounded-md font-mono shrink-0">
+                      {clause.id}
+                    </span>
+                    <h2 className="text-base sm:text-lg font-heading font-semibold text-[#071B3A] break-words">
+                      {clause.title}
+                    </h2>
                   </div>
-
-                  <div className="text-[#102C52] text-xs sm:text-sm md:text-base leading-relaxed whitespace-pre-line break-words font-body">
-                    {clause.body}
-                  </div>
-                </article>
-              ))}
-
-              {filteredClauses.length === 0 && (
-                <div className="bg-white p-8 sm:p-12 rounded-2xl text-center border border-[#D9E2EF]">
-                  <p className="text-[#3B4E68] text-sm sm:text-base mb-4">
-                    No privacy clauses matched your search query "{searchQuery}".
-                  </p>
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="px-5 py-2 rounded-xl bg-[#2F6FED] text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
-                  >
-                    Clear Filter
-                  </button>
                 </div>
-              )}
-            </div>
 
-            {/* Sticky Sidebar Navigation */}
-            <aside className="lg:sticky lg:top-28 flex flex-col gap-6 w-full min-w-0">
-              {/* Quick Table of Contents Card */}
-              <div className="bg-white rounded-2xl border border-[#D9E2EF] p-5 sm:p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-3 border-b border-[#D9E2EF]/60 pb-3">
-                  <h3 className="text-base sm:text-lg font-heading font-bold text-[#071B3A]">
-                    Table of Contents
-                  </h3>
-                  <span className="text-xs bg-[#F5F8FC] text-[#2F6FED] font-semibold px-2 py-0.5 rounded-full border border-[#D9E2EF]">
-                    P1–P17
-                  </span>
+                <div className="text-[#102C52] text-xs sm:text-sm md:text-base leading-relaxed whitespace-pre-line break-words font-body">
+                  {clause.body}
                 </div>
-                <nav className="flex flex-col gap-1.5 max-h-72 overflow-y-auto pr-1">
-                  {PRIVACY_POLICY.map((clause) => (
-                    <a
-                      key={clause.id}
-                      href={`#${clause.id}`}
-                      className="text-xs text-[#3B4E68] hover:text-[#2F6FED] hover:bg-[#F5F8FC] py-1 px-2 rounded-lg transition-colors flex items-center gap-2 truncate"
-                    >
-                      <span className="font-mono font-bold text-[#102C52] shrink-0">{clause.id}</span>
-                      <span className="truncate">{clause.title}</span>
-                    </a>
-                  ))}
-                </nav>
-              </div>
+              </article>
+            ))}
 
-              {/* Data Protection Core Principles Card */}
-              <div className="bg-white rounded-2xl border border-[#D9E2EF] p-5 sm:p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <Lock size={20} className="text-[#2F6FED] shrink-0" />
-                  <h3 className="text-base sm:text-lg font-heading font-bold text-[#071B3A]">
-                    Key Safeguards
-                  </h3>
-                </div>
-                <ul className="text-xs sm:text-sm text-[#102C52] flex flex-col gap-2.5 leading-relaxed">
-                  <li>
-                    <strong>Purpose Limitation (P4):</strong> Data is utilized solely for official travel permits, visas, safety, and ticketing.
-                  </li>
-                  <li>
-                    <strong>No Data Monetisation (P5):</strong> We never sell, rent, or commercialize pilgrim personal records.
-                  </li>
-                  <li>
-                    <strong>Medical Confidentiality (P6):</strong> Health declarations are restricted exclusively to emergency medical personnel.
-                  </li>
-                  <li>
-                    <strong>Grievance Resolution (P16):</strong> Formal statutory acknowledgement within 48 hours and resolution within 30 days.
-                  </li>
-                </ul>
-              </div>
-
-              {/* Associated Legal Documents Links */}
-              <div className="bg-white rounded-2xl border border-[#D9E2EF] p-5 sm:p-6 shadow-sm">
-                <h3 className="text-base sm:text-lg font-heading font-bold text-[#071B3A] mb-4">
-                  Associated Legal Documents
-                </h3>
-                <div className="flex flex-col gap-2.5">
-                  <Link
-                    to="/terms"
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#F5F8FC] text-[#071B3A] text-xs sm:text-sm font-semibold hover:bg-[#EEF3F9] transition-colors"
-                  >
-                    <span>Master Terms (T1–T35)</span>
-                    <ArrowRight size={16} className="text-[#2F6FED] shrink-0" />
-                  </Link>
-
-                  <Link
-                    to="/cancellation-policy"
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#F5F8FC] text-[#071B3A] text-xs sm:text-sm font-semibold hover:bg-[#EEF3F9] transition-colors"
-                  >
-                    <span>Cancellation & Refund Policy</span>
-                    <ArrowRight size={16} className="text-[#2F6FED] shrink-0" />
-                  </Link>
-
-                  <Link
-                    to="/risk-acknowledgement"
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#F5F8FC] text-[#071B3A] text-xs sm:text-sm font-semibold hover:bg-[#EEF3F9] transition-colors"
-                  >
-                    <span>Risk Acknowledgement (R1–R12)</span>
-                    <ArrowRight size={16} className="text-[#2F6FED] shrink-0" />
-                  </Link>
-
-                  <Link
-                    to="/service-schedule"
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#F5F8FC] text-[#071B3A] text-xs sm:text-sm font-semibold hover:bg-[#EEF3F9] transition-colors"
-                  >
-                    <span>Service Schedule (Annex A)</span>
-                    <ArrowRight size={16} className="text-[#2F6FED] shrink-0" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Ready to Book CTA */}
-              <div className="bg-gradient-to-br from-[#071B3A] to-[#102C52] rounded-2xl p-5 sm:p-6 text-white text-center">
-                <h4 className="text-base sm:text-lg font-heading font-bold text-white mb-2">Ready to Journey?</h4>
-                <p className="text-xs sm:text-sm text-[#D9E2EF] mb-4 leading-relaxed">
-                  Join our official 2027 Kailash Mansarovar departure batches with verified permit coordination.
+            {filteredClauses.length === 0 && (
+              <div className="bg-white p-8 sm:p-12 rounded-2xl text-center border border-[#D9E2EF]">
+                <p className="text-[#3B4E68] text-sm sm:text-base mb-4">
+                  No privacy clauses matched your search query "{searchQuery}".
                 </p>
-                <Link
-                  to="/book"
-                  className="block w-full py-3 px-4 rounded-xl bg-[#2F6FED] text-white font-bold text-xs sm:text-sm hover:bg-blue-600 transition-colors text-center"
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="px-5 py-2 rounded-xl bg-[#2F6FED] text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
                 >
-                  Proceed to Booking Portal
-                </Link>
+                  Clear Filter
+                </button>
               </div>
-            </aside>
+            )}
           </div>
         </div>
       </section>

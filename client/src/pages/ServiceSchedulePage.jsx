@@ -84,7 +84,7 @@ export default function ServiceSchedulePage() {
               Legal Supremacy of Annex A (Per Clause T2)
             </h3>
             <p className="text-xs sm:text-sm text-[#3B4E68] leading-relaxed">
-              Under Master Clause T2, this personalized Service Schedule prevails over general brochure statements or website descriptions regarding the specific services, inclusions, hotels, and prices agreed for your yatra.
+              Under Terms & Conditions Clause T2, this personalized Service Schedule prevails over general brochure statements or website descriptions regarding the specific services, inclusions, hotels, and prices agreed for your yatra.
             </p>
           </div>
 

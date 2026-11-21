@@ -41,7 +41,6 @@ import {
 
 export default function HomePage() {
   const { language, t } = useLanguage();
-  const [activeFaqTab, setActiveFaqTab] = useState('all');
   const [openFaq, setOpenFaq] = useState(null);
   const [activeDestinationIndex, setActiveDestinationIndex] = useState(0);
 
@@ -145,14 +144,6 @@ export default function HomePage() {
   ];
 
   // Frequently Asked Questions (Bilingual EN / HI)
-  const faqCategories = [
-    { id: 'all', label: language === 'HI' ? 'सभी प्रश्न' : 'All Questions' },
-    { id: 'booking', label: language === 'HI' ? 'पंजीकरण एवं बुकिंग' : 'Registration & Booking' },
-    { id: 'routes', label: language === 'HI' ? 'मार्ग एवं परिवहन' : 'Routes & Transport' },
-    { id: 'health', label: language === 'HI' ? 'स्वास्थ्य एवं तुंगता सुरक्षा' : 'Altitude & Health Safety' },
-    { id: 'documents', label: language === 'HI' ? 'परमिट एवं वीज़ा' : 'Permits & Visas' },
-  ];
-
   const faqs = [
     {
       cat: 'booking',
@@ -204,8 +195,6 @@ export default function HomePage() {
         : 'Yes. We cater to Indian passport holders as well as Foreign / NRI passport holders (US, UK, Canadian, European, Australian, etc.). Permit fees and visa logistics differ slightly according to foreign affairs rules, and our concierge team coordinates the exact paperwork for your nationality.',
     },
   ];
-
-  const filteredFaqs = activeFaqTab === 'all' ? faqs : faqs.filter((f) => f.cat === activeFaqTab);
 
   return (
     <div className="bg-[#F7F6F2] w-full overflow-x-hidden min-h-screen">
@@ -951,36 +940,19 @@ export default function HomePage() {
           SECTION 11: FREQUENTLY ASKED QUESTIONS
           ========================================================================= */}
       <section className="max-w-[1000px] mx-auto my-20 sm:my-24 px-4 sm:px-6">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <span className="eyebrow">{t('faqs.eyebrow')}</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#101D35] mt-2.5 mb-4">
             {t('faqs.heading')}
           </h2>
-          <p className="text-slate-600 text-base">
+          <p className="text-slate-600 text-base max-w-2xl mx-auto">
             {t('faqs.subtitle')}
           </p>
-
-          {/* Category Filter Pills */}
-          <div className="flex justify-center flex-wrap gap-2 mt-7">
-            {faqCategories.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setActiveFaqTab(c.id)}
-                className={`px-4 py-2 rounded-full border text-xs font-semibold cursor-pointer transition-all ${
-                  activeFaqTab === c.id
-                    ? 'bg-[#101D35] text-white border-[#101D35]'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Accordion Items */}
+        {/* Accordion Items - Displayed continuously */}
         <div className="flex flex-col gap-3.5">
-          {filteredFaqs.map((faq, idx) => (
+          {faqs.map((faq, idx) => (
             <div
               key={idx}
               className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-colors"

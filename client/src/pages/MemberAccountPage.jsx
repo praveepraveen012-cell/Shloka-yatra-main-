@@ -424,7 +424,7 @@ export default function MemberAccountPage() {
             </table>
 
             <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
-              <strong>Master Terms Refund Protection (Clause C4):</strong> All advance deposits are held in our corporate escrow account. In accordance with Clause C4, cancellations requested before China group permit submission are refundable subject only to administrative reconciliation.
+              <strong>Terms & Conditions Refund Protection (Clause C4):</strong> All advance deposits are held in our corporate escrow account. In accordance with Clause C4, cancellations requested before China group permit submission are refundable subject only to administrative reconciliation.
             </div>
           </div>
         )}

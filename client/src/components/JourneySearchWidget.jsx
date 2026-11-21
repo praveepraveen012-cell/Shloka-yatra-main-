@@ -744,18 +744,18 @@ export default function JourneySearchWidget() {
                               : `Package ${route.routeNumber}: ${route.name}`}
                           </h4>
 
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
                             <span>
-                              <strong>{language === 'HI' ? 'बैच:' : 'Batch:'}</strong> {currentBatch?.name}
+                              <strong className="text-slate-700">{language === 'HI' ? 'बैच:' : 'Batch:'}</strong> {currentBatch?.name}
                             </span>
-                            <span>•</span>
+                            <span className="text-slate-400 select-none">•</span>
                             <span>
-                              <strong>{language === 'HI' ? 'मार्ग:' : 'Route:'}</strong>{' '}
+                              <strong className="text-slate-700">{language === 'HI' ? 'मार्ग:' : 'Route:'}</strong>{' '}
                               {language === 'HI' ? 'काठमांडू ➔ मानसरोवर ➔ कैलाश पर्वत' : `${route.origin} → ${route.destination}`}
                             </span>
-                            <span>•</span>
+                            <span className="text-slate-400 select-none">•</span>
                             <span>
-                              <strong>{language === 'HI' ? 'पर्वतीय अनुकूलन:' : 'Acclimatization:'}</strong>{' '}
+                              <strong className="text-slate-700">{language === 'HI' ? 'पर्वतीय अनुकूलन:' : 'Acclimatization:'}</strong>{' '}
                               {language === 'HI' ? 'क्रमिक पर्वतीय अनुकूलन (वरिष्ठों हेतु सुरक्षित)' : route.acclimatization}
                             </span>
                           </div>

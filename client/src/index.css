@@ -34,9 +34,13 @@
     position: relative;
   }
 
-  h1, h2, h3, h4, h5, h6, .font-heading {
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--heading) !important;
     @apply font-semibold text-[#101D35];
+  }
+
+  .font-heading {
+    font-family: var(--heading) !important;
   }
 
   .font-body, .font-sans {
@@ -64,7 +68,8 @@
   .sec-dark h1,
   .sec-dark h2,
   .sec-dark h3,
-  .sec-dark h4 {
+  .sec-dark h4,
+  .sec-dark .font-heading {
     @apply text-white;
   }
   .sec-dark p {
