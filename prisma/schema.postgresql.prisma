@@ -111,6 +111,8 @@ model Booking {
   consentRecords       ConsentRecord[]
   whatsAppMessages     WhatsAppMessage[]
   bookingNotes         BookingNote[]
+  memberId             String?
+  member               Member?             @relation(fields: [memberId], references: [id], onDelete: SetNull)
 }
 
 model Traveller {
@@ -304,12 +306,14 @@ model AuditLog {
 }
 
 model Member {
-  id                  String   @id @default(uuid())
-  membershipReference String   @unique // e.g. SHL-MEM-2027-1042
+  id                  String      @id @default(uuid())
+  membershipReference String      @unique // e.g. SHL-MEM-2027-1042
   firstName           String
   lastName            String
-  email               String   @unique
-  mobile              String   @unique
+  email               String      @unique
+  mobile              String      @unique
+  countryCode         String      @default("+91")
+  gender              String?     // MALE, FEMALE, OTHER
   whatsapp            String?
   dateOfBirth         String?
   nationality         String
@@ -317,16 +321,39 @@ model Member {
   state               String
   city                String
   passwordHash        String
-  membershipType      String   @default("STANDARD")
-  yatraInterest       String? // "YES", "MAYBE", "FUTURE"
+  membershipType      String      @default("STANDARD")
+  yatraInterest       String?     // "YES", "MAYBE", "FUTURE"
   preferredBatch      String?
   preferredPackage    String?
-  travellersCount     Int?     @default(1)
+  travellersCount     Int?        @default(1)
   sourceDiscovery     String?
-  marketingConsent    Boolean  @default(false)
-  status              String   @default("ACTIVE") // ACTIVE, PENDING, SUSPENDED
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  marketingConsent    Boolean     @default(false)
+  isVerified          Boolean     @default(false)
+  verifiedAt          DateTime?
+  status              String      @default("ACTIVE") // ACTIVE, PENDING, SUSPENDED
+  internalNotes       String?
+  lastLoginAt         DateTime?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  bookings            Booking[]
+  otps                MemberOtp[]
+}
+
+model MemberOtp {
+  id          String    @id @default(uuid())
+  memberId    String?
+  member      Member?   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  mobile      String
+  email       String?
+  otpHash     String    // Hashed OTP
+  purpose     String    // REGISTRATION, PASSWORD_RESET, PROFILE_UPDATE
+  expiresAt   DateTime
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(5)
+  isUsed      Boolean   @default(false)
+  usedAt      DateTime?
+  reqIp       String?
+  createdAt   DateTime  @default(now())
 }
 
 model WhatsAppMessage {

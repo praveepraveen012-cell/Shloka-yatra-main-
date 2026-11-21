@@ -17,6 +17,7 @@ import {
   DollarSign,
   RotateCcw,
   RefreshCw,
+  UserCheck,
 } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import api from '../../services/api';
@@ -110,6 +111,24 @@ export default function AdminDashboardPage() {
                   Across all active booking records
                 </div>
               </div>
+
+              {/* Card 2b: Registered Sangha Members */}
+              <Link
+                to="/admin/members"
+                className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-[#D9A441] rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5 block group"
+              >
+                <div className="flex items-center justify-between text-xs font-semibold text-[#D9A441] uppercase tracking-wider mb-2">
+                  <span>Registered Members</span>
+                  <UserCheck size={18} className="text-[#D9A441] group-hover:scale-110 transition-transform" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-[#D9A441]">
+                  {stats.totalMembers || 0}
+                </div>
+                <div className="mt-2 text-xs text-[#8CA8CC] flex items-center justify-between">
+                  <span>Sangha Members</span>
+                  <span className="text-[#D9A441] font-semibold text-[11px] group-hover:underline">Manage &rarr;</span>
+                </div>
+              </Link>
 
               {/* Card 3: Confirmed Bookings */}
               <div className="bg-gradient-to-b from-[#0B2144] to-[#071B3A] border border-[#D9E2EF]/15 border-t-2 border-t-emerald-400 rounded-2xl p-4 sm:p-5 shadow-lg transition-transform hover:-translate-y-0.5">

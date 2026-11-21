@@ -99,10 +99,14 @@ export default function App() {
 
         {/* Membership & Authentication */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/member/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/membership/register" element={<MembershipRegisterPage />} />
+        <Route path="/register" element={<MembershipRegisterPage />} />
+        <Route path="/become-member" element={<MembershipRegisterPage />} />
         <Route path="/membership/success" element={<MembershipSuccessPage />} />
         <Route path="/account" element={<MemberAccountPage />} />
+        <Route path="/member/dashboard" element={<MemberAccountPage />} />
 
         {/* Supporting Pages & Policy Routes */}
         <Route path="/booking-success" element={<BookingSuccessPage />} />

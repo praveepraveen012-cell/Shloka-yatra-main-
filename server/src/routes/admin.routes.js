@@ -1116,12 +1116,18 @@ router.get('/audit-logs', async (req, res, next) => {
 // 11. Member Management
 router.get('/members', async (req, res, next) => {
   try {
-    const { search, status } = req.query;
+    const { search, status, verification } = req.query;
 
     const where = {};
     if (status && status !== 'ALL') {
       where.status = String(status);
     }
+    if (verification === 'VERIFIED') {
+      where.isVerified = true;
+    } else if (verification === 'UNVERIFIED') {
+      where.isVerified = false;
+    }
+
     if (search) {
       const q = String(search).trim();
       where.OR = [
@@ -1130,6 +1136,7 @@ router.get('/members', async (req, res, next) => {
         { email: { contains: q.toLowerCase() } },
         { mobile: { contains: q } },
         { membershipReference: { contains: q.toUpperCase() } },
+        { city: { contains: q } },
       ];
     }
 
@@ -1142,7 +1149,8 @@ router.get('/members', async (req, res, next) => {
         lastName: true,
         email: true,
         mobile: true,
-        whatsapp: true,
+        countryCode: true,
+        gender: true,
         dateOfBirth: true,
         nationality: true,
         country: true,
@@ -1156,12 +1164,175 @@ router.get('/members', async (req, res, next) => {
         sourceDiscovery: true,
         marketingConsent: true,
         status: true,
+        isVerified: true,
+        verifiedAt: true,
+        internalNotes: true,
+        lastLoginAt: true,
         createdAt: true,
+        _count: {
+          select: { bookings: true },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
 
     res.json({ members, count: members.length });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/members/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const member = await prisma.member.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        membershipReference: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        mobile: true,
+        countryCode: true,
+        gender: true,
+        dateOfBirth: true,
+        nationality: true,
+        country: true,
+        state: true,
+        city: true,
+        membershipType: true,
+        yatraInterest: true,
+        preferredBatch: true,
+        preferredPackage: true,
+        travellersCount: true,
+        sourceDiscovery: true,
+        marketingConsent: true,
+        status: true,
+        isVerified: true,
+        verifiedAt: true,
+        internalNotes: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!member) {
+      return res.status(404).json({ error: 'Member record not found' });
+    }
+
+    // Associated Bookings (by memberId OR matching contactEmail / contactPhone)
+    const bookings = await prisma.booking.findMany({
+      where: {
+        OR: [
+          { memberId: member.id },
+          { contactEmail: member.email.toLowerCase() },
+          { contactPhone: member.mobile },
+          { contactPhone: { endsWith: member.mobile.slice(-10) } },
+        ],
+      },
+      include: {
+        departure: true,
+        route: true,
+        travellers: true,
+        payments: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Associated Payments
+    const payments = await prisma.payment.findMany({
+      where: {
+        booking: {
+          OR: [
+            { memberId: member.id },
+            { contactEmail: member.email.toLowerCase() },
+            { contactPhone: member.mobile },
+            { contactPhone: { endsWith: member.mobile.slice(-10) } },
+          ],
+        },
+      },
+      include: {
+        booking: {
+          select: {
+            id: true,
+            bookingReference: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Activity / Audit Trail for this member
+    const auditLogs = await prisma.auditLog.findMany({
+      where: {
+        OR: [
+          { entityId: member.id },
+          { userEmail: member.email },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+
+    res.json({
+      member,
+      bookings,
+      payments,
+      auditLogs,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/members/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const schema = z.object({
+      firstName: z.string().min(2).optional(),
+      lastName: z.string().min(1).optional(),
+      gender: z.string().optional().nullable(),
+      dateOfBirth: z.string().optional().nullable(),
+      nationality: z.string().optional(),
+      country: z.string().optional(),
+      state: z.string().optional().nullable(),
+      city: z.string().optional().nullable(),
+      membershipType: z.string().optional(),
+      internalNotes: z.string().optional().nullable(),
+    });
+
+    const data = schema.parse(req.body);
+
+    const updated = await prisma.member.update({
+      where: { id },
+      data,
+      select: {
+        id: true,
+        membershipReference: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        mobile: true,
+        status: true,
+        internalNotes: true,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        action: 'MEMBER_UPDATED_BY_ADMIN',
+        entity: 'MEMBER',
+        entityId: id,
+        details: JSON.stringify(data),
+      },
+    });
+
+    res.json({ message: 'Member details updated successfully', member: updated });
   } catch (error) {
     next(error);
   }
@@ -1199,6 +1370,46 @@ router.put('/members/:id/status', async (req, res, next) => {
     });
 
     res.json({ message: 'Member status updated successfully', member: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/members/:id/notes', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { note } = z.object({
+      note: z.string().min(1, 'Note content is required'),
+    }).parse(req.body);
+
+    const member = await prisma.member.findUnique({ where: { id } });
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    const newNotes = member.internalNotes
+      ? `${member.internalNotes}\n[${timestamp} - ${req.user.name || req.user.email}]: ${note}`
+      : `[${timestamp} - ${req.user.name || req.user.email}]: ${note}`;
+
+    const updated = await prisma.member.update({
+      where: { id },
+      data: { internalNotes: newNotes },
+      select: { id: true, internalNotes: true },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        action: 'MEMBER_NOTE_ADDED',
+        entity: 'MEMBER',
+        entityId: id,
+        details: JSON.stringify({ notePreview: note.slice(0, 50) }),
+      },
+    });
+
+    res.json({ message: 'Note added successfully', member: updated });
   } catch (error) {
     next(error);
   }

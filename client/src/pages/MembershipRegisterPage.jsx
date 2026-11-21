@@ -1,858 +1,863 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  User,
-  Compass,
-  Lock,
+  ShieldCheck,
   CheckCircle2,
   ArrowRight,
-  ArrowLeft,
   Eye,
   EyeOff,
-  Shield,
-  Info,
+  Phone,
+  Mail,
+  User,
+  Lock,
+  Calendar,
+  Globe,
+  Sparkles,
+  AlertCircle,
+  RefreshCw,
+  ArrowLeft,
 } from 'lucide-react';
-import api from '../services/api';
+import { api } from '../services/api';
+import { heroImages } from '../data/imageManifest';
+import { assetUrl } from '../utils/assets';
+
+const COUNTRY_CODES = [
+  { code: '+91', country: 'India (भारत)', flag: '🇮🇳' },
+  { code: '+1', country: 'USA / Canada', flag: '🇺🇸' },
+  { code: '+44', country: 'United Kingdom', flag: '🇬🇧' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+971', country: 'United Arab Emirates', flag: '🇦🇪' },
+  { code: '+65', country: 'Singapore', flag: '🇸🇬' },
+  { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
+  { code: '+977', country: 'Nepal', flag: '🇳🇵' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+];
 
 export default function MembershipRegisterPage() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
+
+  // Multi-step state: 1: Details Form, 2: Mobile OTP Verification, 3: Success
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState('');
-  const [errors, setErrors] = useState({});
+  const [errorMsg, setErrorMsg] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // Password Visibility
   const [showPassword, setShowPassword] = useState(false);
-  const [sameAsMobile, setSameAsMobile] = useState(true);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
-    // Step 1: Personal Information
     firstName: '',
     lastName: '',
     email: '',
-    mobile: '+91 ',
-    whatsapp: '',
+    countryCode: '+91',
+    mobile: '',
+    gender: 'PREFER_NOT_TO_SAY',
     dateOfBirth: '',
     nationality: 'Indian',
     country: 'India',
     state: '',
     city: '',
-
-    // Step 2: Membership Details
-    membershipType: 'STANDARD',
-    yatraInterest: 'YES_2027',
-    preferredBatch: 'BATCH_1',
-    preferredPackage: 'OPTION_1',
-    travellersCount: 1,
-    sourceDiscovery: 'WEBSITE',
-
-    // Step 3: Account Security
     password: '',
     confirmPassword: '',
     acceptTerms: false,
     acceptPrivacy: false,
-    marketingConsent: false,
   });
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => {
-      const next = { ...prev, [field]: value };
-      if (field === 'mobile' && sameAsMobile) {
-        next.whatsapp = value;
-      }
-      return next;
-    });
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: null }));
+  // OTP State
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [maskedMobile, setMaskedMobile] = useState('');
+  const [fullMobile, setFullMobile] = useState('');
+  const [memberId, setMemberId] = useState('');
+  const [membershipRef, setMembershipRef] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [smsNotice, setSmsNotice] = useState('');
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: null }));
     }
+    setErrorMsg('');
   };
 
-  const handleSameAsMobileToggle = (checked) => {
-    setSameAsMobile(checked);
-    if (checked) {
-      setFormData((prev) => ({ ...prev, whatsapp: prev.mobile }));
-    }
+  // Password strength calculation
+  const getPasswordStrength = (pass) => {
+    if (!pass) return { score: 0, label: '', color: 'bg-slate-200' };
+    let score = 0;
+    if (pass.length >= 8) score += 1;
+    if (/[A-Z]/.test(pass)) score += 1;
+    if (/[0-9]/.test(pass)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+
+    if (score <= 1) return { score: 1, label: 'Weak', color: 'bg-red-500' };
+    if (score <= 3) return { score: 2, label: 'Moderate', color: 'bg-amber-500' };
+    return { score: 3, label: 'Strong', color: 'bg-emerald-500' };
   };
 
-  // Step 1 Validation
-  const validateStep1 = () => {
-    const errs = {};
-    if (!formData.firstName.trim()) errs.firstName = 'First name is required';
-    if (!formData.lastName.trim()) errs.lastName = 'Last name is required';
-    if (!formData.email.trim() || !formData.email.includes('@')) {
-      errs.email = 'Valid email address is required';
-    }
-    if (!formData.mobile.trim() || formData.mobile.trim().length < 8) {
-      errs.mobile = 'Valid mobile number with country code is required';
-    }
-    if (!sameAsMobile && (!formData.whatsapp || formData.whatsapp.trim().length < 8)) {
-      errs.whatsapp = 'Valid WhatsApp number is required';
-    }
-    if (!formData.nationality.trim()) errs.nationality = 'Nationality is required';
-    if (!formData.country.trim()) errs.country = 'Country of residence is required';
-    if (!formData.state.trim()) errs.state = 'State or province is required';
-    if (!formData.city.trim()) errs.city = 'City is required';
+  const passwordStrength = getPasswordStrength(formData.password);
 
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
+  // Validate Step 1 Form
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.firstName.trim()) errors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
 
-  // Step 2 Validation
-  const validateStep2 = () => {
-    return true;
-  };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
+      errors.email = 'Please provide a valid email address';
+    }
 
-  // Step 3 Validation
-  const validateStep3 = () => {
-    const errs = {};
+    const cleanMobileDigits = formData.mobile.replace(/\D/g, '');
+    if (!cleanMobileDigits || cleanMobileDigits.length < 7 || cleanMobileDigits.length > 15) {
+      errors.mobile = 'Please enter a valid mobile phone number';
+    }
+
     if (!formData.password || formData.password.length < 8) {
-      errs.password = 'Password must be at least 8 characters';
+      errors.password = 'Password must be at least 8 characters long';
     }
+
     if (formData.password !== formData.confirmPassword) {
-      errs.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = 'Passwords do not match';
     }
+
     if (!formData.acceptTerms) {
-      errs.acceptTerms = 'You must accept the Terms and Conditions';
+      errors.acceptTerms = 'You must accept the Terms & Conditions';
     }
+
     if (!formData.acceptPrivacy) {
-      errs.acceptPrivacy = 'You must accept the Privacy Policy';
+      errors.acceptPrivacy = 'You must accept the Privacy Policy';
     }
 
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleNext = () => {
-    setServerError('');
-    if (currentStep === 1 && !validateStep1()) return;
-    if (currentStep === 2 && !validateStep2()) return;
-    if (currentStep === 3 && !validateStep3()) return;
+  // Submit Step 1: Initiates Member Registration and Dispatches OTP
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
 
-    setCurrentStep((prev) => Math.min(prev + 1, 4));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    if (!validateForm()) {
+      return;
+    }
 
-  const handleBack = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSubmit = async () => {
-    setServerError('');
     setLoading(true);
-
     try {
       const payload = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        email: formData.email.toLowerCase().trim(),
-        mobile: formData.mobile.trim(),
-        whatsapp: sameAsMobile ? formData.mobile.trim() : (formData.whatsapp || '').trim(),
+        email: formData.email.trim().toLowerCase(),
+        countryCode: formData.countryCode,
+        mobile: `${formData.countryCode} ${formData.mobile.trim()}`,
+        gender: formData.gender,
         dateOfBirth: formData.dateOfBirth || null,
         nationality: formData.nationality.trim(),
         country: formData.country.trim(),
-        state: formData.state.trim(),
-        city: formData.city.trim(),
-        membershipType: formData.membershipType,
-        yatraInterest: formData.yatraInterest,
-        preferredBatch: formData.preferredBatch,
-        preferredPackage: formData.preferredPackage,
-        travellersCount: Number(formData.travellersCount) || 1,
-        sourceDiscovery: formData.sourceDiscovery,
+        state: formData.state.trim() || null,
+        city: formData.city.trim() || null,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        acceptTerms: Boolean(formData.acceptTerms),
-        acceptPrivacy: Boolean(formData.acceptPrivacy),
-        marketingConsent: Boolean(formData.marketingConsent),
+        acceptTerms: true,
+        acceptPrivacy: true,
       };
 
-      const data = await api.registerMember(payload);
+      const res = await api.registerMember(payload);
 
-      // Store member session for immediate access
-      localStorage.setItem('shlloka_member_token', data.token);
-      localStorage.setItem('shlloka_member_user', JSON.stringify(data.member));
-
-      // Navigate to success confirmation with member data
-      navigate('/membership/success', {
-        state: {
-          memberReference: data.membershipReference,
-          member: data.member,
-        },
-      });
+      if (res.success) {
+        setMemberId(res.memberId);
+        setMembershipRef(res.membershipReference);
+        setMaskedMobile(res.maskedMobile);
+        setFullMobile(res.mobile);
+        setResendCooldown(res.resendCooldown || 60);
+        setSmsNotice(res.smsDeliveryNotice || '');
+        setStep(2); // Advance to OTP verification
+      } else {
+        setErrorMsg(res.error || 'Failed to submit registration. Please try again.');
+      }
     } catch (err) {
-      setServerError(err.message || 'Registration failed. Please check the provided information.');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setErrorMsg(err.message || 'Registration failed. Please verify your details.');
     } finally {
       setLoading(false);
     }
   };
 
-  const steps = [
-    { number: 1, title: 'Personal Info', icon: User },
-    { number: 2, title: 'Yatra Interest', icon: Compass },
-    { number: 3, title: 'Security', icon: Lock },
-    { number: 4, title: 'Review & Submit', icon: CheckCircle2 },
-  ];
+  // OTP Digits Change Handler
+  const handleOtpDigitChange = (index, value) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-box-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-box-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (!pasted) return;
+    const newOtp = [...otp];
+    for (let i = 0; i < pasted.length; i++) {
+      newOtp[i] = pasted[i];
+    }
+    setOtp(newOtp);
+    const targetIdx = Math.min(pasted.length, 5);
+    const targetInput = document.getElementById(`otp-box-${targetIdx}`);
+    if (targetInput) targetInput.focus();
+  };
+
+  // Submit Step 2: Verify Mobile OTP
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    const otpCode = otp.join('');
+    if (otpCode.length !== 6) {
+      setErrorMsg('Please enter the complete 6-digit verification code.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await api.verifyRegistrationOtp({
+        mobile: fullMobile,
+        otp: otpCode,
+        purpose: 'REGISTRATION',
+        memberId,
+      });
+
+      if (res.success) {
+        // Save authenticated session
+        if (res.token) {
+          localStorage.setItem('shlloka_member_token', res.token);
+        }
+        if (res.member) {
+          localStorage.setItem('shlloka_member_user', JSON.stringify(res.member));
+        }
+        setStep(3); // Success Screen
+      } else {
+        setErrorMsg(res.error || 'Invalid OTP code.');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'OTP verification failed. Please check the code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend OTP
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0 || loading) return;
+    setErrorMsg('');
+    setLoading(true);
+    try {
+      const res = await api.resendMemberOtp({
+        mobile: fullMobile,
+        purpose: 'REGISTRATION',
+      });
+      if (res.success) {
+        setResendCooldown(res.resendCooldown || 60);
+        setSmsNotice(res.smsDeliveryNotice || '');
+        setOtp(['', '', '', '', '', '']);
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to resend verification OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="bg-[#F5F8FC] min-h-[90vh] pt-28 pb-12 sm:pt-36 sm:pb-20 px-4 sm:px-6 w-full max-w-full overflow-x-hidden font-body">
-      <div className="max-w-3xl mx-auto w-full box-border">
-        {/* Page Header */}
-        <div className="text-center mb-6 sm:mb-10">
-          <span className="eyebrow text-[#2F6FED] block mb-1">Shloka Yatra Membership</span>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-[#071B3A] mb-2 sm:mb-3 leading-tight">
-            Become a Registered Member
-          </h1>
-          <p className="text-[#2A4365] text-xs sm:text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-            Join our spiritual community to receive verified updates, early batch access, and personalized pilgrimage guidance for Kailash Mansarovar Yatra 2027.
-          </p>
-        </div>
-
-        {/* Step Progress Tracker */}
-        <div className="w-full overflow-x-auto pb-3 mb-6 sm:mb-8 scrollbar-none">
-          <div className="flex justify-between items-center min-w-[320px] max-w-xl mx-auto relative px-2">
-            {steps.map((s) => {
-              const Icon = s.icon;
-              const isCompleted = currentStep > s.number;
-              const isCurrent = currentStep === s.number;
-
-              return (
-                <div
-                  key={s.number}
-                  className="flex flex-col items-center z-10 flex-1 min-w-[70px]"
-                >
-                  <div
-                    className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all ${
-                      isCurrent
-                        ? 'bg-[#2F6FED] text-white border-2 border-[#2F6FED] shadow-md'
-                        : isCompleted
-                        ? 'bg-[#071B3A] text-white border-2 border-[#071B3A]'
-                        : 'bg-white text-[#4A607A] border-2 border-[#D9E2EF]'
-                    }`}
-                  >
-                    <Icon size={18} />
-                  </div>
-                  <span
-                    className={`text-[11px] sm:text-xs mt-1.5 text-center truncate max-w-[80px] sm:max-w-none ${
-                      isCurrent ? 'font-bold text-[#2F6FED]' : 'font-medium text-[#4A607A]'
-                    }`}
-                  >
-                    {s.title}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Form Container */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-sm border border-[#D9E2EF] w-full box-border">
-          {serverError && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-600 p-3.5 sm:p-4 rounded-xl mb-6 text-xs sm:text-sm">
-              {serverError}
+    <div className="bg-[#F7F6F2] min-h-screen pt-28 pb-16 sm:pt-36 sm:pb-24 font-sans text-slate-800">
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Step 3: Registration Success Screen */}
+        {step === 3 ? (
+          <div className="max-w-2xl mx-auto bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-xl text-center">
+            <div className="w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-500 text-emerald-600 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 size={44} />
             </div>
-          )}
 
-          {/* ================= STEP 1: PERSONAL INFORMATION ================= */}
-          {currentStep === 1 && (
-            <div>
-              <div className="mb-6 border-b border-[#D9E2EF] pb-4">
-                <h2 className="text-lg sm:text-xl font-heading font-bold text-[#071B3A] mb-1">
-                  Step 1: Personal Details
-                </h2>
-                <p className="text-[#2A4365] text-xs sm:text-sm leading-relaxed">
-                  Please provide your accurate legal contact information for membership records and communications.
-                </p>
-              </div>
+            <span className="text-xs font-bold uppercase tracking-widest text-[#D9A441] block mb-2">
+              Membership Activated
+            </span>
+            <h1 className="text-2xl sm:text-4xl font-heading font-bold text-[#101D35] mb-3">
+              Welcome to Shloka Yatra 2027
+            </h1>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
+              Your mobile number has been verified and your official pilgrimage membership account is active.
+            </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                {/* First Name */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="firstName" style={{ color: '#071B3A' }}>First Name *</label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    className="form-input light"
-                    placeholder="e.g. Ramesh"
-                    value={formData.firstName}
-                    onChange={(e) => handleChange('firstName', e.target.value)}
-                  />
-                  {errors.firstName && <div className="form-error">{errors.firstName}</div>}
-                </div>
-
-                {/* Last Name */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="lastName" style={{ color: '#071B3A' }}>Last Name *</label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    className="form-input light"
-                    placeholder="e.g. Sharma"
-                    value={formData.lastName}
-                    onChange={(e) => handleChange('lastName', e.target.value)}
-                  />
-                  {errors.lastName && <div className="form-error">{errors.lastName}</div>}
-                </div>
-
-                {/* Email Address */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="email" style={{ color: '#071B3A' }}>Email Address *</label>
-                  <input
-                    id="email"
-                    type="email"
-                    className="form-input light"
-                    placeholder="e.g. ramesh.sharma@example.com"
-                    value={formData.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                  />
-                  {errors.email && <div className="form-error">{errors.email}</div>}
-                </div>
-
-                {/* Mobile Number with Country Code */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="mobile" style={{ color: '#071B3A' }}>Mobile Number (with Country Code) *</label>
-                  <input
-                    id="mobile"
-                    type="tel"
-                    className="form-input light"
-                    placeholder="+91 9876543210"
-                    value={formData.mobile}
-                    onChange={(e) => handleChange('mobile', e.target.value)}
-                  />
-                  {errors.mobile && <div className="form-error">{errors.mobile}</div>}
-                </div>
-
-                {/* WhatsApp Number Option */}
-                <div className="form-group" style={{ gridColumn: '1 / -1', marginBottom: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: sameAsMobile ? '0' : '10px' }}>
-                    <input
-                      id="sameAsMobile"
-                      type="checkbox"
-                      checked={sameAsMobile}
-                      onChange={(e) => handleSameAsMobileToggle(e.target.checked)}
-                      style={{ width: '18px', height: '18px', accentColor: '#2F6FED', cursor: 'pointer' }}
-                    />
-                    <label htmlFor="sameAsMobile" style={{ fontSize: '0.9rem', color: '#071B3A', cursor: 'pointer' }}>
-                      My WhatsApp number is the same as my mobile number
-                    </label>
-                  </div>
-
-                  {!sameAsMobile && (
-                    <div>
-                      <input
-                        id="whatsapp"
-                        type="tel"
-                        className="form-input light"
-                        placeholder="WhatsApp Number (with country code)"
-                        value={formData.whatsapp}
-                        onChange={(e) => handleChange('whatsapp', e.target.value)}
-                      />
-                      {errors.whatsapp && <div className="form-error">{errors.whatsapp}</div>}
-                    </div>
-                  )}
-                </div>
-
-                {/* Date of Birth */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="dateOfBirth" style={{ color: '#071B3A' }}>Date of Birth (Optional)</label>
-                  <input
-                    id="dateOfBirth"
-                    type="date"
-                    className="form-input light"
-                    value={formData.dateOfBirth}
-                    onChange={(e) => handleChange('dateOfBirth', e.target.value)}
-                  />
-                </div>
-
-                {/* Nationality */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="nationality" style={{ color: '#071B3A' }}>Nationality *</label>
-                  <input
-                    id="nationality"
-                    type="text"
-                    className="form-input light"
-                    placeholder="e.g. Indian"
-                    value={formData.nationality}
-                    onChange={(e) => handleChange('nationality', e.target.value)}
-                  />
-                  {errors.nationality && <div className="form-error">{errors.nationality}</div>}
-                </div>
-
-                {/* Country of Residence */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="country" style={{ color: '#071B3A' }}>Country of Residence *</label>
-                  <input
-                    id="country"
-                    type="text"
-                    className="form-input light"
-                    placeholder="e.g. India, United States, UK"
-                    value={formData.country}
-                    onChange={(e) => handleChange('country', e.target.value)}
-                  />
-                  {errors.country && <div className="form-error">{errors.country}</div>}
-                </div>
-
-                {/* State / Province */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="state" style={{ color: '#071B3A' }}>State or Province *</label>
-                  <input
-                    id="state"
-                    type="text"
-                    className="form-input light"
-                    placeholder="e.g. Karnataka, Maharashtra, Delhi"
-                    value={formData.state}
-                    onChange={(e) => handleChange('state', e.target.value)}
-                  />
-                  {errors.state && <div className="form-error">{errors.state}</div>}
-                </div>
-
-                {/* City */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="city" style={{ color: '#071B3A' }}>City *</label>
-                  <input
-                    id="city"
-                    type="text"
-                    className="form-input light"
-                    placeholder="e.g. Bengaluru, Mumbai, New Delhi"
-                    value={formData.city}
-                    onChange={(e) => handleChange('city', e.target.value)}
-                  />
-                  {errors.city && <div className="form-error">{errors.city}</div>}
-                </div>
-              </div>
+            <div className="bg-[#071B3A] text-white rounded-2xl p-6 border border-[#2F6FED]/40 mb-8 text-center">
+              <span className="text-xs uppercase tracking-wider text-[#8CA8CC] block mb-1">
+                Your Official Membership ID
+              </span>
+              <span className="font-mono text-2xl sm:text-3xl font-bold tracking-wider text-[#D9A441] block">
+                {membershipRef}
+              </span>
+              <span className="text-xs text-slate-300 mt-2 block">
+                Quote this reference ID for priority coordination on permits, batch allocation, and WhatsApp alerts.
+              </span>
             </div>
-          )}
 
-          {/* ================= STEP 2: MEMBERSHIP DETAILS ================= */}
-          {currentStep === 2 && (
-            <div>
-              <div style={{ marginBottom: '28px', borderBottom: '1px solid #D9E2EF', paddingBottom: '16px' }}>
-                <h2 style={{ fontSize: '1.45rem', color: '#071B3A', marginBottom: '4px' }}>
-                  Step 2: Membership & Pilgrimage Preferences
-                </h2>
-                <p style={{ color: '#2A4365', fontSize: '0.92rem' }}>
-                  Help us tailor departure advisories and pilgrimage briefings to your schedule.
-                </p>
-              </div>
-
-              {/* Informational Callout: Separate from booking */}
-              <div
-                style={{
-                  background: '#F5F8FC',
-                  border: '1px solid #2F6FED',
-                  padding: '16px 20px',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  marginBottom: '28px',
-                }}
-              >
-                <Info size={20} color="#2F6FED" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <span style={{ fontSize: '0.88rem', color: '#071B3A', lineHeight: '1.6' }}>
-                  <b>Important Note:</b> Membership registration is completely separate from booking a Yatra. Becoming a member does not charge fees or automatically confirm a trip or seat. Trip reservations are completed separately through the booking portal.
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                {/* Membership Type */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="membershipType" style={{ color: '#071B3A' }}>Membership Tier</label>
-                  <select
-                    id="membershipType"
-                    className="form-select light"
-                    value={formData.membershipType}
-                    onChange={(e) => handleChange('membershipType', e.target.value)}
-                  >
-                    <option value="STANDARD">Standard Yatri Membership (Default)</option>
-                  </select>
-                </div>
-
-                {/* Interest in Kailash Mansarovar Yatra 2027 */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="yatraInterest" style={{ color: '#071B3A' }}>Interest in Kailash Yatra 2027</label>
-                  <select
-                    id="yatraInterest"
-                    className="form-select light"
-                    value={formData.yatraInterest}
-                    onChange={(e) => handleChange('yatraInterest', e.target.value)}
-                  >
-                    <option value="YES_2027">Yes — Planning to participate in 2027</option>
-                    <option value="EXPLORING">Exploring / Gathering Information</option>
-                    <option value="FUTURE">Interested in Future Yatras (2028+)</option>
-                  </select>
-                </div>
-
-                {/* Preferred Departure Batch */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="preferredBatch" style={{ color: '#071B3A' }}>Preferred 2027 Departure Batch</label>
-                  <select
-                    id="preferredBatch"
-                    className="form-select light"
-                    value={formData.preferredBatch}
-                    onChange={(e) => handleChange('preferredBatch', e.target.value)}
-                  >
-                    <option value="BATCH_1">Batch 1: 09 May – 22 May (Full Moon)</option>
-                    <option value="BATCH_2">Batch 2: 23 May – 05 Jun</option>
-                    <option value="BATCH_3">Batch 3: 07 Jun – 20 Jun (Full Moon)</option>
-                    <option value="BATCH_4">Batch 4: 21 Jun – 04 Jul</option>
-                    <option value="BATCH_5">Batch 5: 06 Jul – 19 Jul (Full Moon)</option>
-                    <option value="FLEXIBLE">Flexible / Undecided</option>
-                  </select>
-                </div>
-
-                {/* Preferred Travel Package */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="preferredPackage" style={{ color: '#071B3A' }}>Preferred Travel Route</label>
-                  <select
-                    id="preferredPackage"
-                    className="form-select light"
-                    value={formData.preferredPackage}
-                    onChange={(e) => handleChange('preferredPackage', e.target.value)}
-                  >
-                    <option value="OPTION_1">Package 1: Classic Overland via Kyirong (14 Days - ₹3,50,000)</option>
-                    <option value="OPTION_2">Package 2: Fly to Lhasa & Scenic Road (14 Days - ₹4,37,000)</option>
-                    <option value="OPTION_3">Package 3: Lhasa & Ali High-Altitude Flights (11 Days - ₹4,94,000)</option>
-                    <option value="UNDECIDED">Need Volunteer Recommendation</option>
-                  </select>
-                </div>
-
-                {/* Expected Travellers Count */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="travellersCount" style={{ color: '#071B3A' }}>Estimated Travellers in Your Group</label>
-                  <input
-                    id="travellersCount"
-                    type="number"
-                    min="1"
-                    max="20"
-                    className="form-input light"
-                    value={formData.travellersCount}
-                    onChange={(e) => handleChange('travellersCount', parseInt(e.target.value, 10) || 1)}
-                  />
-                </div>
-
-                {/* Source Discovery */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="sourceDiscovery" style={{ color: '#071B3A' }}>How did you hear about Shloka Yatra? (Optional)</label>
-                  <select
-                    id="sourceDiscovery"
-                    className="form-select light"
-                    value={formData.sourceDiscovery}
-                    onChange={(e) => handleChange('sourceDiscovery', e.target.value)}
-                  >
-                    <option value="WEBSITE">Website & Direct Search</option>
-                    <option value="WORD_OF_MOUTH">Word of Mouth / Past Yatri</option>
-                    <option value="VOLUNTEER">Shloka Volunteer Outreach</option>
-                    <option value="SOCIAL_MEDIA">Social Media / Himalayan Video</option>
-                    <option value="OTHER">Other</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================= STEP 3: ACCOUNT SECURITY ================= */}
-          {currentStep === 3 && (
-            <div>
-              <div style={{ marginBottom: '28px', borderBottom: '1px solid #D9E2EF', paddingBottom: '16px' }}>
-                <h2 style={{ fontSize: '1.45rem', color: '#071B3A', marginBottom: '4px' }}>
-                  Step 3: Account Security & Consents
-                </h2>
-                <p style={{ color: '#2A4365', fontSize: '0.92rem' }}>
-                  Create a secure password to access your member dashboard and review privacy agreements.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-6">
-                {/* Create Password */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="password" style={{ color: '#071B3A' }}>Create Password (min. 8 characters) *</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      className="form-input light"
-                      placeholder="At least 8 characters"
-                      value={formData.password}
-                      onChange={(e) => handleChange('password', e.target.value)}
-                      style={{ paddingRight: '48px' }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      style={{
-                        position: 'absolute',
-                        right: '14px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#4A607A',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  {errors.password && <div className="form-error">{errors.password}</div>}
-                </div>
-
-                {/* Confirm Password */}
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label light" htmlFor="confirmPassword" style={{ color: '#071B3A' }}>Confirm Password *</label>
-                  <input
-                    id="confirmPassword"
-                    type={showPassword ? 'text' : 'password'}
-                    className="form-input light"
-                    placeholder="Repeat password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                  />
-                  {errors.confirmPassword && <div className="form-error">{errors.confirmPassword}</div>}
-                </div>
-              </div>
-
-              {/* Legal Consents */}
-              <div
-                style={{
-                  background: '#F5F8FC',
-                  border: '1px solid #D9E2EF',
-                  padding: '22px',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '16px',
-                }}
-              >
-                {/* Terms and Conditions */}
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <input
-                      id="acceptTerms"
-                      type="checkbox"
-                      checked={formData.acceptTerms}
-                      onChange={(e) => handleChange('acceptTerms', e.target.checked)}
-                      style={{ width: '18px', height: '18px', accentColor: '#2F6FED', cursor: 'pointer', marginTop: '2px' }}
-                    />
-                    <label htmlFor="acceptTerms" style={{ fontSize: '0.9rem', color: '#071B3A', cursor: 'pointer' }}>
-                      I accept the <Link to="/terms-and-conditions" target="_blank" style={{ color: '#2F6FED', fontWeight: 600 }}>Terms and Conditions</Link> of Shloka Yatra. *
-                    </label>
-                  </div>
-                  {errors.acceptTerms && <div className="form-error" style={{ marginLeft: '30px' }}>{errors.acceptTerms}</div>}
-                </div>
-
-                {/* Privacy Policy */}
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <input
-                      id="acceptPrivacy"
-                      type="checkbox"
-                      checked={formData.acceptPrivacy}
-                      onChange={(e) => handleChange('acceptPrivacy', e.target.checked)}
-                      style={{ width: '18px', height: '18px', accentColor: '#2F6FED', cursor: 'pointer', marginTop: '2px' }}
-                    />
-                    <label htmlFor="acceptPrivacy" style={{ fontSize: '0.9rem', color: '#071B3A', cursor: 'pointer' }}>
-                      I agree to the <Link to="/privacy-policy" target="_blank" style={{ color: '#2F6FED', fontWeight: 600 }}>Privacy Policy</Link> and data handling for pilgrimage coordination. *
-                    </label>
-                  </div>
-                  {errors.acceptPrivacy && <div className="form-error" style={{ marginLeft: '30px' }}>{errors.acceptPrivacy}</div>}
-                </div>
-
-                {/* Marketing Consent (unchecked by default) */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                  <input
-                    id="marketingConsent"
-                    type="checkbox"
-                    checked={formData.marketingConsent}
-                    onChange={(e) => handleChange('marketingConsent', e.target.checked)}
-                    style={{ width: '18px', height: '18px', accentColor: '#2F6FED', cursor: 'pointer', marginTop: '2px' }}
-                  />
-                  <label htmlFor="marketingConsent" style={{ fontSize: '0.88rem', color: '#4A607A', cursor: 'pointer' }}>
-                    I wish to receive occasional spiritual articles, preparation tips, and Himalayan weather updates from Shloka Yatra (Optional).
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================= STEP 4: REVIEW & SUBMIT ================= */}
-          {currentStep === 4 && (
-            <div>
-              <div style={{ marginBottom: '28px', borderBottom: '1px solid #D9E2EF', paddingBottom: '16px' }}>
-                <h2 style={{ fontSize: '1.45rem', color: '#071B3A', marginBottom: '4px' }}>
-                  Step 4: Review Your Registration
-                </h2>
-                <p style={{ color: '#2A4365', fontSize: '0.92rem' }}>
-                  Please review your information below before submitting. Click edit on any section to make adjustments.
-                </p>
-              </div>
-
-              {/* Review Card: Personal Info */}
-              <div
-                style={{
-                  background: '#F5F8FC',
-                  border: '1px solid #D9E2EF',
-                  borderRadius: '16px',
-                  padding: '22px',
-                  marginBottom: '20px',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                  <b style={{ color: '#071B3A', fontSize: '1.05rem' }}>Personal Information</b>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(1)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#2F6FED',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      fontSize: '0.88rem',
-                    }}
-                  >
-                    Edit Step 1
-                  </button>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', fontSize: '0.9rem' }}>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Full Name</span>
-                    <b style={{ color: '#071B3A' }}>{formData.firstName} {formData.lastName}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Email Address</span>
-                    <b style={{ color: '#071B3A' }}>{formData.email}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Mobile Number</span>
-                    <b style={{ color: '#071B3A' }}>{formData.mobile}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>WhatsApp Number</span>
-                    <b style={{ color: '#071B3A' }}>{formData.whatsapp || formData.mobile}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Location</span>
-                    <b style={{ color: '#071B3A' }}>{formData.city}, {formData.state}, {formData.country}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Nationality</span>
-                    <b style={{ color: '#071B3A' }}>{formData.nationality}</b>
-                  </div>
-                </div>
-              </div>
-
-              {/* Review Card: Membership & Preferences */}
-              <div
-                style={{
-                  background: '#F5F8FC',
-                  border: '1px solid #D9E2EF',
-                  borderRadius: '16px',
-                  padding: '22px',
-                  marginBottom: '24px',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                  <b style={{ color: '#071B3A', fontSize: '1.05rem' }}>Membership Preferences</b>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(2)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#2F6FED',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      fontSize: '0.88rem',
-                    }}
-                  >
-                    Edit Step 2
-                  </button>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', fontSize: '0.9rem' }}>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Membership Type</span>
-                    <b style={{ color: '#071B3A' }}>Standard Membership (Free)</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>2027 Yatra Interest</span>
-                    <b style={{ color: '#071B3A' }}>{formData.yatraInterest}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Preferred Batch</span>
-                    <b style={{ color: '#071B3A' }}>{formData.preferredBatch}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Preferred Route</span>
-                    <b style={{ color: '#071B3A' }}>{formData.preferredPackage}</b>
-                  </div>
-                  <div>
-                    <span style={{ color: '#4A607A', display: 'block' }}>Travellers in Group</span>
-                    <b style={{ color: '#071B3A' }}>{formData.travellersCount}</b>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  background: '#071B3A',
-                  border: '1px solid #2F6FED',
-                  padding: '16px 20px',
-                  borderRadius: '12px',
-                  fontSize: '0.88rem',
-                  color: '#FFFFFF',
-                  marginBottom: '28px',
-                }}
-              >
-                ✓ Your unique Membership Reference (e.g. <b>SHL-MEM-2027-XXXX</b>) will be generated upon server confirmation. (Note: SMS Gateway operates in verified simulation mode).
-              </div>
-            </div>
-          )}
-
-          {/* Form Actions Footer */}
-          <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-3 pt-6 sm:pt-8 border-t border-[#D9E2EF] mt-6 sm:mt-8 w-full">
-            {currentStep > 1 ? (
-              <button
-                type="button"
-                onClick={handleBack}
-                disabled={loading}
-                className="w-full sm:w-auto px-6 py-3 rounded-full border border-[#D9E2EF] text-[#071B3A] font-semibold text-xs sm:text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
-              >
-                <ArrowLeft size={16} />
-                <span>Previous Step</span>
-              </button>
-            ) : (
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <Link
-                to="/login"
-                className="text-[#4A607A] text-xs sm:text-sm text-center py-2 hover:underline"
+                to="/account"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#101D35] text-white hover:bg-[#1C3455] font-semibold text-sm transition-all shadow-md"
               >
-                Already a member? Sign in
+                <span>Open Member Dashboard</span>
+                <ArrowRight size={16} className="text-[#D9A441]" />
               </Link>
-            )}
-
-            {currentStep < 4 ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="w-full sm:w-auto px-7 py-3 rounded-full bg-[#2F6FED] text-white font-bold text-xs sm:text-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-sm"
+              <Link
+                to="/packages"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all"
               >
-                <span>Continue to Step {currentStep + 1}</span>
-                <ArrowRight size={16} />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={loading}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#2F6FED] text-white font-bold text-sm sm:text-base hover:bg-blue-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
-              >
-                {loading ? 'Registering with Server...' : 'Submit Registration'}
-              </button>
-            )}
+                <span>Explore 2027 Routes</span>
+              </Link>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Desktop Two-Column Layout */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            {/* Left Section: Branding & Benefits */}
+            <div className="lg:col-span-5 flex flex-col gap-6">
+              <div className="bg-[#101D35] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-[#1C3455]">
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D9A441]/20 border border-[#D9A441]/40 text-[#D9A441] text-xs font-bold uppercase tracking-wider mb-4">
+                    <Sparkles size={13} />
+                    <span>Official 2027 Sangha</span>
+                  </div>
+
+                  <h2 className="text-2xl sm:text-3xl font-heading font-bold text-white mb-3 leading-tight">
+                    Shloka Yatra 2027 Membership
+                  </h2>
+                  <p className="text-slate-300 text-sm leading-relaxed mb-6 font-sans">
+                    Register once to reserve sacred Full Moon darshan batches, submit cross-border permits, and manage your high-altitude pilgrimage details.
+                  </p>
+
+                  {/* Curated Pilgrimage Image */}
+                  <div className="rounded-2xl overflow-hidden border border-white/15 shadow-inner mb-6 relative h-48 sm:h-56">
+                    <img
+                      src={assetUrl(heroImages.lakeManasarovar.src)}
+                      alt="Mount Kailash & Lake Manasarovar"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#101D35] via-transparent to-transparent opacity-80" />
+                    <span className="absolute bottom-3 left-3 text-xs font-medium text-white/90 drop-shadow">
+                      Lake Manasarovar & Mount Kailash Shoreline
+                    </span>
+                  </div>
+
+                  {/* Verified Membership Privileges */}
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#D9A441]/15 border border-[#D9A441]/30 text-[#D9A441] flex items-center justify-center shrink-0 mt-0.5">
+                        <ShieldCheck size={18} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white">Priority Batch Allocation</h4>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Direct reservation access across 5 sacred Full Moon darshan batches before public release.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#D9A441]/15 border border-[#D9A441]/30 text-[#D9A441] flex items-center justify-center shrink-0 mt-0.5">
+                        <Globe size={18} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white">Tibet Permit & Visa Concierge</h4>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Dedicated documentation desk for China group visas, Tibet Travel Permits (TTP), and border passes.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#D9A441]/15 border border-[#D9A441]/30 text-[#D9A441] flex items-center justify-center shrink-0 mt-0.5">
+                        <CheckCircle2 size={18} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-white">Medical & Senior Advisory</h4>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Physician-reviewed high-altitude acclimatization schedules, oximeter guidelines, and dietary support.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Already registered prompt */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 text-center">
+                <span className="text-xs text-slate-600 block mb-2">Already have a registered member account?</span>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-1.5 text-sm font-bold text-[#1C3455] hover:text-[#2F6FED] transition-colors"
+                >
+                  <span>Sign In to Member Portal</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Section: Registration Card */}
+            <div className="lg:col-span-7">
+              <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/90 relative">
+                {/* Stepper Header */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#101D35]">
+                      {step === 1 ? 'Become a Member' : 'Verify Mobile OTP'}
+                    </h1>
+                    <p className="text-slate-500 text-xs sm:text-sm mt-1">
+                      {step === 1
+                        ? 'Fill in your details to create an official pilgrimage membership record.'
+                        : `Enter the 6-digit OTP sent to your registered mobile number.`}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
+                    <span className={`w-2 h-2 rounded-full ${step === 1 ? 'bg-[#D9A441]' : 'bg-emerald-500'}`} />
+                    <span className="text-xs font-bold text-slate-700">Step {step} of 2</span>
+                  </div>
+                </div>
+
+                {/* Error Banner */}
+                {errorMsg && (
+                  <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-red-700 text-xs sm:text-sm">
+                    <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                {/* STEP 1: Personal & Contact Information */}
+                {step === 1 && (
+                  <form onSubmit={handleRegisterSubmit} className="space-y-5">
+                    {/* Full Name */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          First Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type="text"
+                            placeholder="e.g. Ramesh"
+                            value={formData.firstName}
+                            onChange={(e) => handleInputChange('firstName', e.target.value)}
+                            className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#101D35]/10 ${
+                              fieldErrors.firstName ? 'border-red-400 bg-red-50/30' : 'border-slate-300 focus:border-[#101D35]'
+                            }`}
+                          />
+                        </div>
+                        {fieldErrors.firstName && (
+                          <p className="text-xs text-red-600 mt-1">{fieldErrors.firstName}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          Last Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Sharma"
+                          value={formData.lastName}
+                          onChange={(e) => handleInputChange('lastName', e.target.value)}
+                          className={`w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#101D35]/10 ${
+                            fieldErrors.lastName ? 'border-red-400 bg-red-50/30' : 'border-slate-300 focus:border-[#101D35]'
+                          }`}
+                        />
+                        {fieldErrors.lastName && (
+                          <p className="text-xs text-red-600 mt-1">{fieldErrors.lastName}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Email Address */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Email Address <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="email"
+                          placeholder="e.g. devotee@example.com"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#101D35]/10 ${
+                            fieldErrors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-300 focus:border-[#101D35]'
+                          }`}
+                        />
+                      </div>
+                      {fieldErrors.email && (
+                        <p className="text-xs text-red-600 mt-1">{fieldErrors.email}</p>
+                      )}
+                    </div>
+
+                    {/* Registered Mobile with Country Code */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Registered Mobile Number <span className="text-red-500">*</span>
+                      </label>
+                      <div className="flex gap-2">
+                        <select
+                          value={formData.countryCode}
+                          onChange={(e) => handleInputChange('countryCode', e.target.value)}
+                          aria-label="Country Code"
+                          className="w-32 px-3 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-semibold bg-slate-50 text-slate-800 focus:outline-none focus:border-[#101D35] shrink-0"
+                        >
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.code} ({c.flag})
+                            </option>
+                          ))}
+                        </select>
+                        <div className="relative flex-1">
+                          <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type="tel"
+                            placeholder="9876543210"
+                            value={formData.mobile}
+                            onChange={(e) => handleInputChange('mobile', e.target.value)}
+                            className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#101D35]/10 ${
+                              fieldErrors.mobile ? 'border-red-400 bg-red-50/30' : 'border-slate-300 focus:border-[#101D35]'
+                            }`}
+                          />
+                        </div>
+                      </div>
+                      <span className="text-[11px] text-slate-500 mt-1 block">
+                        We will send a 6-digit SMS verification code to this mobile number.
+                      </span>
+                      {fieldErrors.mobile && (
+                        <p className="text-xs text-red-600 mt-1">{fieldErrors.mobile}</p>
+                      )}
+                    </div>
+
+                    {/* Gender & Date of Birth */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          Gender
+                        </label>
+                        <select
+                          value={formData.gender}
+                          onChange={(e) => handleInputChange('gender', e.target.value)}
+                          aria-label="Gender"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 bg-white focus:outline-none focus:border-[#101D35]"
+                        >
+                          <option value="MALE">Male (पुरुष)</option>
+                          <option value="FEMALE">Female (महिला)</option>
+                          <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          Date of Birth <span className="text-slate-400 font-normal">(Optional)</span>
+                        </label>
+                        <div className="relative">
+                          <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                          <input
+                            type="date"
+                            value={formData.dateOfBirth}
+                            onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                            className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 bg-white focus:outline-none focus:border-[#101D35]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Nationality & City */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          Nationality
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Indian"
+                          value={formData.nationality}
+                          onChange={(e) => handleInputChange('nationality', e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 bg-white focus:outline-none focus:border-[#101D35]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          City of Residence
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Bengaluru, Mumbai, London"
+                          value={formData.city}
+                          onChange={(e) => handleInputChange('city', e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-800 bg-white focus:outline-none focus:border-[#101D35]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Password & Confirm Password */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          Create Password <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Min. 8 characters"
+                            value={formData.password}
+                            onChange={(e) => handleInputChange('password', e.target.value)}
+                            className={`w-full pl-10 pr-10 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#101D35]/10 ${
+                              fieldErrors.password ? 'border-red-400 bg-red-50/30' : 'border-slate-300 focus:border-[#101D35]'
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                          >
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                        {formData.password && (
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <div className="h-1 flex-1 bg-slate-200 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full ${passwordStrength.color} transition-all`}
+                                style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-semibold text-slate-500">
+                              {passwordStrength.label}
+                            </span>
+                          </div>
+                        )}
+                        {fieldErrors.password && (
+                          <p className="text-xs text-red-600 mt-1">{fieldErrors.password}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                          Confirm Password <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder="Re-type password"
+                            value={formData.confirmPassword}
+                            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                            className={`w-full pl-10 pr-10 py-2.5 rounded-xl border text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#101D35]/10 ${
+                              fieldErrors.confirmPassword ? 'border-red-400 bg-red-50/30' : 'border-slate-300 focus:border-[#101D35]'
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                          >
+                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                        {fieldErrors.confirmPassword && (
+                          <p className="text-xs text-red-600 mt-1">{fieldErrors.confirmPassword}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Consent Checkboxes */}
+                    <div className="pt-2 space-y-3">
+                      <label className="flex items-start gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.acceptTerms}
+                          onChange={(e) => handleInputChange('acceptTerms', e.target.checked)}
+                          className="mt-0.5 accent-[#101D35] w-4 h-4 rounded cursor-pointer"
+                        />
+                        <span className="text-xs text-slate-600 leading-relaxed">
+                          I agree to the{' '}
+                          <Link to="/terms" target="_blank" className="text-[#1C3455] font-bold underline">
+                            Terms & Conditions
+                          </Link>{' '}
+                          governing Kailash Mansarovar Parikrama Yatra 2027.
+                        </span>
+                      </label>
+                      {fieldErrors.acceptTerms && (
+                        <p className="text-xs text-red-600 ml-6">{fieldErrors.acceptTerms}</p>
+                      )}
+
+                      <label className="flex items-start gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.acceptPrivacy}
+                          onChange={(e) => handleInputChange('acceptPrivacy', e.target.checked)}
+                          className="mt-0.5 accent-[#101D35] w-4 h-4 rounded cursor-pointer"
+                        />
+                        <span className="text-xs text-slate-600 leading-relaxed">
+                          I consent to the{' '}
+                          <Link to="/privacy-policy" target="_blank" className="text-[#1C3455] font-bold underline">
+                            Privacy & Data Protection Notice
+                          </Link>{' '}
+                          under India's DPDP Act, 2023 for travel permits and health verification.
+                        </span>
+                      </label>
+                      {fieldErrors.acceptPrivacy && (
+                        <p className="text-xs text-red-600 ml-6">{fieldErrors.acceptPrivacy}</p>
+                      )}
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="pt-4">
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3.5 px-6 rounded-xl bg-[#101D35] hover:bg-[#1C3455] text-white font-bold text-sm tracking-wide transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        {loading ? (
+                          <>
+                            <RefreshCw size={18} className="animate-spin text-[#D9A441]" />
+                            <span>Verifying & Sending OTP...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Send Mobile Verification OTP</span>
+                            <ArrowRight size={16} className="text-[#D9A441]" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* STEP 2: Mobile OTP Verification */}
+                {step === 2 && (
+                  <form onSubmit={handleVerifyOtp} className="space-y-6">
+                    <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 text-center">
+                      <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-200 text-[#1C3455] flex items-center justify-center mx-auto mb-3">
+                        <Phone size={22} />
+                      </div>
+                      <h3 className="text-base font-bold text-[#101D35] mb-1">
+                        Enter 6-Digit OTP Code
+                      </h3>
+                      <p className="text-xs text-slate-600">
+                        We have dispatched a one-time verification password to:
+                      </p>
+                      <p className="text-base font-mono font-bold text-[#101D35] mt-1 tracking-wider">
+                        {maskedMobile || fullMobile}
+                      </p>
+
+                      {smsNotice && (
+                        <p className="text-[11px] text-amber-700 bg-amber-50 rounded-lg p-2 mt-3 border border-amber-200 text-left">
+                          <strong>Notice:</strong> {smsNotice}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 6-Digit Numeric Boxes */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 text-center">
+                        Verification Code
+                      </label>
+                      <div className="flex justify-center gap-2 sm:gap-3" onPaste={handleOtpPaste}>
+                        {otp.map((digit, idx) => (
+                          <input
+                            key={idx}
+                            id={`otp-box-${idx}`}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
+                            onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                            className="w-11 h-13 sm:w-12 sm:h-14 text-center font-mono font-bold text-xl sm:text-2xl text-slate-900 border-2 border-slate-300 rounded-xl bg-white focus:outline-none focus:border-[#101D35] focus:ring-2 focus:ring-[#101D35]/15 transition-all"
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-3 pt-2">
+                      <button
+                        type="submit"
+                        disabled={loading || otp.join('').length !== 6}
+                        className="w-full py-3.5 px-6 rounded-xl bg-[#101D35] hover:bg-[#1C3455] text-white font-bold text-sm tracking-wide transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        {loading ? (
+                          <>
+                            <RefreshCw size={18} className="animate-spin text-[#D9A441]" />
+                            <span>Verifying Code...</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShieldCheck size={18} className="text-[#D9A441]" />
+                            <span>Verify OTP & Activate Membership</span>
+                          </>
+                        )}
+                      </button>
+
+                      <div className="flex items-center justify-between pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setStep(1)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+                        >
+                          <ArrowLeft size={14} />
+                          <span>Edit Details / Number</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleResendOtp}
+                          disabled={resendCooldown > 0 || loading}
+                          className={`text-xs font-bold transition-colors ${
+                            resendCooldown > 0
+                              ? 'text-slate-400 cursor-not-allowed'
+                              : 'text-[#1C3455] hover:text-[#2F6FED] cursor-pointer'
+                          }`}
+                        >
+                          {resendCooldown > 0 ? `Resend OTP in ${resendCooldown}s` : 'Resend OTP'}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

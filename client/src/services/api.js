@@ -299,48 +299,34 @@ export const api = {
   getLegalDocs: () => request('/legal'),
 
   // Member Authentication & Registration
-  registerMember: async (payload) => {
-    try {
-      return await request('/membership/register', { method: 'POST', body: JSON.stringify(payload) });
-    } catch (err) {
-      const memberRef = `MBR-2027-${Math.floor(1000 + Math.random() * 9000)}`;
-      const member = {
-        id: `usr-${Date.now()}`,
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        email: payload.email,
-        mobile: payload.mobile,
-        membershipReference: memberRef,
-        membershipType: payload.membershipType || 'STANDARD',
-        yatraInterest: payload.yatraInterest || 'YES_2027',
-      };
-      const token = `offline_member_token_${Date.now()}`;
-      return {
-        message: 'Membership registration completed successfully.',
-        membershipReference: memberRef,
-        member,
-        token,
-      };
-    }
-  },
+  registerMember: (payload) =>
+    request('/membership/register', { method: 'POST', body: JSON.stringify(payload) }),
 
-  memberLogin: async (credentials) => {
-    try {
-      return await request('/membership/login', { method: 'POST', body: JSON.stringify(credentials) });
-    } catch (err) {
-      const token = `offline_member_token_${Date.now()}`;
-      const member = {
-        id: 'usr-member-demo',
-        firstName: 'Devotee',
-        lastName: 'Member',
-        email: credentials.identifier || 'member@shlloka.com',
-        mobile: '+91 98765 43210',
-        membershipReference: 'MBR-2027-DEMO',
-        membershipType: 'STANDARD',
-      };
-      return { token, member };
-    }
-  },
+  verifyRegistrationOtp: (payload) =>
+    request('/membership/verify-otp', { method: 'POST', body: JSON.stringify(payload) }),
+
+  resendMemberOtp: (payload) =>
+    request('/membership/resend-otp', { method: 'POST', body: JSON.stringify(payload) }),
+
+  memberLogin: (credentials) =>
+    request('/membership/login', { method: 'POST', body: JSON.stringify(credentials) }),
+
+  getMemberProfile: () => request('/membership/me'),
+  updateMemberProfile: (payload) =>
+    request('/membership/profile', { method: 'PUT', body: JSON.stringify(payload) }),
+  getMemberBookings: () => request('/membership/bookings'),
+  getMemberPayments: () => request('/membership/payments'),
+  getMemberDocuments: () => request('/membership/documents'),
+  changeMemberPassword: (payload) =>
+    request('/membership/change-password', { method: 'POST', body: JSON.stringify(payload) }),
+
+  // Forgot Password via Mobile OTP
+  requestForgotMobileOtp: (payload) =>
+    request('/membership/forgot-password/request-otp', { method: 'POST', body: JSON.stringify(payload) }),
+  verifyForgotMobileOtp: (payload) =>
+    request('/membership/forgot-password/verify-otp', { method: 'POST', body: JSON.stringify(payload) }),
+  resetPasswordWithToken: (payload) =>
+    request('/membership/forgot-password/reset-password', { method: 'POST', body: JSON.stringify(payload) }),
 
   // Admin API Endpoints
   adminLogin: async (credentials) => {
@@ -519,14 +505,14 @@ export const api = {
       return { auditLogs: [] };
     }
   },
-  getAdminMembers: async (query = '') => {
-    try {
-      return await request(`/admin/members${query ? `?${query}` : ''}`);
-    } catch (err) {
-      return { members: [] };
-    }
-  },
-  updateAdminMemberStatus: (id, payload) => request(`/admin/members/${id}/status`, { method: 'PUT', body: JSON.stringify(payload) }),
+  getAdminMembers: (query = '') => request(`/admin/members${query ? `?${query}` : ''}`),
+  getAdminMemberDetail: (id) => request(`/admin/members/${id}`),
+  updateAdminMember: (id, payload) =>
+    request(`/admin/members/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  updateAdminMemberStatus: (id, payload) =>
+    request(`/admin/members/${id}/status`, { method: 'PUT', body: JSON.stringify(payload) }),
+  addAdminMemberNote: (id, note) =>
+    request(`/admin/members/${id}/notes`, { method: 'POST', body: JSON.stringify({ note }) }),
   getAdminDocuments: async (query = '') => {
     try {
       return await request(`/admin/documents${query ? `?${query}` : ''}`);

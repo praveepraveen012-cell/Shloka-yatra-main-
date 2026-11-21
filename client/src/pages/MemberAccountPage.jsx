@@ -9,31 +9,50 @@ import {
   Mail,
   MapPin,
   LogOut,
-  ExternalLink,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  FileText,
-  Upload,
-  Receipt,
-  Download,
-  CreditCard,
-  HeartPulse,
-  Headphones,
   CheckCircle2,
-  ChevronRight,
-  Plane,
-  Bus,
+  FileText,
+  CreditCard,
+  Lock,
+  RefreshCw,
+  AlertCircle,
+  ArrowRight,
+  ShieldCheck,
+  Edit3,
+  Save,
+  X,
 } from 'lucide-react';
-import api from '../services/api';
+import { api } from '../services/api';
 
 export default function MemberAccountPage() {
   const navigate = useNavigate();
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [memberBookings, setMemberBookings] = useState([]);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'journeys', 'bookings', 'payments', 'receipts', 'documents', 'participants', 'profile', 'support'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'profile', 'bookings', 'payments', 'documents', 'security'
 
+  // Data states
+  const [bookings, setBookings] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [dataLoading, setDataLoading] = useState(false);
+
+  // Profile Edit State
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileFormData, setProfileFormData] = useState({});
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSuccessMsg, setProfileSuccessMsg] = useState('');
+  const [profileErrorMsg, setProfileErrorMsg] = useState('');
+
+  // Password Change State
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  // Load Member Data
   useEffect(() => {
     const token = localStorage.getItem('shlloka_member_token');
     if (!token) {
@@ -41,23 +60,45 @@ export default function MemberAccountPage() {
       return;
     }
 
-    fetch('/api/membership/me', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    setLoading(true);
+    api.getMemberProfile()
       .then((res) => {
-        if (!res.ok) throw new Error('Session expired');
-        return res.json();
-      })
-      .then((data) => {
-        setMember(data.member);
-        localStorage.setItem('shlloka_member_user', JSON.stringify(data.member));
+        if (res?.member) {
+          setMember(res.member);
+          localStorage.setItem('shlloka_member_user', JSON.stringify(res.member));
+          setProfileFormData({
+            firstName: res.member.firstName || '',
+            lastName: res.member.lastName || '',
+            gender: res.member.gender || 'PREFER_NOT_TO_SAY',
+            dateOfBirth: res.member.dateOfBirth || '',
+            nationality: res.member.nationality || 'Indian',
+            country: res.member.country || 'India',
+            state: res.member.state || '',
+            city: res.member.city || '',
+            whatsapp: res.member.whatsapp || res.member.mobile || '',
+          });
+        } else {
+          throw new Error('No member profile');
+        }
       })
       .catch(() => {
         const local = localStorage.getItem('shlloka_member_user');
         if (local) {
           try {
-            setMember(JSON.parse(local));
-          } catch (e) {
+            const parsed = JSON.parse(local);
+            setMember(parsed);
+            setProfileFormData({
+              firstName: parsed.firstName || '',
+              lastName: parsed.lastName || '',
+              gender: parsed.gender || 'PREFER_NOT_TO_SAY',
+              dateOfBirth: parsed.dateOfBirth || '',
+              nationality: parsed.nationality || 'Indian',
+              country: parsed.country || 'India',
+              state: parsed.state || '',
+              city: parsed.city || '',
+              whatsapp: parsed.whatsapp || parsed.mobile || '',
+            });
+          } catch {
             navigate('/login');
           }
         } else {
@@ -65,33 +106,36 @@ export default function MemberAccountPage() {
         }
       })
       .finally(() => setLoading(false));
-
-    // Load any booking records stored for this user
-    try {
-      const storedBookings = JSON.parse(localStorage.getItem('shlloka_offline_bookings') || '[]');
-      if (storedBookings.length > 0) {
-        setMemberBookings(storedBookings);
-      } else {
-        // Fallback demo booking for authenticated user
-        setMemberBookings([
-          {
-            id: 'bk-demo-001',
-            bookingReference: 'SY-2027-8842',
-            route: { name: 'Package 1: Overland Pilgrimage via Kerung (14 Days)' },
-            departure: { name: 'Batch 1: 18 May – 31 May 2027 (Buddha Purnima)' },
-            status: 'CONFIRMED',
-            paymentStatus: 'DEPOSIT_PAID',
-            totalTravellers: 2,
-            totalAmount: 735000,
-            depositPaid: 100000,
-            balanceDue: 635000,
-            balanceDueDate: '03 April 2027 (45 days prior)',
-            createdAt: '2026-11-12',
-          },
-        ]);
-      }
-    } catch (e) {}
   }, [navigate]);
+
+  // Load Tab Specific Data (Bookings, Payments, Documents)
+  useEffect(() => {
+    if (!member) return;
+
+    if (activeTab === 'bookings' || activeTab === 'overview') {
+      setDataLoading(true);
+      api.getMemberBookings()
+        .then((res) => setBookings(res.bookings || []))
+        .catch(() => setBookings([]))
+        .finally(() => setDataLoading(false));
+    }
+
+    if (activeTab === 'payments') {
+      setDataLoading(true);
+      api.getMemberPayments()
+        .then((res) => setPayments(res.payments || []))
+        .catch(() => setPayments([]))
+        .finally(() => setDataLoading(false));
+    }
+
+    if (activeTab === 'documents') {
+      setDataLoading(true);
+      api.getMemberDocuments()
+        .then((res) => setDocuments(res.documents || []))
+        .catch(() => setDocuments([]))
+        .finally(() => setDataLoading(false));
+    }
+  }, [activeTab, member]);
 
   const handleLogout = () => {
     localStorage.removeItem('shlloka_member_token');
@@ -99,10 +143,71 @@ export default function MemberAccountPage() {
     navigate('/login');
   };
 
+  // Save Profile Form
+  const handleProfileSave = async (e) => {
+    e.preventDefault();
+    setProfileSaving(true);
+    setProfileErrorMsg('');
+    setProfileSuccessMsg('');
+
+    try {
+      const res = await api.updateMemberProfile(profileFormData);
+      if (res.success && res.member) {
+        setMember((prev) => ({ ...prev, ...res.member }));
+        localStorage.setItem('shlloka_member_user', JSON.stringify({ ...member, ...res.member }));
+        setProfileSuccessMsg('Profile details updated successfully.');
+        setIsEditingProfile(false);
+      } else {
+        setProfileErrorMsg(res.error || 'Failed to update profile.');
+      }
+    } catch (err) {
+      setProfileErrorMsg(err.message || 'Error updating profile.');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  // Handle Change Password
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setPasswordSaving(true);
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters long.');
+      setPasswordSaving(false);
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('New passwords do not match.');
+      setPasswordSaving(false);
+      return;
+    }
+
+    try {
+      const res = await api.changeMemberPassword(passwordForm);
+      if (res.success) {
+        setPasswordSuccess('Your account password has been updated successfully.');
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else {
+        setPasswordError(res.error || 'Failed to update password.');
+      }
+    } catch (err) {
+      setPasswordError(err.message || 'Failed to change password.');
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="bg-[#F8FAFC] min-h-[80vh] flex items-center justify-center pt-24">
-        <p className="text-[#101D35] font-semibold">Loading your devotee dashboard...</p>
+      <div className="bg-[#F7F6F2] min-h-screen pt-36 pb-20 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-[#101D35] font-semibold text-sm">
+          <RefreshCw size={20} className="animate-spin text-[#D9A441]" />
+          <span>Loading Member Dashboard...</span>
+        </div>
       </div>
     );
   }
@@ -111,48 +216,55 @@ export default function MemberAccountPage() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Compass },
-    { id: 'journeys', label: 'My Journeys', icon: Plane },
+    { id: 'profile', label: 'My Profile', icon: User },
     { id: 'bookings', label: 'My Bookings', icon: Calendar },
-    { id: 'payments', label: 'Payment History', icon: CreditCard },
-    { id: 'receipts', label: 'Receipts & Vouchers', icon: Receipt },
-    { id: 'documents', label: 'Travel Documents', icon: FileText },
-    { id: 'participants', label: 'Participant Details', icon: User },
-    { id: 'profile', label: 'Devotee Profile', icon: Shield },
-    { id: 'support', label: 'Support & Concierge', icon: Headphones },
+    { id: 'payments', label: 'My Payments', icon: CreditCard },
+    { id: 'documents', label: 'Documents', icon: FileText },
+    { id: 'security', label: 'Account Security', icon: Lock },
   ];
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen pt-28 pb-20">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Member Welcome Banner */}
-        <div className="bg-gradient-to-r from-[#101D35] via-[#183B68] to-[#101D35] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-white/10 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-[#D9A441] text-[#101D35] text-xs font-black px-3 py-0.5 rounded-full uppercase tracking-wider">
-                Verified Devotee Member
-              </span>
-              <span className="text-xs text-slate-300">
-                Membership ID: <strong className="font-mono text-white">{member.membershipReference || 'SY-MEM-2027'}</strong>
-              </span>
+    <div className="bg-[#F7F6F2] min-h-screen pt-28 pb-16 sm:pt-36 sm:pb-24 font-sans text-slate-800">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top Member Header Banner */}
+        <div className="bg-[#101D35] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-[#1C3455] mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-start sm:items-center gap-4 sm:gap-5">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D9A441]/15 border border-[#D9A441]/40 text-[#D9A441] flex items-center justify-center text-2xl font-bold shrink-0 shadow-md">
+              ॐ
             </div>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white">
-              Namaskaram, {member.firstName || 'Revered'} {member.lastName || 'Devotee'}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              {member.email} • {member.mobile} • Flat No. 7164, ATS One Hamlet, Noida
-            </p>
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-heading font-bold text-white">
+                  {member.firstName} {member.lastName}
+                </h1>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold uppercase tracking-wider">
+                  <ShieldCheck size={12} />
+                  <span>{member.isVerified ? 'Verified Member' : 'Pending Verification'}</span>
+                </span>
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[11px] font-semibold">
+                  {member.status || 'ACTIVE'}
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-slate-300 mt-1.5 flex-wrap">
+                <span className="font-mono text-[#D9A441]">ID: {member.membershipReference}</span>
+                <span>•</span>
+                <span>{member.email}</span>
+                <span>•</span>
+                <span>{member.mobile}</span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <Link
               to="/book"
-              className="bg-gradient-to-r from-[#D9A441] to-[#E5B558] text-[#101D35] font-bold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl shadow hover:shadow-md transition-all"
+              className="px-5 py-2.5 rounded-xl bg-[#D9A441] hover:bg-amber-400 text-[#101D35] font-bold text-xs uppercase tracking-wider transition-all shadow"
             >
               Book 2027 Yatra
             </Link>
             <button
               onClick={handleLogout}
-              className="border border-white/20 hover:border-rose-400 hover:text-rose-400 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 text-white text-xs font-semibold transition-all cursor-pointer"
             >
               <LogOut size={14} />
               <span>Sign Out</span>
@@ -160,450 +272,621 @@ export default function MemberAccountPage() {
           </div>
         </div>
 
-        {/* MakeMyTrip-Style Dashboard Navigation Tabs Bar */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 mb-8 overflow-x-auto scrollbar-none flex items-center gap-1">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+        {/* Navigation Tabs Bar */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none border-b border-slate-200">
+          {tabs.map((t) => {
+            const Icon = t.icon;
+            const isActive = activeTab === t.id;
             return (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#101D35] text-[#D9A441] shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'bg-[#101D35] text-white shadow-md'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300'
                 }`}
               >
-                <Icon size={15} className={isActive ? 'text-[#D9A441]' : 'text-slate-400'} />
-                <span>{tab.label}</span>
+                <Icon size={16} className={isActive ? 'text-[#D9A441]' : 'text-slate-400'} />
+                <span>{t.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Tab 1: Overview */}
+        {/* TAB 1: OVERVIEW */}
         {activeTab === 'overview' && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Quick Status Cards Grid */}
+          <div className="space-y-6">
+            {/* Quick Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                  Pilgrimage Status
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Membership Status</span>
+                <span className="text-lg font-bold text-emerald-600 flex items-center gap-1.5">
+                  <CheckCircle2 size={18} />
+                  <span>{member.status || 'Active'}</span>
                 </span>
-                <div className="text-xl font-bold text-emerald-600 flex items-center gap-1.5">
-                  <CheckCircle size={20} />
-                  <span>Seat Reserved</span>
-                </div>
-                <span className="text-xs text-slate-500 mt-1 block">Batch 1: 18 May 2027</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">Tier: {member.membershipType || 'Standard'}</span>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                  Payment Status
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Mobile Verification</span>
+                <span className="text-lg font-bold text-blue-600 flex items-center gap-1.5">
+                  <ShieldCheck size={18} />
+                  <span>{member.isVerified ? 'Verified OTP' : 'Pending OTP'}</span>
                 </span>
-                <div className="text-xl font-bold text-amber-600 flex items-center gap-1.5">
-                  <CreditCard size={20} />
-                  <span>Deposit Paid</span>
-                </div>
-                <span className="text-xs text-slate-500 mt-1 block">₹1,00,000 Verified</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">{member.mobile}</span>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                  Documents Verified
-                </span>
-                <div className="text-xl font-bold text-[#1C3F70] flex items-center gap-1.5">
-                  <FileText size={20} />
-                  <span>2 of 4 Complete</span>
-                </div>
-                <span className="text-xs text-slate-500 mt-1 block">Passport & Photo Verified</span>
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Active Bookings</span>
+                <span className="text-lg font-bold text-[#101D35]">{bookings.length}</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">Kailash Yatra 2027 Batches</span>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                  Assigned Coordinator
+              <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+                <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Registered Since</span>
+                <span className="text-base font-bold text-slate-800">
+                  {member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'November 2026'}
                 </span>
-                <div className="text-base font-bold text-[#101D35] flex items-center gap-1.5">
-                  <Headphones size={18} className="text-[#D9A441]" />
-                  <span>Sangeeta (Noida HQ)</span>
-                </div>
-                <span className="text-xs text-slate-500 mt-1 block">+91 6366852888</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">Sangha Devotee ID</span>
               </div>
             </div>
 
-            {/* Active Yatra Showcase Banner */}
-            <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200 shadow-sm">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            {/* Recent Bookings or Empty State */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
-                    Confirmed Registration
-                  </span>
-                  <h3 className="text-xl font-bold text-[#101D35] mt-2">
-                    Kailash Mansarovar Parikrama 2027 — Overland Bus (14 Days)
+                  <h3 className="text-lg sm:text-xl font-heading font-bold text-[#101D35]">
+                    Your Pilgrimage Bookings
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Booking Reference: <strong className="font-mono text-[#101D35]">SY-2027-8842</strong> · Batch 1: May 18 – May 31, 2027 (Buddha Purnima Darshan)
+                  <p className="text-xs sm:text-sm text-slate-500">
+                    Live bookings associated with your registered email and mobile number.
+                  </p>
+                </div>
+                {bookings.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab('bookings')}
+                    className="text-xs font-bold text-[#1C3455] hover:text-[#2F6FED]"
+                  >
+                    View All ({bookings.length})
+                  </button>
+                )}
+              </div>
+
+              {bookings.length === 0 ? (
+                <div className="text-center py-12 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  <Compass size={40} className="mx-auto text-slate-400 mb-3" />
+                  <h4 className="text-base font-bold text-[#101D35] mb-1">No Active Bookings Found</h4>
+                  <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-5 leading-relaxed">
+                    You have not reserved a 2027 departure batch yet. As a registered member, your quota is protected and eligible for Full Moon batch selection.
+                  </p>
+                  <Link
+                    to="/book"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#101D35] hover:bg-[#1C3455] text-white font-bold text-xs uppercase tracking-wider shadow"
+                  >
+                    <span>Reserve a 2027 Departure</span>
+                    <ArrowRight size={14} className="text-[#D9A441]" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {bookings.slice(0, 3).map((b) => (
+                    <div
+                      key={b.id}
+                      className="p-5 rounded-2xl border border-slate-200 hover:border-[#101D35]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-[#101D35]">
+                            {b.bookingReference}
+                          </span>
+                          <span className="text-xs font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
+                            {b.status}
+                          </span>
+                          <span className="text-xs text-slate-500 font-medium">
+                            {b.paymentStatus}
+                          </span>
+                        </div>
+                        <h4 className="text-base font-bold text-[#101D35]">
+                          {b.route?.name || 'Kailash Mansarovar Pilgrimage'}
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {b.departure?.name} • {b.totalTravellers} Devotee{b.totalTravellers > 1 ? 's' : ''}
+                        </p>
+                      </div>
+
+                      <div className="text-left sm:text-right shrink-0">
+                        <span className="text-xs text-slate-400 block">Total Amount</span>
+                        <span className="text-base font-bold text-[#101D35]">₹{b.totalAmount?.toLocaleString('en-IN')}</span>
+                        {b.balanceDue > 0 && (
+                          <span className="text-xs text-amber-700 block font-medium">
+                            Balance Due: ₹{b.balanceDue?.toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: MY PROFILE */}
+        {activeTab === 'profile' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm max-w-3xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+              <div>
+                <h3 className="text-xl font-heading font-bold text-[#101D35]">
+                  Personal & Pilgrimage Profile
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  Review and update your personal details used for pilgrimage permits and documentation.
+                </p>
+              </div>
+
+              {!isEditingProfile ? (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingProfile(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                >
+                  <Edit3 size={14} />
+                  <span>Edit Profile</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingProfile(false)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  <X size={14} />
+                  <span>Cancel</span>
+                </button>
+              )}
+            </div>
+
+            {profileSuccessMsg && (
+              <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                <CheckCircle2 size={16} />
+                <span>{profileSuccessMsg}</span>
+              </div>
+            )}
+
+            {profileErrorMsg && (
+              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
+                <AlertCircle size={16} />
+                <span>{profileErrorMsg}</span>
+              </div>
+            )}
+
+            {isEditingProfile ? (
+              <form onSubmit={handleProfileSave} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profileFormData.firstName}
+                      onChange={(e) => setProfileFormData({ ...profileFormData, firstName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profileFormData.lastName}
+                      onChange={(e) => setProfileFormData({ ...profileFormData, lastName: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Gender
+                    </label>
+                    <select
+                      value={profileFormData.gender}
+                      onChange={(e) => setProfileFormData({ ...profileFormData, gender: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                    >
+                      <option value="MALE">Male (पुरुष)</option>
+                      <option value="FEMALE">Female (महिला)</option>
+                      <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Date of Birth
+                    </label>
+                    <input
+                      type="date"
+                      value={profileFormData.dateOfBirth}
+                      onChange={(e) => setProfileFormData({ ...profileFormData, dateOfBirth: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      value={profileFormData.city}
+                      onChange={(e) => setProfileFormData({ ...profileFormData, city: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      State / Province
+                    </label>
+                    <input
+                      type="text"
+                      value={profileFormData.state}
+                      onChange={(e) => setProfileFormData({ ...profileFormData, state: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      value={profileFormData.country}
+                      onChange={(e) => setProfileFormData({ ...profileFormData, country: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingProfile(false)}
+                    className="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={profileSaving}
+                    className="px-6 py-2.5 rounded-xl bg-[#101D35] hover:bg-[#1C3455] text-white text-xs font-bold uppercase tracking-wider shadow flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {profileSaving ? <RefreshCw size={14} className="animate-spin text-[#D9A441]" /> : <Save size={14} />}
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8 text-sm">
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Full Legal Name</span>
+                  <p className="font-semibold text-[#101D35]">{member.firstName} {member.lastName}</p>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Gender</span>
+                  <p className="font-semibold text-[#101D35]">{member.gender || 'Not specified'}</p>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Registered Email</span>
+                  <p className="font-semibold text-[#101D35]">{member.email}</p>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Registered Mobile</span>
+                  <p className="font-semibold text-[#101D35]">{member.mobile}</p>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Date of Birth</span>
+                  <p className="font-semibold text-[#101D35]">{member.dateOfBirth || 'Not specified'}</p>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Nationality</span>
+                  <p className="font-semibold text-[#101D35]">{member.nationality || 'Indian'}</p>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Location</span>
+                  <p className="font-semibold text-[#101D35]">
+                    {[member.city, member.state, member.country].filter(Boolean).join(', ') || 'Not specified'}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Link
-                    to="/booking-success?ref=SY-2027-8842"
-                    className="bg-[#1C3F70] text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-[#101D35] transition-colors"
-                  >
-                    View Official Voucher
-                  </Link>
-                  <Link
-                    to="/routes/bus-both-ways"
-                    className="border border-slate-300 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-slate-50"
-                  >
-                    View Itinerary
-                  </Link>
+                <div>
+                  <span className="text-xs uppercase font-bold text-slate-400 block mb-1">Membership Reference</span>
+                  <p className="font-mono font-bold text-[#D9A441]">{member.membershipReference}</p>
                 </div>
               </div>
-
-              {/* Progress Milestones Checklist */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                    <CheckCircle2 size={16} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-800">Registration</div>
-                    <div className="text-[11px] text-emerald-600 font-medium">Completed</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                    <CheckCircle2 size={16} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-800">Deposit Payment</div>
-                    <div className="text-[11px] text-emerald-600 font-medium">₹1,00,000 Verified</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                    <Clock size={16} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-800">Medical Fitness</div>
-                    <div className="text-[11px] text-amber-600 font-medium">Due 45 Days Prior</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
-                    <Shield size={16} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-800">Tibet Group Visa</div>
-                    <div className="text-[11px] text-slate-500">Processed in Kathmandu</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
-        {/* Tab 2 & 3: My Journeys & My Bookings */}
-        {(activeTab === 'journeys' || activeTab === 'bookings') && (
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div>
-                <h3 className="text-lg font-bold text-[#101D35]">My Registered Yatra Bookings</h3>
-                <p className="text-xs text-slate-500">Active and upcoming pilgrimage schedules for 2027</p>
+        {/* TAB 3: MY BOOKINGS */}
+        {activeTab === 'bookings' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <h3 className="text-xl font-heading font-bold text-[#101D35] mb-1">
+              Pilgrimage Bookings
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 mb-6">
+              Official records of booked 2027 Kailash Mansarovar departure batches and participant reservations.
+            </p>
+
+            {dataLoading ? (
+              <div className="py-12 text-center text-slate-400">Loading bookings...</div>
+            ) : bookings.length === 0 ? (
+              <div className="text-center py-12 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <Compass size={36} className="mx-auto text-slate-400 mb-2" />
+                <h4 className="text-base font-bold text-[#101D35] mb-1">No Bookings Found</h4>
+                <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-4">
+                  You have not registered for an official 2027 yatra departure yet.
+                </p>
+                <Link
+                  to="/book"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#101D35] text-white text-xs font-bold uppercase tracking-wider"
+                >
+                  <span>Browse Departure Batches</span>
+                </Link>
               </div>
-              <Link to="/book" className="text-xs font-bold text-[#1C3F70] hover:underline">
-                + Book Another Route
-              </Link>
-            </div>
-
-            {memberBookings.map((b) => (
-              <div key={b.id || b.bookingReference} className="border border-slate-200 rounded-xl p-5 hover:border-[#1C3F70] transition-colors">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-                  <div>
-                    <span className="font-mono text-xs font-bold text-slate-400 uppercase">
-                      REF: {b.bookingReference}
-                    </span>
-                    <h4 className="text-base font-bold text-[#101D35] mt-0.5">{b.route?.name}</h4>
-                    <span className="text-xs text-slate-500">{b.departure?.name}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
-                      {b.status || 'CONFIRMED'}
-                    </span>
-                    <span className="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">
-                      {b.paymentStatus || 'DEPOSIT_PAID'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs">
-                  <div>
-                    <span className="text-slate-400 block">Total Travellers</span>
-                    <strong className="text-slate-800">{b.totalTravellers || 2} Devotees</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Total Package Value</span>
-                    <strong className="text-slate-800">₹{b.totalAmount?.toLocaleString('en-IN')}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Deposit Paid</span>
-                    <strong className="text-emerald-700">₹{b.depositPaid?.toLocaleString('en-IN') || '1,00,000'}</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Balance Due</span>
-                    <strong className="text-amber-800">₹{b.balanceDue?.toLocaleString('en-IN') || '6,35,000'}</strong>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100">
-                  <span className="text-[11px] text-slate-500">
-                    Balance payment due date: <strong>{b.balanceDueDate || '03 April 2027'}</strong>
-                  </span>
-                  <Link
-                    to={`/booking-success?ref=${b.bookingReference}`}
-                    className="text-xs font-bold text-[#1C3F70] hover:text-[#101D35] flex items-center gap-1"
+            ) : (
+              <div className="space-y-4">
+                {bookings.map((b) => (
+                  <div
+                    key={b.id}
+                    className="p-5 sm:p-6 rounded-2xl border border-slate-200 hover:border-slate-300 transition-all"
                   >
-                    <span>Download Booking Voucher</span>
-                    <ChevronRight size={14} />
-                  </Link>
-                </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-[#101D35]">
+                            {b.bookingReference}
+                          </span>
+                          <span className="text-xs font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
+                            {b.status}
+                          </span>
+                          <span className="text-xs text-slate-500 font-medium">
+                            Payment: {b.paymentStatus}
+                          </span>
+                        </div>
+                        <h4 className="text-base sm:text-lg font-bold text-[#101D35]">
+                          {b.route?.name || 'Pilgrimage Route'}
+                        </h4>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          {b.departure?.name} • Booked on {new Date(b.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      <div className="text-left sm:text-right">
+                        <span className="text-xs text-slate-400 block">Total Package Value</span>
+                        <span className="text-lg font-bold text-[#101D35]">₹{b.totalAmount?.toLocaleString('en-IN')}</span>
+                        {b.depositPaid > 0 && (
+                          <span className="text-xs text-emerald-600 font-semibold block">
+                            Paid: ₹{b.depositPaid?.toLocaleString('en-IN')}
+                          </span>
+                        )}
+                        {b.balanceDue > 0 && (
+                          <span className="text-xs text-amber-700 font-semibold block">
+                            Balance Due: ₹{b.balanceDue?.toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Travellers on this booking */}
+                    {b.travellers && b.travellers.length > 0 && (
+                      <div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                          Registered Yatris ({b.travellers.length})
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                          {b.travellers.map((tr) => (
+                            <div key={tr.id} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
+                              <p className="font-bold text-slate-800">{tr.fullName}</p>
+                              <p className="text-slate-500 text-[11px]">
+                                {tr.gender} • Age {tr.age} • {tr.nationality}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
 
-        {/* Tab 4 & 5: Payments & Receipts */}
-        {(activeTab === 'payments' || activeTab === 'receipts') && (
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div>
-                <h3 className="text-lg font-bold text-[#101D35]">Invoices, Payments & Receipts</h3>
-                <p className="text-xs text-slate-500">Official GST-compliant payment statements under Shloka Yatra Private Limited</p>
+        {/* TAB 4: MY PAYMENTS */}
+        {activeTab === 'payments' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <h3 className="text-xl font-heading font-bold text-[#101D35] mb-1">
+              Payment & Transaction History
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 mb-6">
+              Verified receipts and deposit records for your pilgrimage reservations.
+            </p>
+
+            {dataLoading ? (
+              <div className="py-12 text-center text-slate-400">Loading payments...</div>
+            ) : payments.length === 0 ? (
+              <div className="text-center py-12 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <CreditCard size={36} className="mx-auto text-slate-400 mb-2" />
+                <h4 className="text-base font-bold text-[#101D35] mb-1">No Payment Records</h4>
+                <p className="text-xs text-slate-500">
+                  Payments made through the online gateway or bank transfer will appear here automatically.
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="text-xs font-bold text-[#1C3F70] border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50"
-              >
-                🖨️ Print Statement
-              </button>
-            </div>
-
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-100 text-slate-700">
-                  <th className="p-3 rounded-l-lg">Transaction ID</th>
-                  <th className="p-3">Date</th>
-                  <th className="p-3">Description</th>
-                  <th className="p-3">Amount</th>
-                  <th className="p-3">Payment Method</th>
-                  <th className="p-3 rounded-r-lg">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
-                <tr>
-                  <td className="p-3 font-mono font-bold">TXN-202611-9921</td>
-                  <td className="p-3">12 Nov 2026</td>
-                  <td className="p-3">Registration & Permit Filing Deposit (2 Yatris)</td>
-                  <td className="p-3 font-bold text-[#101D35]">₹1,00,000</td>
-                  <td className="p-3">HDFC NetBanking (NEFT/IMPS)</td>
-                  <td className="p-3">
-                    <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full text-[10px]">
-                      SUCCESSFUL
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
-              <strong>Terms & Conditions Refund Protection (Clause C4):</strong> All advance deposits are held in our corporate escrow account. In accordance with Clause C4, cancellations requested before China group permit submission are refundable subject only to administrative reconciliation.
-            </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-slate-400 uppercase text-[11px] font-bold">
+                      <th className="pb-3">Transaction ID</th>
+                      <th className="pb-3">Booking Reference</th>
+                      <th className="pb-3">Date</th>
+                      <th className="pb-3">Method</th>
+                      <th className="pb-3">Amount</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {payments.map((p) => (
+                      <tr key={p.id}>
+                        <td className="py-3 font-mono text-slate-700">{p.transactionId}</td>
+                        <td className="py-3 font-mono font-bold text-[#101D35]">
+                          {p.booking?.bookingReference || 'N/A'}
+                        </td>
+                        <td className="py-3 text-slate-600">{new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3 text-slate-600">{p.paymentMethod}</td>
+                        <td className="py-3 font-bold text-slate-900">₹{p.amount?.toLocaleString('en-IN')}</td>
+                        <td className="py-3">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700">
+                            {p.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Tab 6: Travel Documents */}
+        {/* TAB 5: DOCUMENTS */}
         {activeTab === 'documents' && (
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div>
-                <h3 className="text-lg font-bold text-[#101D35]">Travel Documents & Permit Clearance</h3>
-                <p className="text-xs text-slate-500">Government permits and health clearance status</p>
-              </div>
-            </div>
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <h3 className="text-xl font-heading font-bold text-[#101D35] mb-1">
+              Pilgrimage Documents
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 mb-6">
+              Uploaded passport copies, visa documents, and travel health certificates.
+            </p>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 size={18} className="text-emerald-600" />
-                  <div>
-                    <strong className="text-xs text-slate-800 block">Passport Scans (Front & Address Page)</strong>
-                    <span className="text-[11px] text-slate-500">Verified for 6 months validity from departure</span>
+            {dataLoading ? (
+              <div className="py-12 text-center text-slate-400">Loading documents...</div>
+            ) : documents.length === 0 ? (
+              <div className="text-center py-12 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                <FileText size={36} className="mx-auto text-slate-400 mb-2" />
+                <h4 className="text-base font-bold text-[#101D35] mb-1">No Documents Uploaded</h4>
+                <p className="text-xs text-slate-500">
+                  Passport and medical certificates submitted during booking will be stored here securely.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {documents.map((d) => (
+                  <div key={d.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                      {d.documentType}
+                    </span>
+                    <p className="font-bold text-sm text-[#101D35] truncate">{d.originalFilename}</p>
+                    <span className="text-xs text-emerald-600 font-semibold mt-2 block">
+                      Status: {d.status}
+                    </span>
                   </div>
-                </div>
-                <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                  VERIFIED
-                </span>
+                ))}
               </div>
-
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 size={18} className="text-emerald-600" />
-                  <div>
-                    <strong className="text-xs text-slate-800 block">Passport Photographs (White Background)</strong>
-                    <span className="text-[11px] text-slate-500">Standard 35mm x 45mm Tibet permit format</span>
-                  </div>
-                </div>
-                <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                  VERIFIED
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <Clock size={18} className="text-amber-500" />
-                  <div>
-                    <strong className="text-xs text-slate-800 block">Medical Fitness Certificate (Clinician Signed)</strong>
-                    <span className="text-[11px] text-slate-500">Required 45 days prior to travel</span>
-                  </div>
-                </div>
-                <span className="bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                  DUE APRIL 2027
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-3">
-                  <Clock size={18} className="text-amber-500" />
-                  <div>
-                    <strong className="text-xs text-slate-800 block">Emergency Helicopter Evacuation Insurance</strong>
-                    <span className="text-[11px] text-slate-500">Policy covering up to 6,000 meters elevation</span>
-                  </div>
-                </div>
-                <span className="bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-1 rounded-full">
-                  DUE APRIL 2027
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <a
-                href="mailto:volunteers@shlloka.com?subject=Document Submission: SY-2027-8842"
-                className="inline-flex items-center gap-2 bg-[#101D35] text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-[#183B68]"
-              >
-                <Upload size={14} />
-                <span>Email New Documents to Operations</span>
-              </a>
-            </div>
+            )}
           </div>
         )}
 
-        {/* Tab 7: Participant Details */}
-        {activeTab === 'participants' && (
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-            <h3 className="text-lg font-bold text-[#101D35] pb-2 border-b border-slate-100">
-              Registered Devotee Participants
+        {/* TAB 6: ACCOUNT SECURITY */}
+        {activeTab === 'security' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm max-w-xl">
+            <h3 className="text-xl font-heading font-bold text-[#101D35] mb-1">
+              Account Security & Password
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
-                <div className="flex justify-between items-center">
-                  <strong className="text-sm text-[#101D35]">Yatri 1: {member.firstName} {member.lastName}</strong>
-                  <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">PRIMARY</span>
-                </div>
-                <div>Passport: <strong>{member.passportNumber || 'N8291048'}</strong></div>
-                <div>Nationality: <strong>{member.nationality || 'Indian'}</strong></div>
-                <div>Diet: <strong>Pure Vegetarian (Sattvic)</strong></div>
-                <div>Emergency Contact: <strong>Suresh Sharma (+91 98100 23456)</strong></div>
+            <p className="text-xs sm:text-sm text-slate-500 mb-6">
+              Update your account password or review session details.
+            </p>
+
+            {passwordSuccess && (
+              <div className="mb-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                <CheckCircle2 size={16} />
+                <span>{passwordSuccess}</span>
+              </div>
+            )}
+
+            {passwordError && (
+              <div className="mb-5 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
+                <AlertCircle size={16} />
+                <span>{passwordError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter current password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                  required
+                />
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
-                <div className="flex justify-between items-center">
-                  <strong className="text-sm text-[#101D35]">Yatri 2: Sunita Sharma</strong>
-                  <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">CO-TRAVELLER</span>
-                </div>
-                <div>Passport: <strong>P3920194</strong></div>
-                <div>Nationality: <strong>Indian</strong></div>
-                <div>Diet: <strong>Jain Sattvic (No Root Vegetables)</strong></div>
-                <div>Emergency Contact: <strong>Suresh Sharma (+91 98100 23456)</strong></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 8: Profile */}
-        {activeTab === 'profile' && (
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4 animate-fadeIn">
-            <h3 className="text-lg font-bold text-[#101D35] pb-2 border-b border-slate-100">
-              Devotee Profile Details
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <span className="text-slate-400 block">Full Legal Name</span>
-                <strong className="text-slate-800 text-sm">{member.firstName} {member.lastName}</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 block">Registered Email</span>
-                <strong className="text-slate-800 text-sm">{member.email}</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 block">Mobile Number</span>
-                <strong className="text-slate-800 text-sm">{member.mobile}</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 block">WhatsApp Number</span>
-                <strong className="text-slate-800 text-sm">{member.whatsapp || member.mobile}</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 block">Residential City & State</span>
-                <strong className="text-slate-800 text-sm">{member.city || 'Noida'}, {member.state || 'Uttar Pradesh'}</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 block">Country</span>
-                <strong className="text-slate-800 text-sm">{member.country || 'India'}</strong>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 9: Support */}
-        {activeTab === 'support' && (
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fadeIn">
-            <h3 className="text-lg font-bold text-[#101D35] pb-2 border-b border-slate-100">
-              Pilgrimage Concierge & 24/7 Helpline
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-2">
-                <Phone size={24} className="text-[#D9A441] mx-auto" />
-                <strong className="block text-sm text-[#101D35]">24/7 Phone Helpline</strong>
-                <p className="text-xs text-slate-500">+91 6366852888</p>
-                <a href="tel:+916366852888" className="inline-block text-xs font-bold text-[#1C3F70]">
-                  Call Now →
-                </a>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Min. 8 characters"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                  required
+                />
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-2">
-                <Mail size={24} className="text-[#6FA8B2] mx-auto" />
-                <strong className="block text-sm text-[#101D35]">Official Email</strong>
-                <p className="text-xs text-slate-500">volunteers@shlloka.com</p>
-                <a href="mailto:volunteers@shlloka.com" className="inline-block text-xs font-bold text-[#1C3F70]">
-                  Send Email →
-                </a>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Re-type new password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:border-[#101D35] focus:outline-none"
+                  required
+                />
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center space-y-2">
-                <MapPin size={24} className="text-[#1C3F70] mx-auto" />
-                <strong className="block text-sm text-[#101D35]">Corporate Office</strong>
-                <p className="text-xs text-slate-500">Flat No. 7164, ATS One Hamlet, Sector 104, Noida</p>
-                <span className="text-xs text-slate-400">Sole Contracting Entity</span>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={passwordSaving}
+                  className="w-full py-3 px-6 rounded-xl bg-[#101D35] hover:bg-[#1C3455] text-white text-xs font-bold uppercase tracking-wider shadow flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {passwordSaving ? <RefreshCw size={14} className="animate-spin text-[#D9A441]" /> : <Lock size={14} />}
+                  <span>Update Account Password</span>
+                </button>
               </div>
-            </div>
+            </form>
           </div>
         )}
       </div>
