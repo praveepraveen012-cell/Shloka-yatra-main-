@@ -89,6 +89,11 @@ export const translations = {
       callbackSuccessDesc: 'Our senior Kailash Yatra expedition coordinator will contact you shortly to assist with route comparisons, medical clearance, and 2027 seat reservations.',
       returnToSearch: '← Return to Route Search',
       directCoordination: 'Direct coordination from Shloka Yatra Private Limited (Noida HQ)',
+      searchResultsTitle: 'Available Pilgrimage Packages',
+      showingResultsFor: 'Showing packages for:',
+      allRoutesOption: 'All Yatra Packages (Compare All 3)',
+      viewItinerary: 'View Day-by-Day Itinerary',
+      instantConfirmation: 'Instant Seat Hold Available',
     },
     privileges: {
       eyebrow: 'Exclusive Devotee Benefits',
@@ -354,6 +359,11 @@ export const translations = {
       callbackSuccessDesc: 'हमारे वरिष्ठ कैलाश यात्रा समन्वयक मार्ग तुलना, चिकित्सीय अनुमोदन एवं २०२७ सीट आरक्षण हेतु शीघ्र ही आपसे संपर्क करेंगे।',
       returnToSearch: '← मार्ग खोज पर लौटें',
       directCoordination: 'श्लोका यात्रा प्राइवेट लिमिटेड (नोएडा मुख्यालय) द्वारा प्रत्यक्ष संचालन',
+      searchResultsTitle: 'उपलब्ध तीर्थ यात्रा पैकेज',
+      showingResultsFor: 'चयनित परिणाम:',
+      allRoutesOption: 'सभी यात्रा पैकेज (तीनों विकल्पों की तुलना)',
+      viewItinerary: 'विस्तृत यात्रा विवरण देखें',
+      instantConfirmation: 'तत्काल सीट आरक्षण उपलब्ध',
     },
     privileges: {
       eyebrow: 'विशेष श्रद्धालु सुविधाएं',

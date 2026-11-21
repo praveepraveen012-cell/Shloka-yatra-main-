@@ -185,20 +185,25 @@ export default function BookingPage() {
         const pkgParam = searchParams.get('package');
         const routeParam = searchParams.get('routeCode') || searchParams.get('route');
         const depParam = searchParams.get('departureId') || searchParams.get('batch');
+        const passportParam = searchParams.get('passport');
+
+        if (passportParam) {
+          setValue('passportType', passportParam === 'FOREIGN_NRI' || passportParam === 'FOREIGN' ? 'FOREIGN' : 'INDIAN');
+        }
 
         if (routeParam && rts.length > 0) {
           const match = rts.find((r) => r.code === routeParam || r.id === routeParam);
           if (match) setValue('routeId', match.id);
         } else if (pkgParam && rts.length > 0) {
           const num = parseInt(pkgParam.replace('option-', ''), 10);
-          const match = rts.find((r) => r.routeNumber === num);
+          const match = rts.find((r) => r.routeNumber === num || r.id === pkgParam || r.code === pkgParam);
           if (match) setValue('routeId', match.id);
         } else if (rts.length > 0) {
           setValue('routeId', rts[0].id);
         }
 
         if (depParam && deps.length > 0) {
-          const match = deps.find((d) => d.id === depParam || d.batchNumber === parseInt(depParam, 10));
+          const match = deps.find((d) => d.id === depParam || String(d.batchNumber) === String(depParam) || d.id === `batch-${depParam}`);
           if (match) setValue('departureId', match.id);
         } else if (deps.length > 0) {
           setValue('departureId', deps[0].id);

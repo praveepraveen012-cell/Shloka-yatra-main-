@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import {
   Compass,
@@ -19,13 +19,16 @@ import {
   Send,
   AlertCircle,
   HelpCircle,
+  Eye,
+  Check,
 } from 'lucide-react';
 import api from '../services/api';
 
 const DEFAULT_ROUTES = [
   {
-    id: 'option-1-bus',
+    id: 'option-1',
     routeNumber: 1,
+    code: 'bus-both-ways',
     name: 'Package 1: Classic Overland via Kerung (14 Days / 13 Nights)',
     shortName: 'Overland Drive via Kyirong Border',
     duration: '14 Days / 13 Nights',
@@ -38,8 +41,9 @@ const DEFAULT_ROUTES = [
     destination: 'Mount Kailash & Lake Mansarovar',
   },
   {
-    id: 'option-2-flight-lhasa',
+    id: 'option-2',
     routeNumber: 2,
+    code: 'flight-to-lhasa',
     name: 'Package 2: Fly to Lhasa, Continue by Road (10 Days / 9 Nights)',
     shortName: 'Scenic Lhasa Flight + Overland Drive',
     duration: '10 Days / 9 Nights',
@@ -52,8 +56,9 @@ const DEFAULT_ROUTES = [
     destination: 'Lhasa → Mansarovar → Kailash',
   },
   {
-    id: 'option-3-lhasa-ali',
+    id: 'option-3',
     routeNumber: 3,
+    code: 'lhasa-ali-pulan',
     name: 'Package 3: Fly to Lhasa & Fly to Ali/Pulan (9 Days / 8 Nights)',
     shortName: 'VIP Twin Flights to Ali (Fastest Route)',
     duration: '9 Days / 8 Nights',
@@ -177,6 +182,7 @@ const DEFAULT_DEPARTURES = [
 export default function JourneySearchWidget() {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
+  const resultsRef = useRef(null);
 
   // Active Category Tab (MakeMyTrip Style)
   const [activeCategoryTab, setActiveCategoryTab] = useState('ALL'); // 'ALL', 'BUS', 'LHASA_ROAD', 'LHASA_ALI', 'ASSIST'
@@ -184,7 +190,7 @@ export default function JourneySearchWidget() {
   // Form State
   const [routes, setRoutes] = useState(DEFAULT_ROUTES);
   const [departures, setDepartures] = useState(DEFAULT_DEPARTURES);
-  const [selectedRouteId, setSelectedRouteId] = useState(DEFAULT_ROUTES[0].id);
+  const [selectedRouteId, setSelectedRouteId] = useState('all'); // 'all', 'option-1', 'option-2', 'option-3'
   const [selectedBatchId, setSelectedBatchId] = useState(DEFAULT_DEPARTURES[0].id);
   const [passportType, setPassportType] = useState('INDIAN'); // 'INDIAN' | 'FOREIGN_NRI'
 
@@ -203,6 +209,7 @@ export default function JourneySearchWidget() {
 
   // Search Results & Loading
   const [isSearching, setIsSearching] = useState(false);
+  const [searchExecuted, setSearchExecuted] = useState(false);
   const [showResultsPreview, setShowResultsPreview] = useState(true);
 
   useEffect(() => {
@@ -212,11 +219,11 @@ export default function JourneySearchWidget() {
         if (rRes?.routes?.length > 0) {
           // Merge API data with rich details
           const mergedRoutes = DEFAULT_ROUTES.map((dr) => {
-            const match = rRes.routes.find((r) => r.routeNumber === dr.routeNumber || r.id === dr.id);
+            const match = rRes.routes.find((r) => r.routeNumber === dr.routeNumber || r.id === dr.id || r.code === dr.code);
             if (match) {
               return {
                 ...dr,
-                id: match.id,
+                id: match.id || dr.id,
                 name: match.name || dr.name,
                 startingPrice: match.startingFromInr || dr.startingPrice,
               };
@@ -240,7 +247,9 @@ export default function JourneySearchWidget() {
             };
           });
           setDepartures(mergedBatches);
-          setSelectedBatchId(mergedBatches[0].id);
+          if (mergedBatches[0]) {
+            setSelectedBatchId(mergedBatches[0].id);
+          }
         }
       } catch (err) {
         // Fallbacks already in state
@@ -252,36 +261,55 @@ export default function JourneySearchWidget() {
   // Update selected route when category tab switches
   const handleCategorySwitch = (tabKey) => {
     setActiveCategoryTab(tabKey);
-    if (tabKey === 'BUS') setSelectedRouteId(routes[0]?.id || 'option-1-bus');
-    if (tabKey === 'LHASA_ROAD') setSelectedRouteId(routes[1]?.id || 'option-2-flight-lhasa');
-    if (tabKey === 'LHASA_ALI') setSelectedRouteId(routes[2]?.id || 'option-3-lhasa-ali');
+    if (tabKey === 'ALL') {
+      setSelectedRouteId('all');
+    } else if (tabKey === 'BUS') {
+      setSelectedRouteId(routes[0]?.id || 'option-1');
+    } else if (tabKey === 'LHASA_ROAD') {
+      setSelectedRouteId(routes[1]?.id || 'option-2');
+    } else if (tabKey === 'LHASA_ALI') {
+      setSelectedRouteId(routes[2]?.id || 'option-3');
+    }
   };
 
-  const currentRoute = routes.find((r) => r.id === selectedRouteId) || routes[0];
-  const currentBatch = departures.find((d) => d.id === selectedBatchId) || departures[0];
+  // Update category tab when route dropdown changes
+  const handleRouteSelect = (routeId) => {
+    setSelectedRouteId(routeId);
+    if (routeId === 'all') {
+      setActiveCategoryTab('ALL');
+    } else {
+      const match = routes.find((r) => r.id === routeId);
+      if (match?.routeNumber === 1) setActiveCategoryTab('BUS');
+      else if (match?.routeNumber === 2) setActiveCategoryTab('LHASA_ROAD');
+      else if (match?.routeNumber === 3) setActiveCategoryTab('LHASA_ALI');
+    }
+  };
 
+  const currentBatch = departures.find((d) => d.id === selectedBatchId) || departures[0];
   const totalDevotees = adultsCount + seniorsCount;
 
-  // Compute pricing
-  const basePricePerPerson =
-    passportType === 'INDIAN'
-      ? currentRoute?.startingPrice || 350000
-      : currentRoute?.nriPrice || 425000;
-
-  const estimatedTotal =
-    basePricePerPerson * totalDevotees + (singleSupplement ? 45000 * totalDevotees : 0);
+  // Filter routes to display
+  const displayedRoutes =
+    selectedRouteId === 'all' || activeCategoryTab === 'ALL'
+      ? routes
+      : [routes.find((r) => r.id === selectedRouteId) || routes[0]];
 
   const handleSearchClick = () => {
     setIsSearching(true);
+    setSearchExecuted(true);
+    setShowResultsPreview(true);
     setTimeout(() => {
       setIsSearching(false);
-      setShowResultsPreview(true);
-    }, 400);
+      if (resultsRef.current) {
+        resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 280);
   };
 
-  const handleProceedBooking = () => {
+  const handleProceedBooking = (routeIdToBook) => {
+    const routeId = routeIdToBook || (selectedRouteId !== 'all' ? selectedRouteId : routes[0]?.id || 'option-1');
     const query = new URLSearchParams({
-      package: selectedRouteId,
+      package: routeId,
       batch: selectedBatchId,
       passport: passportType,
       count: totalDevotees.toString(),
@@ -301,7 +329,7 @@ export default function JourneySearchWidget() {
         name: assistName || 'Devotee Guest',
         email: 'callback@shlloka.com',
         phone: assistPhone,
-        routeInterest: currentRoute.name,
+        routeInterest: routes.find((r) => r.id === selectedRouteId)?.name || 'Kailash Mansarovar 2027',
         preferredMonth: assistMonth,
         message: 'Requesting immediate callback for Kailash Mansarovar 2027 booking assistance.',
       });
@@ -398,7 +426,7 @@ export default function JourneySearchWidget() {
                   <button
                     type="button"
                     onClick={() => setPassportType('INDIAN')}
-                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       passportType === 'INDIAN'
                         ? 'bg-[#101D35] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900'
@@ -409,7 +437,7 @@ export default function JourneySearchWidget() {
                   <button
                     type="button"
                     onClick={() => setPassportType('FOREIGN_NRI')}
-                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                    className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                       passportType === 'FOREIGN_NRI'
                         ? 'bg-[#101D35] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900'
@@ -442,9 +470,12 @@ export default function JourneySearchWidget() {
                 </label>
                 <select
                   value={selectedRouteId}
-                  onChange={(e) => setSelectedRouteId(e.target.value)}
+                  onChange={(e) => handleRouteSelect(e.target.value)}
                   className="w-full bg-transparent text-sm sm:text-base font-bold text-[#101D35] focus:outline-none cursor-pointer truncate"
                 >
+                  <option value="all">
+                    {language === 'HI' ? 'सभी यात्रा पैकेज (तीनों विकल्पों की तुलना)' : 'All Yatra Packages (Compare All 3)'}
+                  </option>
                   {routes.map((r) => (
                     <option key={r.id} value={r.id}>
                       {language === 'HI'
@@ -460,13 +491,15 @@ export default function JourneySearchWidget() {
                   ))}
                 </select>
                 <div className="text-xs text-slate-500 truncate mt-1">
-                  {language === 'HI'
-                    ? currentRoute?.routeNumber === 1
-                      ? '१४ दिन / १३ रात · डीलक्स बस'
-                      : currentRoute?.routeNumber === 2
-                      ? '१० दिन / ९ रात · विमान व बस'
-                      : '९ दिन / ८ रात · वीआईपी विमान'
-                    : `${currentRoute?.duration} · ${currentRoute?.transport?.split(' ')[0]}`}
+                  {selectedRouteId === 'all'
+                    ? (language === 'HI' ? '३ आधिकारिक पैकेज उपलब्ध' : '3 Official 2027 Packages Available')
+                    : (language === 'HI'
+                        ? routes.find((r) => r.id === selectedRouteId)?.routeNumber === 1
+                          ? '१४ दिन / १३ रात · डीलक्स बस'
+                          : routes.find((r) => r.id === selectedRouteId)?.routeNumber === 2
+                          ? '१० दिन / ९ रात · विमान व बस'
+                          : '९ दिन / ८ रात · वीआईपी विमान'
+                        : `${routes.find((r) => r.id === selectedRouteId)?.duration || '14 Days'} · ${routes.find((r) => r.id === selectedRouteId)?.transport?.split(' ')[0] || 'Overland'}`)}
                 </div>
               </div>
 
@@ -533,7 +566,7 @@ export default function JourneySearchWidget() {
                         <button
                           type="button"
                           onClick={() => setAdultsCount(Math.max(1, adultsCount - 1))}
-                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200"
+                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
                         >
                           -
                         </button>
@@ -541,7 +574,7 @@ export default function JourneySearchWidget() {
                         <button
                           type="button"
                           onClick={() => setAdultsCount(Math.min(10, adultsCount + 1))}
-                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200"
+                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
                         >
                           +
                         </button>
@@ -557,7 +590,7 @@ export default function JourneySearchWidget() {
                         <button
                           type="button"
                           onClick={() => setSeniorsCount(Math.max(0, seniorsCount - 1))}
-                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200"
+                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
                         >
                           -
                         </button>
@@ -565,7 +598,7 @@ export default function JourneySearchWidget() {
                         <button
                           type="button"
                           onClick={() => setSeniorsCount(Math.min(5, seniorsCount + 1))}
-                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200"
+                          className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 cursor-pointer"
                         >
                           +
                         </button>
@@ -587,7 +620,7 @@ export default function JourneySearchWidget() {
                     <button
                       type="button"
                       onClick={() => setTravellersOpen(false)}
-                      className="w-full mt-3 py-1.5 bg-[#101D35] text-white text-xs font-bold rounded-lg hover:bg-[#183B68]"
+                      className="w-full mt-3 py-1.5 bg-[#101D35] text-white text-xs font-bold rounded-lg hover:bg-[#183B68] cursor-pointer"
                     >
                       {t('search.done')}
                     </button>
@@ -603,100 +636,190 @@ export default function JourneySearchWidget() {
                   disabled={isSearching}
                   className="w-full bg-gradient-to-r from-[#D9A441] via-[#E5B558] to-[#C89432] hover:opacity-95 text-[#101D35] font-black text-sm uppercase tracking-wider py-4 px-4 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer group active:scale-98"
                 >
-                  <Search size={18} className="text-[#101D35] group-hover:scale-110 transition-transform" />
+                  <Search size={18} className={`text-[#101D35] transition-transform ${isSearching ? 'animate-spin' : 'group-hover:scale-110'}`} />
                   <span>{isSearching ? t('search.checkingSeats') : t('search.searchButton')}</span>
                 </button>
               </div>
             </div>
 
-            {/* Dynamic Search Results & Real-Time Package Preview (MMT Result Drawer) */}
-            {showResultsPreview && currentRoute && (
-              <div className="mt-5 pt-4 border-t border-slate-100 animate-fadeIn">
-                <div className="bg-gradient-to-r from-slate-50 via-white to-amber-50/40 rounded-xl p-4 sm:p-5 border border-slate-200 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
-                  {/* Left: Selected Package Details */}
-                  <div className="space-y-1.5 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="bg-[#101D35] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                        {language === 'HI'
-                          ? currentRoute.routeNumber === 1
-                            ? 'सर्वाधिक लोकप्रिय · १४ दिन'
-                            : currentRoute.routeNumber === 2
-                            ? 'सांस्कृतिक धरोहर · १० दिन'
-                            : 'वीआईपी द्रुतगामी · ९ दिन'
-                          : currentRoute.badge}
+            {/* Dynamic Search Results & Package Cards Stack */}
+            {showResultsPreview && (
+              <div ref={resultsRef} id="search-results" className="mt-6 pt-5 border-t border-slate-100 animate-fadeIn scroll-mt-24">
+                {/* Search Results Summary Header Bar */}
+                <div className="bg-[#101D35] text-white rounded-xl p-4 sm:p-5 mb-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-md border border-[#D9A441]/30">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#D9A441]">
+                        {t('search.searchResultsTitle')}
                       </span>
-                      <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                        <CheckCircle2 size={12} /> {t('common.confirmed2027')}
+                      <span className="text-xs text-slate-300">
+                        ({displayedRoutes.length} {displayedRoutes.length === 1 ? 'Package Available' : 'Packages Available'})
                       </span>
-                      {currentBatch?.isFullMoon && (
-                        <span className="bg-amber-100 text-amber-900 text-xs font-semibold px-2.5 py-0.5 rounded-md">
-                          {language === 'HI' ? `पूर्णिमा: ${currentBatch.fullMoonDate || 'पूर्णिमा विशेष दर्शन'}` : `Full Moon: ${currentBatch.fullMoonDate}`}
-                        </span>
-                      )}
                     </div>
-
-                    <h4 className="text-base sm:text-lg font-bold text-[#101D35]">
-                      {language === 'HI'
-                        ? currentRoute.routeNumber === 1
-                          ? 'पैकेज १: केरुंग मार्ग से क्लासिक स्थल यात्रा (१४ दिन / १३ रात)'
-                          : currentRoute.routeNumber === 2
-                          ? 'पैकेज २: ल्हासा विमान यात्रा एवं सड़क मार्ग (१० दिन / ९ रात)'
-                          : 'पैकेज ३: ल्हासा एवं अली/पुरंग सीधी उड़ान (९ दिन / ८ रात)'
-                        : currentRoute.name.startsWith('Package')
-                        ? currentRoute.name
-                        : `Package ${currentRoute.routeNumber}: ${currentRoute.name}`}
-                    </h4>
-
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
-                      <span><strong>{language === 'HI' ? 'बैच:' : 'Batch:'}</strong> {currentBatch?.name}</span>
-                      <span>•</span>
-                      <span><strong>{language === 'HI' ? 'मार्ग:' : 'Route:'}</strong> {language === 'HI' ? 'काठमांडू ➔ मानसरोवर ➔ कैलाश पर्वत' : `${currentRoute.origin} → ${currentRoute.destination}`}</span>
-                      <span>•</span>
-                      <span><strong>{language === 'HI' ? 'पर्वतीय अनुकूलन:' : 'Acclimatization:'}</strong> {language === 'HI' ? 'क्रमिक पर्वतीय अनुकूलन (वरिष्ठों हेतु सुरक्षित)' : currentRoute.acclimatization}</span>
-                    </div>
-
-                    {/* Verified Inclusions Pills */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
-                        {t('search.stayKathmandu')}
+                    <div className="text-sm sm:text-base font-bold text-white flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span>{currentBatch?.name}</span>
+                      <span className="text-slate-400">•</span>
+                      <span>
+                        {totalDevotees} {totalDevotees === 1 ? t('search.yatriSingle') : t('search.yatriPlural')} ({singleSupplement ? t('search.singleRoom') : t('search.twinSharing')})
                       </span>
-                      <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
-                        {t('search.tibetVisa')}
-                      </span>
-                      <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
-                        {t('search.sattvicMeals')}
-                      </span>
-                      <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
-                        {t('search.hyperbaricOxygen')}
+                      <span className="text-slate-400">•</span>
+                      <span className="text-[#D9A441]">
+                        {passportType === 'INDIAN' ? t('search.indianPassport') : t('search.nriPassport')}
                       </span>
                     </div>
                   </div>
 
-                  {/* Right: Live Price & CTA Button */}
-                  <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between w-full lg:w-auto gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-200">
-                    <div className="text-left lg:text-right">
-                      <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
-                        {t('search.previewStartingFrom')}
-                      </div>
-                      <div className="text-xl sm:text-2xl font-black text-[#101D35]">
-                        ₹{basePricePerPerson.toLocaleString('en-IN')}
-                        <span className="text-xs font-normal text-slate-500"> {t('common.perPerson')}</span>
-                      </div>
-                      <div className="text-[10px] text-slate-500">
-                        + 5% GST · {t('search.totalFor')} {totalDevotees} {totalDevotees === 1 ? t('search.yatriSingle') : t('search.yatriPlural')}:{' '}
-                        <strong>₹{estimatedTotal.toLocaleString('en-IN')}</strong>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleProceedBooking}
-                      className="w-full sm:w-auto bg-[#1C3F70] hover:bg-[#101D35] text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-lg shadow transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
-                    >
-                      <span>{t('search.bookThisPackage')}</span>
-                      <ArrowRight size={14} className="text-[#D9A441]" />
-                    </button>
+                  <div className="flex items-center gap-2 self-end md:self-auto">
+                    {displayedRoutes.length < routes.length && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveCategoryTab('ALL');
+                          setSelectedRouteId('all');
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all cursor-pointer"
+                      >
+                        {language === 'HI' ? 'तीनों पैकेज देखें' : 'View All 3 Packages'}
+                      </button>
+                    )}
+                    <span className="text-xs text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-emerald-400" />
+                      <span>{t('search.instantConfirmation')}</span>
+                    </span>
                   </div>
+                </div>
+
+                {/* Displayed Packages Stack */}
+                <div className="space-y-4">
+                  {displayedRoutes.map((route) => {
+                    const basePrice = passportType === 'INDIAN' ? (route.startingPrice || 350000) : (route.nriPrice || 425000);
+                    const roomSupplement = singleSupplement ? 45000 * totalDevotees : 0;
+                    const totalCost = basePrice * totalDevotees + roomSupplement;
+                    const isSelected = selectedRouteId === route.id;
+
+                    return (
+                      <div
+                        key={route.id}
+                        className={`bg-gradient-to-r from-slate-50 via-white to-amber-50/30 rounded-2xl p-5 sm:p-6 border transition-all shadow-sm hover:shadow-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 ${
+                          isSelected ? 'border-[#D9A441] ring-2 ring-[#D9A441]/25' : 'border-slate-200'
+                        }`}
+                      >
+                        {/* Left: Package Details */}
+                        <div className="space-y-2 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="bg-[#101D35] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                              {language === 'HI'
+                                ? route.routeNumber === 1
+                                  ? 'सर्वाधिक लोकप्रिय · १४ दिन'
+                                  : route.routeNumber === 2
+                                  ? 'सांस्कृतिक धरोहर · १० दिन'
+                                  : 'वीआईपी द्रुतगामी · ९ दिन'
+                                : route.badge}
+                            </span>
+                            <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              <CheckCircle2 size={12} /> {t('common.confirmed2027')}
+                            </span>
+                            {currentBatch?.isFullMoon && (
+                              <span className="bg-amber-100 text-amber-900 text-xs font-semibold px-2.5 py-0.5 rounded-md">
+                                {language === 'HI'
+                                  ? `पूर्णिमा: ${currentBatch.fullMoonDate || 'पूर्णिमा विशेष दर्शन'}`
+                                  : `Full Moon: ${currentBatch.fullMoonDate}`}
+                              </span>
+                            )}
+                            <span className="bg-blue-50 text-blue-800 border border-blue-200 text-xs font-semibold px-2.5 py-0.5 rounded-md">
+                              {currentBatch?.availableSeats} {t('common.seatsLeft')}
+                            </span>
+                          </div>
+
+                          <h4 className="text-base sm:text-lg font-bold text-[#101D35]">
+                            {language === 'HI'
+                              ? route.routeNumber === 1
+                                ? 'पैकेज १: केरुंग मार्ग से क्लासिक स्थल यात्रा (१४ दिन / १३ रात)'
+                                : route.routeNumber === 2
+                                ? 'पैकेज २: ल्हासा विमान यात्रा एवं सड़क मार्ग (१० दिन / ९ रात)'
+                                : 'पैकेज ३: ल्हासा एवं अली/पुरंग सीधी उड़ान (९ दिन / ८ रात)'
+                              : route.name.startsWith('Package')
+                              ? route.name
+                              : `Package ${route.routeNumber}: ${route.name}`}
+                          </h4>
+
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                            <span>
+                              <strong>{language === 'HI' ? 'बैच:' : 'Batch:'}</strong> {currentBatch?.name}
+                            </span>
+                            <span>•</span>
+                            <span>
+                              <strong>{language === 'HI' ? 'मार्ग:' : 'Route:'}</strong>{' '}
+                              {language === 'HI' ? 'काठमांडू ➔ मानसरोवर ➔ कैलाश पर्वत' : `${route.origin} → ${route.destination}`}
+                            </span>
+                            <span>•</span>
+                            <span>
+                              <strong>{language === 'HI' ? 'पर्वतीय अनुकूलन:' : 'Acclimatization:'}</strong>{' '}
+                              {language === 'HI' ? 'क्रमिक पर्वतीय अनुकूलन (वरिष्ठों हेतु सुरक्षित)' : route.acclimatization}
+                            </span>
+                          </div>
+
+                          {/* Verified Inclusions Pills */}
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                              {t('search.stayKathmandu')}
+                            </span>
+                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                              {t('search.tibetVisa')}
+                            </span>
+                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                              {t('search.sattvicMeals')}
+                            </span>
+                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                              {t('search.hyperbaricOxygen')}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Right: Live Price & Action Buttons */}
+                        <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between w-full lg:w-auto gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-200 shrink-0">
+                          <div className="text-left lg:text-right">
+                            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
+                              {t('search.previewStartingFrom')}
+                            </div>
+                            <div className="text-xl sm:text-2xl font-black text-[#101D35]">
+                              ₹{basePrice.toLocaleString('en-IN')}
+                              <span className="text-xs font-normal text-slate-500"> {t('common.perPerson')}</span>
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              + 5% GST · {t('search.totalFor')} {totalDevotees} {totalDevotees === 1 ? t('search.yatriSingle') : t('search.yatriPlural')}:{' '}
+                              <strong className="text-[#101D35] font-black">₹{totalCost.toLocaleString('en-IN')}</strong>
+                            </div>
+                            {singleSupplement && (
+                              <div className="text-[10px] text-amber-700 font-semibold">
+                                {language === 'HI' ? 'एकल कक्ष पूरक शामिल' : 'Single Room Supplement Included'}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Link
+                              to={`/itinerary?route=${route.code || route.id}`}
+                              className="px-4 py-2.5 rounded-lg border border-[#1C3455]/30 hover:border-[#101D35] text-[#101D35] text-xs font-bold text-center transition-colors flex items-center justify-center gap-1.5"
+                            >
+                              <Eye size={13} />
+                              <span>{t('search.viewItinerary')}</span>
+                            </Link>
+
+                            <button
+                              type="button"
+                              onClick={() => handleProceedBooking(route.id)}
+                              className="bg-[#1C3F70] hover:bg-[#101D35] text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-lg shadow transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap active:scale-98"
+                            >
+                              <span>{t('search.bookThisPackage')}</span>
+                              <ArrowRight size={14} className="text-[#D9A441]" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -720,8 +843,9 @@ export default function JourneySearchWidget() {
                   onClick={() => {
                     setAssistSubmitted(false);
                     setActiveCategoryTab('ALL');
+                    setSelectedRouteId('all');
                   }}
-                  className="mt-3 text-xs font-bold text-[#1C3F70] hover:underline"
+                  className="mt-3 text-xs font-bold text-[#1C3F70] hover:underline cursor-pointer"
                 >
                   {t('search.returnToSearch')}
                 </button>
