@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
@@ -71,6 +71,11 @@ function PublicLayout() {
   );
 }
 
+function RedirectWithQuery({ to }) {
+  const location = useLocation();
+  return <Navigate to={`${to}${location.search}`} replace />;
+}
+
 export default function App() {
   return (
     <Routes>
@@ -122,8 +127,9 @@ export default function App() {
 
         {/* Backward Compatibility Aliases */}
         <Route path="/about-us" element={<Navigate to="/about" replace />} />
-        <Route path="/departures-2027" element={<Navigate to="/departures" replace />} />
-        <Route path="/book-now" element={<Navigate to="/book" replace />} />
+        <Route path="/departures-2027" element={<RedirectWithQuery to="/departures" />} />
+        <Route path="/book-now" element={<RedirectWithQuery to="/book" />} />
+        <Route path="/booking" element={<RedirectWithQuery to="/book" />} />
         <Route path="/preparation-guide" element={<Navigate to="/preparation-safety" replace />} />
         <Route path="/pricing" element={<Navigate to="/packages" replace />} />
         <Route path="/kailash-2027" element={<Navigate to="/kailash-mansarovar-yatra-2027" replace />} />

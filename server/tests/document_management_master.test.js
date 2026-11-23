@@ -71,7 +71,13 @@ describe('Official Document Management System Master Suite (SYPL-RISK-2027 & SYP
 
     // 4. Fetch route & departure for real booking creation
     const departuresRes = await request(app).get('/api/departures');
-    const departure = departuresRes.body.departures[0];
+    let departure = departuresRes.body.departures.find((d) => (d.totalCapacity - d.bookedSeats) >= 2) || departuresRes.body.departures[0];
+    if ((departure.totalCapacity - departure.bookedSeats) < 2) {
+      await prisma.departure.update({
+        where: { id: departure.id },
+        data: { totalCapacity: departure.bookedSeats + 30 },
+      });
+    }
     const routesRes = await request(app).get('/api/routes');
     const route = routesRes.body.routes[0];
 

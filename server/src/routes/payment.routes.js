@@ -9,12 +9,23 @@ const createOrderSchema = z.object({
   installmentType: z.enum(['REGISTRATION', 'FIRST_INSTALLMENT', 'FINAL_BALANCE', 'FULL']).default('REGISTRATION'),
 });
 
-const verifyPaymentSchema = z.object({
-  bookingId: z.string().min(1, 'Booking ID is required'),
-  transactionId: z.string().min(1, 'Transaction ID is required'),
-  paymentMethod: z.string().default('SANDBOX_PAYMENT_GATEWAY'),
-  signature: z.string().optional(),
-});
+const verifyPaymentSchema = z
+  .object({
+    bookingId: z.string().min(1, 'Booking ID is required'),
+    transactionId: z.string().optional(),
+    orderId: z.string().optional(),
+    paymentId: z.string().optional(),
+    paymentMethod: z.string().default('SANDBOX_PAYMENT_GATEWAY'),
+    method: z.string().optional(),
+    status: z.string().optional(),
+    signature: z.string().optional(),
+  })
+  .transform((data) => ({
+    bookingId: data.bookingId,
+    transactionId: data.transactionId || data.paymentId || data.orderId || `TXN-${Date.now()}`,
+    paymentMethod: data.method || data.paymentMethod || 'SANDBOX_PAYMENT_GATEWAY',
+    signature: data.signature,
+  }));
 
 // POST initialize / create payment order
 router.post('/create-order', async (req, res, next) => {

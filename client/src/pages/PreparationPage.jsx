@@ -162,12 +162,12 @@ export default function PreparationPage() {
                 Clothing & Layering
               </h4>
               <ul className="flex flex-col gap-2 text-xs sm:text-sm text-[#102C52]">
-                <li>✓ 2–3 pairs thermal innerwear (merino wool/poly)</li>
-                <li>✓ Fleece jacket / windproof softshell</li>
-                <li>✓ Heavy down jacket with hood (suitable for -10°C)</li>
-                <li>✓ Waterproof / quick-dry trekking trousers</li>
-                <li>✓ Thermal gloves + waterproof outer mittens</li>
-                <li>✓ Woollen trekking socks (4–5 pairs)</li>
+                <li>• 2–3 pairs thermal innerwear (merino wool/poly)</li>
+                <li>• Fleece jacket / windproof softshell</li>
+                <li>• Heavy down jacket with hood (suitable for -10°C)</li>
+                <li>• Waterproof / quick-dry trekking trousers</li>
+                <li>• Thermal gloves + waterproof outer mittens</li>
+                <li>• Woollen trekking socks (4–5 pairs)</li>
               </ul>
             </div>
 
@@ -176,12 +176,12 @@ export default function PreparationPage() {
                 Footwear & Trek Gear
               </h4>
               <ul className="flex flex-col gap-2 text-xs sm:text-sm text-[#102C52]">
-                <li>✓ Waterproof trekking boots with ankle support</li>
-                <li>✓ Camp shoes / comfortable slip-on sneakers</li>
-                <li>✓ Pair of adjustable trekking poles</li>
-                <li>✓ UV400 polarized sunglasses (essential for snow glare)</li>
-                <li>✓ High-lumen headlamp with spare batteries</li>
-                <li>✓ 1-litre insulated thermos flask for warm water</li>
+                <li>• Waterproof trekking boots with ankle support</li>
+                <li>• Camp shoes / comfortable slip-on sneakers</li>
+                <li>• Pair of adjustable trekking poles</li>
+                <li>• UV400 polarized sunglasses (essential for snow glare)</li>
+                <li>• High-lumen headlamp with spare batteries</li>
+                <li>• 1-litre insulated thermos flask for warm water</li>
               </ul>
             </div>
 
@@ -190,12 +190,12 @@ export default function PreparationPage() {
                 Provided by Shloka Yatra
               </h4>
               <ul className="flex flex-col gap-2 text-xs sm:text-sm text-[#102C52]">
-                <li>★ Heavy-duty Shloka Yatra duffel bag for main luggage</li>
-                <li>★ Waterproof rain poncho</li>
-                <li>★ Warm fleece beanie hat</li>
-                <li>★ Wide-brim sun protection cap</li>
-                <li>★ Water bottle holster with shoulder strap</li>
-                <li>★ Certified medical oxygen cylinders for the group</li>
+                <li>• Heavy-duty Shloka Yatra duffel bag for main luggage</li>
+                <li>• Waterproof rain poncho</li>
+                <li>• Warm fleece beanie hat</li>
+                <li>• Wide-brim sun protection cap</li>
+                <li>• Water bottle holster with shoulder strap</li>
+                <li>• Certified medical oxygen cylinders for the group</li>
               </ul>
             </div>
           </div>

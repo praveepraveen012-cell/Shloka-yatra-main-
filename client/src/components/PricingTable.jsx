@@ -137,7 +137,7 @@ export default function PricingTable() {
           </div>
 
           <Link
-            to="/book-now?routeCode=bus-both-ways"
+            to="/book?routeCode=bus-both-ways"
             className="btn btn-out"
             style={{ width: '100%', justifyContent: 'center' }}
           >
@@ -246,7 +246,7 @@ export default function PricingTable() {
           </div>
 
           <Link
-            to="/book-now?routeCode=flight-to-lhasa"
+            to="/book?routeCode=flight-to-lhasa"
             className="btn btn-go"
             style={{ width: '100%', justifyContent: 'center' }}
           >
@@ -334,7 +334,7 @@ export default function PricingTable() {
           </div>
 
           <Link
-            to="/book-now?routeCode=lhasa-ali-pulan"
+            to="/book?routeCode=lhasa-ali-pulan"
             className="btn btn-out"
             style={{ width: '100%', justifyContent: 'center' }}
           >

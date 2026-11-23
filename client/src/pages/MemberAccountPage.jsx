@@ -851,7 +851,7 @@ export default function MemberAccountPage() {
                     Once you book a Kailash Mansarovar pilgrimage package, your document requirements and clearance cards will appear here.
                   </p>
                   <Link
-                    to="/booking"
+                    to="/book"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#071B3A] text-amber-300 font-bold text-xs sm:text-sm hover:bg-slate-900 transition-colors shadow-sm"
                   >
                     <span>Explore Packages & Book Now</span>

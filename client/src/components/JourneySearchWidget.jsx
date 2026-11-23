@@ -308,9 +308,11 @@ export default function JourneySearchWidget() {
 
   const handleProceedBooking = (routeIdToBook) => {
     const routeId = routeIdToBook || (selectedRouteId !== 'all' ? selectedRouteId : routes[0]?.id || 'option-1');
+    const selectedRouteObj = routes.find((r) => r.id === routeId) || routes[0];
     const query = new URLSearchParams({
       package: routeId,
-      batch: selectedBatchId,
+      routeCode: selectedRouteObj?.code || '',
+      batch: selectedBatchId || departures[0]?.id || '',
       passport: passportType,
       count: totalDevotees.toString(),
       adults: adultsCount.toString(),
@@ -761,17 +763,17 @@ export default function JourneySearchWidget() {
                           </div>
 
                           {/* Verified Inclusions Pills */}
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                          <div className="flex flex-wrap gap-2 pt-1.5">
+                            <span className="text-[11px] bg-slate-50/80 border border-slate-200/90 px-2.5 py-0.5 rounded-md text-slate-700 font-medium tracking-tight">
                               {t('search.stayKathmandu')}
                             </span>
-                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                            <span className="text-[11px] bg-slate-50/80 border border-slate-200/90 px-2.5 py-0.5 rounded-md text-slate-700 font-medium tracking-tight">
                               {t('search.tibetVisa')}
                             </span>
-                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                            <span className="text-[11px] bg-slate-50/80 border border-slate-200/90 px-2.5 py-0.5 rounded-md text-slate-700 font-medium tracking-tight">
                               {t('search.sattvicMeals')}
                             </span>
-                            <span className="text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700">
+                            <span className="text-[11px] bg-slate-50/80 border border-slate-200/90 px-2.5 py-0.5 rounded-md text-slate-700 font-medium tracking-tight">
                               {t('search.hyperbaricOxygen')}
                             </span>
                           </div>

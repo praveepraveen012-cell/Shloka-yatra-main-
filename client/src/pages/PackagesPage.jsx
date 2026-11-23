@@ -339,11 +339,17 @@ export default function PackagesPage() {
                       >
                         {pkg.highlights.map((h, i) => (
                           <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                            <Check
-                              size={16}
-                              color="#2F6FED"
-                              style={{ flexShrink: 0, marginTop: '3px' }}
-                            />
+                            <span
+                              style={{
+                                color: pkg.isPopular ? '#D9A441' : '#2F6FED',
+                                fontWeight: 'bold',
+                                fontSize: '1rem',
+                                lineHeight: '1.25rem',
+                                flexShrink: 0,
+                              }}
+                            >
+                              •
+                            </span>
                             <span>{h}</span>
                           </li>
                         ))}
@@ -354,7 +360,7 @@ export default function PackagesPage() {
                   {/* Action Buttons */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
                     <Link
-                      to={`/book-now?package=option-${pkg.optionNumber}&routeCode=${pkg.routeCode}`}
+                      to={`/book?package=option-${pkg.optionNumber}&routeCode=${pkg.routeCode}&passport=${passportType}`}
                       style={{
                         display: 'block',
                         width: '100%',

@@ -102,7 +102,7 @@ export default function DeparturesPage() {
                 </div>
 
                 <Link
-                  to={`/book-now?departureId=${batch.id}`}
+                  to={`/book?departureId=${batch.id}`}
                   className="w-full bg-[#101D35] hover:bg-[#1C3455] text-white text-xs font-bold uppercase tracking-wider py-2.5 rounded-lg text-center shadow transition-all"
                 >
                   Book This Batch
@@ -170,7 +170,7 @@ export default function DeparturesPage() {
                     </td>
                     <td style={{ padding: '18px 20px' }}>
                       <Link
-                        to={`/book-now?departureId=${batch.id}`}
+                        to={`/book?departureId=${batch.id}`}
                         className="btn btn-go btn-sm"
                         style={{ padding: '7px 16px', fontSize: '0.82rem' }}
                       >

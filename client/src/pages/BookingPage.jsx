@@ -117,6 +117,7 @@ export default function BookingPage() {
     control,
     watch,
     setValue,
+    getValues,
     handleSubmit,
     trigger,
     formState: { errors },
@@ -172,6 +173,8 @@ export default function BookingPage() {
   const watchedDepartureId = watch('departureId');
   const watchedPassportType = watch('passportType');
   const watchedTravellers = watch('travellers');
+  const watchedContactName = watch('contactName');
+  const watchedContactCity = watch('contactCity');
 
   // Load initial departures and routes
   useEffect(() => {
@@ -189,27 +192,68 @@ export default function BookingPage() {
         const routeParam = searchParams.get('routeCode') || searchParams.get('route');
         const depParam = searchParams.get('departureId') || searchParams.get('batch');
         const passportParam = searchParams.get('passport');
+        const countParam = parseInt(searchParams.get('count') || searchParams.get('adults'), 10);
 
         if (passportParam) {
           setValue('passportType', passportParam === 'FOREIGN_NRI' || passportParam === 'FOREIGN' ? 'FOREIGN' : 'INDIAN');
         }
 
+        let selectedRouteMatch = null;
         if (routeParam && rts.length > 0) {
-          const match = rts.find((r) => r.code === routeParam || r.id === routeParam);
-          if (match) setValue('routeId', match.id);
-        } else if (pkgParam && rts.length > 0) {
+          selectedRouteMatch = rts.find((r) => r.code === routeParam || r.id === routeParam);
+        }
+        if (!selectedRouteMatch && pkgParam && rts.length > 0) {
           const num = parseInt(pkgParam.replace('option-', ''), 10);
-          const match = rts.find((r) => r.routeNumber === num || r.id === pkgParam || r.code === pkgParam);
-          if (match) setValue('routeId', match.id);
-        } else if (rts.length > 0) {
-          setValue('routeId', rts[0].id);
+          selectedRouteMatch = rts.find((r) =>
+            (num && r.routeNumber === num) ||
+            r.id === pkgParam ||
+            r.code === pkgParam ||
+            (pkgParam.includes('bus') && r.routeNumber === 1) ||
+            (pkgParam.includes('lhasa-ali') && r.routeNumber === 3) ||
+            (pkgParam.includes('flight') && r.routeNumber === 2)
+          );
+        }
+        if (!selectedRouteMatch && rts.length > 0) {
+          selectedRouteMatch = rts[0];
+        }
+        if (selectedRouteMatch) {
+          setValue('routeId', selectedRouteMatch.id);
         }
 
+        let selectedDepMatch = null;
         if (depParam && deps.length > 0) {
-          const match = deps.find((d) => d.id === depParam || String(d.batchNumber) === String(depParam) || d.id === `batch-${depParam}`);
-          if (match) setValue('departureId', match.id);
-        } else if (deps.length > 0) {
-          setValue('departureId', deps[0].id);
+          selectedDepMatch = deps.find((d) => d.id === depParam || String(d.batchNumber) === String(depParam) || d.id === `batch-${depParam}`);
+        }
+        if (!selectedDepMatch && deps.length > 0) {
+          selectedDepMatch = deps[0];
+        }
+        if (selectedDepMatch) {
+          setValue('departureId', selectedDepMatch.id);
+        }
+
+        // Pre-populate travellers if count param specified
+        if (countParam && countParam > 1) {
+          const currentTravellers = getValues('travellers') || [];
+          for (let i = currentTravellers.length; i < countParam; i++) {
+            append({
+              fullName: '',
+              passportNumber: '',
+              nationality: passportParam === 'FOREIGN' || passportParam === 'FOREIGN_NRI' ? 'Foreign National' : 'Indian',
+              age: 45,
+              gender: 'MALE',
+              dietaryPreference: 'PURE_VEGETARIAN',
+              medicalConditions: 'None',
+              emergencyContactName: '',
+              emergencyContactPhone: '',
+            });
+          }
+        }
+
+        // Automatic step advancement: when visitor clicked a package button with preselected batch, advance directly to Contact / Traveller Info
+        if ((pkgParam || routeParam) && depParam) {
+          setActiveStep(3);
+        } else if (pkgParam || routeParam) {
+          setActiveStep(2);
         }
       } catch (err) {
         setServerError('Unable to load departure schedule or route rates.');
@@ -376,29 +420,25 @@ export default function BookingPage() {
       }
 
       // 4. Payment Order and Verification
-      let payableAmount = calculation?.depositAmount || 25000 * formData.travellers.length;
+      let installmentType = 'REGISTRATION';
       if (paymentChoice === 'FIRST_INSTALLMENT') {
-        payableAmount = Math.round((calculation?.baseAmount || 350000) * 0.5);
+        installmentType = 'FIRST_INSTALLMENT';
       } else if (paymentChoice === 'FULL') {
-        payableAmount = calculation?.totalAmount || 367500;
+        installmentType = 'FULL';
       }
 
       const orderRes = await api.createPaymentOrder({
         bookingId: createdBooking.id,
-        amount: payableAmount,
-        currency: 'INR',
-        paymentType: paymentChoice === 'DEPOSIT' ? 'REGISTRATION_DEPOSIT' : paymentChoice === 'FIRST_INSTALLMENT' ? 'FIRST_50_PERCENT' : 'FULL_PAYMENT',
+        installmentType,
       });
 
       // Verify simulated payment
       const paymentOrder = orderRes.order;
       await api.verifyPayment({
         bookingId: createdBooking.id,
-        orderId: paymentOrder.gatewayOrderId || `ORD-${Date.now()}`,
-        paymentId: `PAY-${Date.now()}`,
+        transactionId: paymentOrder?.gatewayOrderId || `TXN-${Date.now()}`,
+        paymentMethod: paymentMethod || 'SANDBOX_PAYMENT_GATEWAY',
         signature: 'simulated_secure_sha256_sig',
-        status: 'SUCCESS',
-        method: paymentMethod,
       });
 
       // 5. Navigate to official voucher
@@ -706,7 +746,7 @@ export default function BookingPage() {
                             type="text"
                             {...register('contactName')}
                             placeholder="e.g. Rajesh Kumar Sharma"
-                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                           />
                           {errors.contactName && <p className="text-red-500 text-xs mt-1">{errors.contactName.message}</p>}
                         </div>
@@ -719,7 +759,7 @@ export default function BookingPage() {
                             type="email"
                             {...register('contactEmail')}
                             placeholder="rajesh@example.com"
-                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                           />
                           {errors.contactEmail && <p className="text-red-500 text-xs mt-1">{errors.contactEmail.message}</p>}
                         </div>
@@ -734,7 +774,7 @@ export default function BookingPage() {
                             type="tel"
                             {...register('contactPhone')}
                             placeholder="+91 9876543210"
-                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                           />
                           {errors.contactPhone && <p className="text-red-500 text-xs mt-1">{errors.contactPhone.message}</p>}
                         </div>
@@ -747,7 +787,7 @@ export default function BookingPage() {
                             type="text"
                             {...register('contactCity')}
                             placeholder="Noida / Mumbai / Bengaluru"
-                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                           />
                           {errors.contactCity && <p className="text-red-500 text-xs mt-1">{errors.contactCity.message}</p>}
                         </div>
@@ -761,7 +801,7 @@ export default function BookingPage() {
                           type="text"
                           {...register('contactAddress')}
                           placeholder="Flat / House Number, Street, Sector, Landmark"
-                          className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                          className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                         />
                         {errors.contactAddress && <p className="text-red-500 text-xs mt-1">{errors.contactAddress.message}</p>}
                       </div>
@@ -775,7 +815,7 @@ export default function BookingPage() {
                             type="text"
                             {...register('contactState')}
                             placeholder="Uttar Pradesh / Maharashtra"
-                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                           />
                           {errors.contactState && <p className="text-red-500 text-xs mt-1">{errors.contactState.message}</p>}
                         </div>
@@ -788,7 +828,7 @@ export default function BookingPage() {
                             type="text"
                             {...register('contactPincode')}
                             placeholder="201304"
-                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                            className="w-full p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                           />
                           {errors.contactPincode && <p className="text-red-500 text-xs mt-1">{errors.contactPincode.message}</p>}
                         </div>
@@ -881,7 +921,7 @@ export default function BookingPage() {
                               type="text"
                               {...register(`travellers.${idx}.fullName`)}
                               placeholder="Full passport name"
-                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                             />
                             {errors.travellers?.[idx]?.fullName && (
                               <p className="text-red-500 text-xs mt-1">{errors.travellers[idx].fullName.message}</p>
@@ -896,7 +936,7 @@ export default function BookingPage() {
                               type="text"
                               {...register(`travellers.${idx}.passportNumber`)}
                               placeholder="Passport number"
-                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                             />
                             {errors.travellers?.[idx]?.passportNumber && (
                               <p className="text-red-500 text-xs mt-1">{errors.travellers[idx].passportNumber.message}</p>
@@ -913,7 +953,7 @@ export default function BookingPage() {
                               type="text"
                               {...register(`travellers.${idx}.nationality`)}
                               placeholder="Indian"
-                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                             />
                           </div>
 
@@ -924,7 +964,7 @@ export default function BookingPage() {
                             <input
                               type="number"
                               {...register(`travellers.${idx}.age`)}
-                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                             />
                           </div>
 
@@ -934,7 +974,7 @@ export default function BookingPage() {
                             </label>
                             <select
                               {...register(`travellers.${idx}.gender`)}
-                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white"
+                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                             >
                               <option value="MALE">Male</option>
                               <option value="FEMALE">Female</option>
@@ -952,7 +992,7 @@ export default function BookingPage() {
                               type="text"
                               {...register(`travellers.${idx}.emergencyContactName`)}
                               placeholder="Spouse / Parent / Sibling Name"
-                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                             />
                           </div>
 
@@ -964,7 +1004,7 @@ export default function BookingPage() {
                               type="tel"
                               {...register(`travellers.${idx}.emergencyContactPhone`)}
                               placeholder="+91 Emergency phone"
-                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border"
+                              className="w-full p-2.5 sm:p-3 rounded-lg border border-[#D9E2EF] text-sm focus:outline-none focus:border-[#2F6FED] box-border bg-white text-slate-800"
                             />
                           </div>
                         </div>
@@ -1640,11 +1680,11 @@ export default function BookingPage() {
         isOpen={isRiskModalOpen}
         onClose={() => setIsRiskModalOpen(false)}
         participantData={{
-          fullName: watchedTravellers?.[0]?.fullName || getValues('contactName'),
-          passportNumber: watchedTravellers?.[0]?.passportNumber,
-          city: getValues('contactCity') || 'Kathmandu, Nepal',
-          emergencyContactName: watchedTravellers?.[0]?.emergencyContactName,
-          emergencyContactPhone: watchedTravellers?.[0]?.emergencyContactPhone,
+          fullName: watchedTravellers?.[0]?.fullName || watchedContactName || getValues('contactName') || '',
+          passportNumber: watchedTravellers?.[0]?.passportNumber || '',
+          city: watchedContactCity || getValues('contactCity') || 'Kathmandu, Nepal',
+          emergencyContactName: watchedTravellers?.[0]?.emergencyContactName || '',
+          emergencyContactPhone: watchedTravellers?.[0]?.emergencyContactPhone || '',
         }}
         initialData={riskDeclarationData}
         onDeclarationSigned={(signedData) => {

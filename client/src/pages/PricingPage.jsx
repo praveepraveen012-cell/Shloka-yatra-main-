@@ -135,7 +135,7 @@ export default function PricingPage() {
 
           <div style={{ textAlign: 'center', marginTop: '48px' }}>
             <Link
-              to="/book-now"
+              to="/book"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

@@ -64,7 +64,7 @@ export default function DepartureSelector({ initialSelectedBatch = 1 }) {
 
   const handleSelectPackage = (routeCode) => {
     if (!activeBatch) return;
-    navigate(`/book-now?departureId=${activeBatch.id}&routeCode=${routeCode}`);
+    navigate(`/book?departureId=${activeBatch.id}&routeCode=${routeCode}`);
   };
 
   if (loading) {

@@ -289,18 +289,39 @@ router.get('/:id', async (req, res, next) => {
 
 // POST record contractual consent for a booking
 const consentSchema = z.object({
-  termsAccepted: z.boolean(),
+  termsAccepted: z.boolean().optional(),
+  consentedToMasterTerms: z.boolean().optional(),
   termsVersion: z.string().default('DRAFT-V1.0-NOV-2026'),
-  cancellationAccepted: z.boolean(),
+  cancellationAccepted: z.boolean().optional(),
+  consentedToCancellationPolicy: z.boolean().optional(),
   cancellationVersion: z.string().default('DRAFT-V1.0-NOV-2026'),
-  scheduleAccepted: z.boolean(),
+  scheduleAccepted: z.boolean().optional(),
+  consentedToServiceSchedule: z.boolean().optional(),
   scheduleVersion: z.string().default('2027-V1.0'),
-  riskAcknowledged: z.boolean(),
+  riskAcknowledged: z.boolean().optional(),
+  consentedToRiskNotice: z.boolean().optional(),
   riskVersion: z.string().default('DRAFT-V1.0-NOV-2026'),
-  privacyConsent: z.boolean(),
+  privacyConsent: z.boolean().optional(),
+  consentedToPrivacyNotice: z.boolean().optional(),
   marketingConsent: z.boolean().default(false),
+  consentMarketingOptional: z.boolean().optional(),
   publicityConsent: z.boolean().default(false),
-});
+  consentMediaOptional: z.boolean().optional(),
+  ipAddress: z.string().optional(),
+  userAgent: z.string().optional(),
+}).transform((data) => ({
+  termsAccepted: Boolean(data.termsAccepted ?? data.consentedToMasterTerms),
+  cancellationAccepted: Boolean(data.cancellationAccepted ?? data.consentedToCancellationPolicy),
+  scheduleAccepted: Boolean(data.scheduleAccepted ?? data.consentedToServiceSchedule),
+  riskAcknowledged: Boolean(data.riskAcknowledged ?? data.consentedToRiskNotice),
+  privacyConsent: Boolean(data.privacyConsent ?? data.consentedToPrivacyNotice),
+  marketingConsent: Boolean(data.marketingConsent || data.consentMarketingOptional),
+  publicityConsent: Boolean(data.publicityConsent || data.consentMediaOptional),
+  termsVersion: data.termsVersion,
+  cancellationVersion: data.cancellationVersion,
+  scheduleVersion: data.scheduleVersion,
+  riskVersion: data.riskVersion,
+}));
 
 router.post('/:id/consent', async (req, res, next) => {
   try {
