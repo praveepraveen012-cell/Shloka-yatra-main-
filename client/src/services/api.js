@@ -322,7 +322,23 @@ export const api = {
     request('/membership/profile', { method: 'PUT', body: JSON.stringify(payload) }),
   getMemberBookings: () => request('/membership/bookings'),
   getMemberPayments: () => request('/membership/payments'),
-  getMemberDocuments: () => request('/membership/documents'),
+  getMemberDocuments: () => request('/documents/my-documents'),
+  getMemberMyDocuments: () => request('/documents/my-documents'),
+  getDocumentTemplates: () => request('/documents/templates'),
+  getBookingDocumentRequirements: (bookingId) => request(`/documents/booking/${bookingId}/requirements`),
+  submitRiskDeclaration: (payload) =>
+    request('/documents/risk-declaration/submit', { method: 'POST', body: JSON.stringify(payload) }),
+  uploadMedicalCertificate: (payload) =>
+    request('/documents/medical-certificate/upload', { method: 'POST', body: JSON.stringify(payload) }),
+  uploadInsuranceProof: (payload) =>
+    request('/documents/insurance-proof/upload', { method: 'POST', body: JSON.stringify(payload) }),
+  getAdminDocumentDetail: (id) => request(`/documents/admin/${id}`),
+  reviewAdminDocument: (id, payload) =>
+    request(`/documents/admin/${id}/review`, { method: 'PUT', body: JSON.stringify(payload) }),
+  updateAdminTemplateStatus: (id, payload) =>
+    request(`/documents/admin/templates/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  getDocumentDownloadUrl: (id) => `${API_BASE}/documents/${id}/download`,
+  getTemplateDownloadUrl: (ref) => `${API_BASE}/documents/templates/${ref}/download`,
   changeMemberPassword: (payload) =>
     request('/membership/change-password', { method: 'POST', body: JSON.stringify(payload) }),
 

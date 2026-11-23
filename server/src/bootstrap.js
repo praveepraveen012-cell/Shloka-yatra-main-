@@ -59,6 +59,66 @@ export async function bootstrapAdmin() {
         },
       });
     }
+
+    // Bootstrap Official Document Templates (Draft 1.0 – 23 November 2026)
+    const templates = [
+      {
+        documentRef: 'SYPL-MED-2027',
+        title: 'Shlloka Yatra 2027 – Medical Fitness & Clinical Clearance Certificate',
+        category: 'MEDICAL',
+        version: 'Draft 1.0 – 23 November 2026',
+        lifecycleStatus: 'DRAFT',
+        isApproved: false,
+        templateFilePath: 'server/public/templates/Shlloka_Yatra_2027_Medical_Fitness_Certificate.pdf',
+        description: 'Mandatory clinical clearance form for high-altitude pilgrimage up to 5,630m. Contains participant health self-declaration (16 conditions) and registered physician clinical assessment and certification with photo seal.',
+        clausesCount: 16,
+      },
+      {
+        documentRef: 'SYPL-RISK-2027',
+        title: 'Shlloka Yatra 2027 – Participant Declaration, Assumption of Inherent Risk, and Limited Indemnity',
+        category: 'COMPLIANCE',
+        version: 'Draft 1.0 – 23 November 2026',
+        lifecycleStatus: 'DRAFT',
+        isApproved: false,
+        templateFilePath: 'server/public/templates/Shlloka_Yatra_2027_Risk_Declaration_and_Indemnity.pdf',
+        description: 'Official 5-page risk declaration: 24 numbered clauses (Sections 1-7), 5 page-by-page initials, 8 direct acknowledgements (Section 8), Emergency Contact & High-Altitude Travel Insurance (Section 9), and Participant Execution & Witness (Section 10).',
+        clausesCount: 24,
+      },
+      {
+        documentRef: 'SYPL-INS-2027',
+        title: 'Shlloka Yatra 2027 – High-Altitude Travel & Emergency Evacuation Insurance Policy Proof',
+        category: 'INSURANCE',
+        version: 'Draft 1.0 – 23 November 2026',
+        lifecycleStatus: 'DRAFT',
+        isApproved: false,
+        templateFilePath: null,
+        description: 'Official proof of mandatory specialized high-altitude travel insurance with emergency medical evacuation and repatriation up to 6,000m.',
+        clausesCount: 1,
+      },
+    ];
+
+    for (const t of templates) {
+      const existing = await prisma.documentTemplate.findUnique({
+        where: { documentRef: t.documentRef },
+      });
+      if (!existing) {
+        await prisma.documentTemplate.create({ data: t });
+      } else {
+        await prisma.documentTemplate.update({
+          where: { documentRef: t.documentRef },
+          data: {
+            title: t.title,
+            category: t.category,
+            version: t.version,
+            lifecycleStatus: existing.lifecycleStatus || t.lifecycleStatus,
+            isApproved: existing.isApproved ?? t.isApproved,
+            templateFilePath: t.templateFilePath,
+            description: t.description,
+            clausesCount: t.clausesCount,
+          },
+        });
+      }
+    }
   } catch (error) {
     console.error('Error during admin bootstrap:', error);
   }

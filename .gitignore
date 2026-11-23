@@ -54,3 +54,8 @@ screenshots/
 *.zip
 *.tar
 *.gz
+
+# User uploaded files (privacy and security)
+server/uploads/*
+!server/uploads/documents/.gitkeep
+

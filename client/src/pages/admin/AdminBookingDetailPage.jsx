@@ -615,6 +615,129 @@ export default function AdminBookingDetailPage() {
           </div>
         </div>
 
+        {/* Section D.2: Booking Documents & Compliance Register */}
+        <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-2xl p-5 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={18} className="text-amber-400" />
+              <h3 className="font-heading font-bold text-base sm:text-lg text-white">
+                Booking Documents & Compliance Register ({booking.travellers?.length || 1} Yatris)
+              </h3>
+            </div>
+            <span className="text-xs text-[#8CA8CC]">
+              Official Requirements: SYPL-RISK-2027, SYPL-MED-2027, SYPL-INS-2027
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-[#041329] text-[#8CA8CC] uppercase font-semibold border-b border-[#D9E2EF]/15">
+                  <th className="py-3 px-3">Participant</th>
+                  <th className="py-3 px-3">Risk Declaration (SYPL-RISK-2027)</th>
+                  <th className="py-3 px-3">Medical Fitness (SYPL-MED-2027)</th>
+                  <th className="py-3 px-3">Insurance Proof (SYPL-INS-2027)</th>
+                  <th className="py-3 px-3 text-center">Compliance Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {(booking.travellers || []).map((t) => {
+                  const riskSub = (booking.documentSubmissions || []).find(
+                    (s) => s.travellerId === t.id && s.documentRef === 'SYPL-RISK-2027'
+                  );
+                  const medSub = (booking.documentSubmissions || []).find(
+                    (s) => s.travellerId === t.id && s.documentRef === 'SYPL-MED-2027'
+                  );
+                  const insSub = (booking.documentSubmissions || []).find(
+                    (s) => s.travellerId === t.id && s.documentRef === 'SYPL-INS-2027'
+                  );
+
+                  const allAccepted =
+                    riskSub?.status === 'ACCEPTED' &&
+                    medSub?.status === 'ACCEPTED' &&
+                    insSub?.status === 'ACCEPTED';
+
+                  const anySubmitted = riskSub || medSub || insSub;
+
+                  return (
+                    <tr key={t.id} className="hover:bg-white/5">
+                      <td className="py-3 px-3 font-semibold text-white">
+                        <div>{t.fullName}</div>
+                        <div className="text-[10px] text-[#8CA8CC] font-mono">{t.passportNumber}</div>
+                      </td>
+
+                      {/* Risk */}
+                      <td className="py-3 px-3">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                          riskSub?.status === 'ACCEPTED'
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : riskSub?.status === 'SUBMITTED'
+                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                            : riskSub?.status === 'CLARIFICATION_REQUIRED'
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                            : 'bg-slate-700/50 text-slate-400'
+                        }`}>
+                          {riskSub?.status || 'NOT_SUBMITTED'}
+                        </span>
+                        {riskSub?.signerName && (
+                          <div className="text-[10px] text-[#8CA8CC] mt-0.5">Signed: {riskSub.signerName}</div>
+                        )}
+                      </td>
+
+                      {/* Med */}
+                      <td className="py-3 px-3">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                          medSub?.status === 'ACCEPTED'
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : medSub?.status === 'SUBMITTED'
+                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                            : medSub?.status === 'CLARIFICATION_REQUIRED'
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                            : 'bg-slate-700/50 text-slate-400'
+                        }`}>
+                          {medSub?.status || 'NOT_SUBMITTED'}
+                        </span>
+                        {t.medicalFitnessCertified && (
+                          <div className="text-[10px] text-emerald-400 mt-0.5">✓ Clinically Certified</div>
+                        )}
+                      </td>
+
+                      {/* Ins */}
+                      <td className="py-3 px-3">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                          insSub?.status === 'ACCEPTED'
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : insSub?.status === 'SUBMITTED'
+                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                            : 'bg-slate-700/50 text-slate-400'
+                        }`}>
+                          {insSub?.status || 'NOT_SUBMITTED'}
+                        </span>
+                        {t.insuranceProvider && (
+                          <div className="text-[10px] text-[#8CA8CC] mt-0.5">{t.insuranceProvider}</div>
+                        )}
+                      </td>
+
+                      {/* Overall Compliance */}
+                      <td className="py-3 px-3 text-center whitespace-nowrap">
+                        <span className={`inline-block px-2.5 py-1 rounded text-[10px] font-bold ${
+                          allAccepted
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : anySubmitted
+                            ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        }`}>
+                          {allAccepted ? 'FULLY COMPLIANT' : anySubmitted ? 'IN REVIEW' : 'PENDING ACTION'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Section E: Payment Transactions Ledger */}
         <div className="bg-[#071B3A] border border-[#D9E2EF]/15 rounded-2xl p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">

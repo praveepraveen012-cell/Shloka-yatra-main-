@@ -14,6 +14,7 @@ import adminRoutes from './routes/admin.routes.js';
 import membershipRoutes from './routes/membership.routes.js';
 import legalRoutes from './routes/legal.routes.js';
 import galleryRoutes from './routes/gallery.routes.js';
+import documentRoutes from './routes/document.routes.js';
 import { bootstrapAdmin } from './bootstrap.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -27,7 +28,8 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Health check endpoint
@@ -52,6 +54,7 @@ app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/faqs', faqRoutes);
 app.use('/api/legal', legalRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
 
 import path from 'path';

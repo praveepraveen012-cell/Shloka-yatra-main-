@@ -20,8 +20,16 @@ import {
   Edit3,
   Save,
   X,
+  Download,
+  UploadCloud,
+  Stethoscope,
+  ExternalLink,
 } from 'lucide-react';
 import { api } from '../services/api';
+import RiskDeclarationModal from '../components/RiskDeclarationModal';
+import MedicalCertificateUploadModal from '../components/MedicalCertificateUploadModal';
+import InsuranceProofUploadModal from '../components/InsuranceProofUploadModal';
+import { SYPL_RISK_DOCUMENT, SYPL_MEDICAL_DOCUMENT } from '../data/officialDocuments';
 
 export default function MemberAccountPage() {
   const navigate = useNavigate();
@@ -33,6 +41,8 @@ export default function MemberAccountPage() {
   const [bookings, setBookings] = useState([]);
   const [payments, setPayments] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [docBookings, setDocBookings] = useState([]);
+  const [activeDocModal, setActiveDocModal] = useState(null); // { type: 'RISK' | 'MED' | 'INS', booking, traveller, card }
   const [dataLoading, setDataLoading] = useState(false);
 
   // Profile Edit State
@@ -130,9 +140,15 @@ export default function MemberAccountPage() {
 
     if (activeTab === 'documents') {
       setDataLoading(true);
-      api.getMemberDocuments()
-        .then((res) => setDocuments(res.documents || []))
-        .catch(() => setDocuments([]))
+      api.getMemberMyDocuments()
+        .then((res) => {
+          setDocBookings(res.bookings || []);
+          setDocuments(res.bookings || []);
+        })
+        .catch(() => {
+          setDocBookings([]);
+          setDocuments([]);
+        })
         .finally(() => setDataLoading(false));
     }
   }, [activeTab, member]);
@@ -771,41 +787,304 @@ export default function MemberAccountPage() {
           </div>
         )}
 
-        {/* TAB 5: DOCUMENTS */}
+        {/* TAB 5: MY DOCUMENTS */}
         {activeTab === 'documents' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-            <h3 className="text-xl font-heading font-bold text-[#101D35] mb-1">
-              Pilgrimage Documents
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mb-6">
-              Uploaded passport copies, visa documents, and travel health certificates.
-            </p>
-
-            {dataLoading ? (
-              <div className="py-12 text-center text-slate-400">Loading documents...</div>
-            ) : documents.length === 0 ? (
-              <div className="text-center py-12 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                <FileText size={36} className="mx-auto text-slate-400 mb-2" />
-                <h4 className="text-base font-bold text-[#101D35] mb-1">No Documents Uploaded</h4>
-                <p className="text-xs text-slate-500">
-                  Passport and medical certificates submitted during booking will be stored here securely.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {documents.map((d) => (
-                  <div key={d.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                      {d.documentType}
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#071B3A] text-amber-300 font-mono">
+                      COMPLIANCE & RISK CLEARANCE
                     </span>
-                    <p className="font-bold text-sm text-[#101D35] truncate">{d.originalFilename}</p>
-                    <span className="text-xs text-emerald-600 font-semibold mt-2 block">
-                      Status: {d.status}
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      Draft 1.0 – 23 Nov 2026
                     </span>
                   </div>
-                ))}
+                  <h3 className="text-xl sm:text-2xl font-heading font-bold text-[#101D35]">
+                    My Pilgrimage Documents
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
+                    Mandatory official risk declarations, medical fitness certificates, and high-altitude travel insurance records associated with your confirmed 2027 yatras.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={SYPL_RISK_DOCUMENT.downloadUrl}
+                    download="Shlloka_Yatra_2027_Risk_Declaration_and_Indemnity.pdf"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs"
+                    title="Download official Risk Declaration PDF"
+                  >
+                    <Download size={14} className="text-[#2F6FED]" />
+                    <span>Risk PDF</span>
+                  </a>
+                  <a
+                    href={SYPL_MEDICAL_DOCUMENT.downloadUrl}
+                    download="Shlloka_Yatra_2027_Medical_Fitness_Certificate.pdf"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs"
+                    title="Download official Medical Certificate Form PDF"
+                  >
+                    <Download size={14} className="text-[#2F6FED]" />
+                    <span>Medical PDF</span>
+                  </a>
+                </div>
               </div>
-            )}
+
+              {/* Draft Notice Banner */}
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2.5 mb-6">
+                <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <strong>Official Documents Status (Draft 1.0):</strong> The Medical Fitness Certificate (<code>SYPL-MED-2027</code>) and Risk Declaration (<code>SYPL-RISK-2027</code>) are currently in Draft 1.0 review status. Both forms must be completed per participant. Final clearance is subject to formal verification by Shloka Yatra operations.
+                </div>
+              </div>
+
+              {dataLoading ? (
+                <div className="py-16 text-center text-slate-400">
+                  <RefreshCw size={24} className="animate-spin mx-auto mb-2 text-[#2F6FED]" />
+                  <span>Loading your document compliance register...</span>
+                </div>
+              ) : docBookings.length === 0 ? (
+                <div className="text-center py-16 px-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 max-w-lg mx-auto">
+                  <FileText size={40} className="mx-auto text-slate-400 mb-3" />
+                  <h4 className="text-base font-bold text-[#101D35] mb-1">No Pilgrimage Bookings Found</h4>
+                  <p className="text-xs sm:text-sm text-slate-500 mb-4">
+                    Once you book a Kailash Mansarovar pilgrimage package, your document requirements and clearance cards will appear here.
+                  </p>
+                  <Link
+                    to="/booking"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#071B3A] text-amber-300 font-bold text-xs sm:text-sm hover:bg-slate-900 transition-colors shadow-sm"
+                  >
+                    <span>Explore Packages & Book Now</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {docBookings.map((b) => (
+                    <div key={b.id} className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
+                      {/* Booking Header */}
+                      <div className="bg-[#071B3A] text-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-bold text-amber-300">
+                              {b.bookingReference}
+                            </span>
+                            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white/10 text-white">
+                              {b.batchName}
+                            </span>
+                          </div>
+                          <h4 className="text-base font-bold font-heading text-white mt-1">
+                            {b.routeName}
+                          </h4>
+                        </div>
+                        <div className="text-left sm:text-right">
+                          <span className="text-xs text-slate-300 block">
+                            {b.travellersCount} Devotee{b.travellersCount > 1 ? 's' : ''} • Departure: {b.departureDate ? new Date(b.departureDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Confirmed 2027'}
+                          </span>
+                          <span className="text-[11px] font-bold text-emerald-400">
+                            Booking Status: {b.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Travellers and Document Cards */}
+                      <div className="p-4 sm:p-6 space-y-6 bg-slate-50/50">
+                        {b.travellers.map((traveller) => (
+                          <div key={traveller.travellerId} className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                              <div className="flex items-center gap-2">
+                                <span className="w-8 h-8 rounded-full bg-[#071B3A] text-white text-xs font-bold flex items-center justify-center">
+                                  {traveller.fullName.charAt(0)}
+                                </span>
+                                <div>
+                                  <h5 className="text-sm sm:text-base font-bold text-[#101D35] flex items-center gap-2">
+                                    <span>{traveller.fullName}</span>
+                                    {traveller.isPrimary && (
+                                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-50 text-[#2F6FED] border border-blue-200">
+                                        Primary Devotee
+                                      </span>
+                                    )}
+                                  </h5>
+                                  <span className="text-xs text-slate-500 font-mono">
+                                    Passport / ID: {traveller.passportNumber}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* 3 Document Cards */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                              {traveller.cards.map((card) => {
+                                const isRisk = card.type === 'RISK_DECLARATION';
+                                const isMed = card.type === 'MEDICAL_CERTIFICATE';
+                                const isIns = card.type === 'INSURANCE_PROOF';
+
+                                const getStatusBadge = (status) => {
+                                  switch (status) {
+                                    case 'ACCEPTED':
+                                      return 'bg-emerald-50 text-emerald-700 border-emerald-300';
+                                    case 'UNDER_REVIEW':
+                                      return 'bg-blue-50 text-blue-700 border-blue-300';
+                                    case 'SUBMITTED':
+                                      return 'bg-purple-50 text-purple-700 border-purple-300';
+                                    case 'CLARIFICATION_REQUIRED':
+                                    case 'RESUBMISSION_REQUIRED':
+                                      return 'bg-amber-50 text-amber-800 border-amber-300';
+                                    case 'NOT_ACCEPTED':
+                                      return 'bg-red-50 text-red-700 border-red-300';
+                                    default:
+                                      return 'bg-slate-100 text-slate-600 border-slate-300';
+                                  }
+                                };
+
+                                return (
+                                  <div
+                                    key={card.id}
+                                    className="p-4 rounded-xl border border-slate-200 bg-white flex flex-col justify-between space-y-3 hover:border-slate-300 transition-colors shadow-2xs"
+                                  >
+                                    <div>
+                                      <div className="flex items-center justify-between gap-2 mb-2">
+                                        <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                          {card.documentRef}
+                                        </span>
+                                        <span
+                                          className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getStatusBadge(
+                                            card.status
+                                          )}`}
+                                        >
+                                          {card.status.replace(/_/g, ' ')}
+                                        </span>
+                                      </div>
+
+                                      <h6 className="text-xs sm:text-sm font-bold text-[#101D35] leading-snug">
+                                        {card.title}
+                                      </h6>
+                                      <span className="text-[11px] text-slate-400 block mt-0.5">
+                                        Version: {card.version}
+                                      </span>
+
+                                      {/* Clarification or review notes */}
+                                      {card.reviewNote && (
+                                        <div className="mt-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-[11px] text-red-800 space-y-0.5">
+                                          <strong className="block font-bold">Admin Clarification Note:</strong>
+                                          <p>{card.reviewNote}</p>
+                                        </div>
+                                      )}
+
+                                      {/* Sub-details for Insurance */}
+                                      {isIns && card.provider && (
+                                        <div className="mt-2 p-2 rounded bg-slate-50 text-[11px] text-slate-600 space-y-0.5 border border-slate-100">
+                                          <div><strong>Provider:</strong> {card.provider}</div>
+                                          <div><strong>Policy:</strong> {card.policyNumber || 'Recorded'}</div>
+                                        </div>
+                                      )}
+
+                                      {/* Sub-details for Medical */}
+                                      {isMed && (
+                                        <p className="text-[11px] text-slate-500 mt-2 leading-tight">
+                                          Requires certified clinical examination by registered physician with photo cross-stamp.
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="pt-2 border-t border-slate-100 space-y-2">
+                                      {/* Primary action per card type */}
+                                      {isRisk && (
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setActiveDocModal({
+                                              type: 'RISK',
+                                              booking: b,
+                                              traveller,
+                                              card,
+                                            })
+                                          }
+                                          className="w-full py-2 px-3 rounded-lg bg-[#071B3A] hover:bg-slate-900 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                                        >
+                                          <ShieldCheck size={13} />
+                                          <span>
+                                            {card.status === 'ACCEPTED'
+                                              ? 'View Signed Record'
+                                              : card.status === 'SUBMITTED'
+                                              ? 'Review Submission'
+                                              : 'Open & Execute Declaration'}
+                                          </span>
+                                        </button>
+                                      )}
+
+                                      {isMed && (
+                                        <div className="flex flex-col gap-1.5">
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setActiveDocModal({
+                                                type: 'MED',
+                                                booking: b,
+                                                traveller,
+                                                card,
+                                              })
+                                            }
+                                            className="w-full py-2 px-3 rounded-lg bg-[#2F6FED] hover:bg-blue-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                                          >
+                                            <UploadCloud size={13} />
+                                            <span>
+                                              {card.status === 'ACCEPTED'
+                                                ? 'Replace Certificate'
+                                                : card.status === 'SUBMITTED'
+                                                ? 'Re-upload Certificate'
+                                                : 'Upload Doctor Certificate'}
+                                            </span>
+                                          </button>
+                                        </div>
+                                      )}
+
+                                      {isIns && (
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setActiveDocModal({
+                                              type: 'INS',
+                                              booking: b,
+                                              traveller,
+                                              card,
+                                            })
+                                          }
+                                          className="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                                        >
+                                          <UploadCloud size={13} />
+                                          <span>
+                                            {card.hasFile ? 'Update Insurance Proof' : 'Upload Insurance Proof'}
+                                          </span>
+                                        </button>
+                                      )}
+
+                                      {/* Secondary: Download File if submitted */}
+                                      {card.submissionId && card.hasFile && (
+                                        <a
+                                          href={api.getDocumentDownloadUrl(card.submissionId)}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="w-full py-1.5 px-3 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                                        >
+                                          <ExternalLink size={12} className="text-[#2F6FED]" />
+                                          <span>View Uploaded File</span>
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -890,6 +1169,70 @@ export default function MemberAccountPage() {
           </div>
         )}
       </div>
+
+      {/* 1. Risk Declaration Modal */}
+      {activeDocModal?.type === 'RISK' && (
+        <RiskDeclarationModal
+          isOpen={true}
+          onClose={() => setActiveDocModal(null)}
+          participantData={{
+            fullName: activeDocModal.traveller?.fullName,
+            passportNumber: activeDocModal.traveller?.passportNumber,
+            city: activeDocModal.booking?.contactCity || 'Kathmandu, Nepal',
+            emergencyContactName: activeDocModal.traveller?.emergencyContactName,
+            emergencyContactPhone: activeDocModal.traveller?.emergencyContactPhone,
+          }}
+          onDeclarationSigned={async (signedData) => {
+            try {
+              await api.submitRiskDeclaration({
+                bookingId: activeDocModal.booking.id,
+                travellerId: activeDocModal.traveller.id || activeDocModal.traveller.travellerId,
+                ...signedData,
+              });
+              setActiveDocModal(null);
+              // Refresh document state
+              api.getMemberMyDocuments().then((res) => {
+                setDocBookings(res.bookings || []);
+                setDocuments(res.bookings || []);
+              });
+            } catch (err) {
+              alert(err.message || 'Failed to submit Risk Declaration');
+            }
+          }}
+        />
+      )}
+
+      {/* 2. Medical Fitness Certificate Upload Modal */}
+      {activeDocModal?.type === 'MED' && (
+        <MedicalCertificateUploadModal
+          isOpen={true}
+          onClose={() => setActiveDocModal(null)}
+          booking={activeDocModal.booking}
+          traveller={activeDocModal.traveller}
+          onSuccess={() => {
+            api.getMemberMyDocuments().then((res) => {
+              setDocBookings(res.bookings || []);
+              setDocuments(res.bookings || []);
+            });
+          }}
+        />
+      )}
+
+      {/* 3. Insurance Proof Upload Modal */}
+      {activeDocModal?.type === 'INS' && (
+        <InsuranceProofUploadModal
+          isOpen={true}
+          onClose={() => setActiveDocModal(null)}
+          booking={activeDocModal.booking}
+          traveller={activeDocModal.traveller}
+          onSuccess={() => {
+            api.getMemberMyDocuments().then((res) => {
+              setDocBookings(res.bookings || []);
+              setDocuments(res.bookings || []);
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

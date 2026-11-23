@@ -112,6 +112,7 @@ model Booking {
   consentRecords       ConsentRecord[]
   whatsAppMessages     WhatsAppMessage[]
   bookingNotes         BookingNote[]
+  documentSubmissions  DocumentSubmission[]
   memberId             String?
   member               Member?             @relation(fields: [memberId], references: [id], onDelete: SetNull)
 }
@@ -143,6 +144,7 @@ model Traveller {
   rejectionReason              String?
   createdAt                    DateTime            @default(now())
   uploadedDocuments            UploadedDocument[]
+  documentSubmissions          DocumentSubmission[]
 }
 
 model Payment {
@@ -337,6 +339,7 @@ model Member {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
   bookings            Booking[]
+  documentSubmissions DocumentSubmission[]
   otps                MemberOtp[]
 }
 
@@ -380,3 +383,90 @@ model BookingNote {
   content     String
   createdAt   DateTime @default(now())
 }
+
+model DocumentTemplate {
+  id               String               @id @default(uuid())
+  documentRef      String               @unique // SYPL-MED-2027, SYPL-RISK-2027, SYPL-INS-2027
+  title            String
+  category         String               @default("COMPLIANCE") // COMPLIANCE, MEDICAL, LEGAL, INSURANCE
+  version          String               @default("Draft 1.0 – 23 November 2026")
+  lifecycleStatus  String               @default("DRAFT") // DRAFT, PENDING_APPROVAL, APPROVED, PUBLISHED, SUPERSEDED, ARCHIVED
+  effectiveDate    DateTime             @default(now())
+  isApproved       Boolean              @default(false)
+  templateFilePath String?
+  description      String?
+  clausesCount     Int                  @default(0)
+  submissions      DocumentSubmission[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model DocumentSubmission {
+  id                   String            @id @default(uuid())
+  bookingId            String
+  booking              Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  travellerId          String?
+  traveller            Traveller?        @relation(fields: [travellerId], references: [id], onDelete: SetNull)
+  memberId             String?
+  member               Member?           @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  documentTemplateId   String?
+  documentTemplate     DocumentTemplate? @relation(fields: [documentTemplateId], references: [id], onDelete: SetNull)
+  documentRef          String            // SYPL-MED-2027, SYPL-RISK-2027, SYPL-INS-2027
+  documentTitle        String            @default("Compliance Document")
+  version              String            @default("Draft 1.0 – 23 November 2026")
+  submissionType       String            @default("DIGITAL_FORM") // DIGITAL_FORM, FILE_UPLOAD, HYBRID
+  status               String            @default("PENDING_SUBMISSION") // NOT_STARTED, PENDING_SUBMISSION, SUBMITTED, UNDER_REVIEW, CLARIFICATION_REQUIRED, RESUBMISSION_REQUIRED, ACCEPTED, NOT_ACCEPTED
+
+  // File details if uploaded
+  originalFilename     String?
+  filePath             String?
+  fileSizeBytes        Int?
+  mimeType             String?
+
+  // Structured digital form content (JSON strings for DB compatibility)
+  formData             String?           // Participant details, emergency contacts, physician assessments, insurance info
+  pageInitials         String?           // JSON array of initials per page (e.g. 5 pages for SYPL-RISK-2027)
+  acknowledgements     String?           // JSON object of 8 direct acknowledgement checkboxes
+
+  // Execution & Signature
+  signerName           String?
+  signerRelationship   String?
+  signatureDate        String?
+  signaturePlace       String?
+  signatureType        String?           // TYPED, DRAWN, PHYSICAL_UPLOAD
+  signatureData        String?           // e.g. base64 or drawn trace or acknowledgement hash
+  witnessName          String?
+  witnessPhone         String?
+  witnessSignature     String?
+
+  // Audit info
+  ipAddress            String?
+  userAgent            String?
+  submittedAt          DateTime?
+
+  // Version preservation & superseding
+  isCurrentVersion     Boolean           @default(true)
+  replacedSubmissionId String?
+  versionNumber        Int               @default(1)
+
+  // Admin Review records
+  reviews              DocumentReview[]
+
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+}
+
+model DocumentReview {
+  id                   String             @id @default(uuid())
+  submissionId         String
+  submission           DocumentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewerEmail        String
+  reviewerName         String?
+  previousStatus       String
+  newStatus            String
+  reviewNote           String?
+  internalNotes        String?
+  clinicalObservation  String?
+  reviewedAt           DateTime           @default(now())
+}
+

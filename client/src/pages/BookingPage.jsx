@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { CONTRACT_METADATA } from '../data/legalData';
+import RiskDeclarationModal from '../components/RiskDeclarationModal';
 
 const travellerSchema = z.object({
   fullName: z.string().min(2, 'Full name as per passport is required'),
@@ -93,6 +94,8 @@ export default function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState(null);
   const [activeStep, setActiveStep] = useState(1);
+  const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
+  const [riskDeclarationData, setRiskDeclarationData] = useState(null);
 
   // Document Upload State
   const [uploadedDocs, setUploadedDocs] = useState({
@@ -336,6 +339,24 @@ export default function BookingPage() {
         });
       } catch (consentErr) {
         console.warn('Consent recording note:', consentErr);
+      }
+
+      // 2b. Formal Document Submission: SYPL-RISK-2027
+      if (riskDeclarationData && createdBooking?.travellers?.[0]?.id) {
+        try {
+          await api.submitRiskDeclaration({
+            bookingId: createdBooking.id,
+            travellerId: createdBooking.travellers[0].id,
+            ...riskDeclarationData,
+            emergencyContact: {
+              name: formData.travellers[0]?.emergencyContactName,
+              relationship: formData.travellers[0]?.emergencyContactRelationship,
+              phone: formData.travellers[0]?.emergencyContactPhone,
+            },
+          });
+        } catch (riskErr) {
+          console.warn('Risk declaration submission note:', riskErr);
+        }
       }
 
       // 3. Document Attachments
@@ -1250,7 +1271,44 @@ export default function BookingPage() {
                       </label>
                       {errors.consentServiceSchedule && <p className="text-red-500 text-xs -mt-2 ml-7">{errors.consentServiceSchedule.message}</p>}
 
-                      {/* 4. Risk Acknowledgement */}
+                      {/* 4. Risk Acknowledgement & Official Document SYPL-RISK-2027 */}
+                      <div className={`p-4 rounded-xl border transition-all ${
+                        riskDeclarationData ? 'bg-emerald-50/70 border-emerald-300' : 'bg-amber-50/60 border-amber-300'
+                      }`}>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#071B3A] text-amber-300 font-mono">
+                                SYPL-RISK-2027
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-500">
+                                Draft 1.0 – 23 Nov 2026
+                              </span>
+                            </div>
+                            <h4 className="text-sm font-bold text-[#071B3A]">
+                              Participant Declaration, Assumption of Inherent High-Altitude Risk & Limited Indemnity
+                            </h4>
+                            <p className="text-xs text-slate-600 mt-0.5">
+                              {riskDeclarationData
+                                ? `Signed by ${riskDeclarationData.signerName} (5/5 page initials recorded, 8 direct acknowledgements confirmed)`
+                                : 'Official document requires initialing each page (Pages 1 to 5), Section 8 direct acknowledgements, and participant signature.'}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIsRiskModalOpen(true)}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                              riskDeclarationData
+                                ? 'bg-emerald-700 text-white hover:bg-emerald-800'
+                                : 'bg-[#071B3A] text-amber-300 hover:bg-slate-900 border border-amber-500/40 shadow-sm'
+                            }`}
+                          >
+                            <ShieldCheck size={14} />
+                            <span>{riskDeclarationData ? 'Review Signed Declaration' : 'Open & Sign Declaration →'}</span>
+                          </button>
+                        </div>
+                      </div>
+
                       <label
                         className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
                           errors.consentRiskAcknowledgement ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
@@ -1262,7 +1320,7 @@ export default function BookingPage() {
                           className="accent-[#2F6FED] mt-0.5 w-4 h-4 shrink-0"
                         />
                         <span className="text-xs sm:text-sm text-[#071B3A] leading-relaxed break-words">
-                          <strong>Mandatory:</strong> I accept the <Link to="/risk-acknowledgement" target="_blank" className="text-[#2F6FED] underline font-semibold">High-Altitude Risk Acknowledgement & Emergency Medical Authorisation (R1–R12)</Link>, agreeing to voluntary assumption of high-altitude risks and authorising medical emergency proxies.
+                          <strong>Mandatory:</strong> I accept the <Link to="/risk-acknowledgement" target="_blank" className="text-[#2F6FED] underline font-semibold">High-Altitude Risk Acknowledgement & Emergency Medical Authorisation (R1–R12 / SYPL-RISK-2027)</Link>, agreeing to voluntary assumption of high-altitude risks, medical proxies, and terms.
                         </span>
                       </label>
                       {errors.consentRiskAcknowledgement && <p className="text-red-500 text-xs -mt-2 ml-7">{errors.consentRiskAcknowledgement.message}</p>}
@@ -1576,6 +1634,25 @@ export default function BookingPage() {
           </form>
         </div>
       </section>
+
+      {/* Risk Declaration Modal (SYPL-RISK-2027) */}
+      <RiskDeclarationModal
+        isOpen={isRiskModalOpen}
+        onClose={() => setIsRiskModalOpen(false)}
+        participantData={{
+          fullName: watchedTravellers?.[0]?.fullName || getValues('contactName'),
+          passportNumber: watchedTravellers?.[0]?.passportNumber,
+          city: getValues('contactCity') || 'Kathmandu, Nepal',
+          emergencyContactName: watchedTravellers?.[0]?.emergencyContactName,
+          emergencyContactPhone: watchedTravellers?.[0]?.emergencyContactPhone,
+        }}
+        initialData={riskDeclarationData}
+        onDeclarationSigned={(signedData) => {
+          setRiskDeclarationData(signedData);
+          setValue('consentRiskAcknowledgement', true);
+          setIsRiskModalOpen(false);
+        }}
+      />
     </div>
   );
 }

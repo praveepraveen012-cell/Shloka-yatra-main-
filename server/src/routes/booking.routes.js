@@ -104,6 +104,17 @@ router.post('/', async (req, res, next) => {
         exists = await tx.booking.findUnique({ where: { bookingReference } });
       }
 
+      // Check if contactEmail belongs to a registered Member
+      let matchedMemberId = data.memberId || null;
+      if (!matchedMemberId && data.contactEmail) {
+        const existingMember = await tx.member.findUnique({
+          where: { email: data.contactEmail.toLowerCase().trim() },
+        });
+        if (existingMember) {
+          matchedMemberId = existingMember.id;
+        }
+      }
+
       // 4. Create Booking record with travellers
       const booking = await tx.booking.create({
         data: {
@@ -123,6 +134,7 @@ router.post('/', async (req, res, next) => {
           status: 'PENDING',
           paymentStatus: 'UNPAID',
           termsAcceptedVersion: 'DRAFT-V1.0-NOV-2026',
+          memberId: matchedMemberId,
           notes: data.notes || '',
           travellers: {
             create: data.travellers.map((t, idx) => ({

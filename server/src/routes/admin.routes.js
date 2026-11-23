@@ -276,6 +276,10 @@ router.get('/bookings/:id', async (req, res, next) => {
         travellers: {
           include: {
             uploadedDocuments: true,
+            documentSubmissions: {
+              where: { isCurrentVersion: true },
+              include: { reviews: { orderBy: { reviewedAt: 'desc' } } },
+            },
           },
         },
         payments: {
@@ -285,6 +289,10 @@ router.get('/bookings/:id', async (req, res, next) => {
           orderBy: { createdAt: 'desc' },
         },
         uploadedDocuments: true,
+        documentSubmissions: {
+          where: { isCurrentVersion: true },
+          include: { reviews: { orderBy: { reviewedAt: 'desc' } }, traveller: true },
+        },
         consentRecords: true,
         bookingNotes: {
           orderBy: { createdAt: 'desc' },
@@ -1415,16 +1423,81 @@ router.post('/members/:id/notes', async (req, res, next) => {
   }
 });
 
-// 12. Documents Verification Management
+// 12. Documents Verification & Compliance Management
 router.get('/documents', async (req, res, next) => {
   try {
-    const { status, type } = req.query;
-    const where = {};
-    if (status) where.status = String(status);
-    if (type) where.documentType = String(type);
+    const { status, type, documentRef, search } = req.query;
 
-    const documents = await prisma.uploadedDocument.findMany({
-      where,
+    // Real DB-derived Metrics for DocumentSubmissions
+    const [
+      totalSubmitted,
+      pendingReview,
+      underReview,
+      clarificationRequested,
+      accepted,
+      notAccepted,
+    ] = await Promise.all([
+      prisma.documentSubmission.count(),
+      prisma.documentSubmission.count({ where: { status: 'SUBMITTED' } }),
+      prisma.documentSubmission.count({ where: { status: 'UNDER_REVIEW' } }),
+      prisma.documentSubmission.count({
+        where: { status: { in: ['CLARIFICATION_REQUIRED', 'RESUBMISSION_REQUIRED'] } },
+      }),
+      prisma.documentSubmission.count({ where: { status: 'ACCEPTED' } }),
+      prisma.documentSubmission.count({ where: { status: 'NOT_ACCEPTED' } }),
+    ]);
+
+    const subWhere = {};
+    if (status) subWhere.status = String(status);
+    if (documentRef) subWhere.documentRef = String(documentRef);
+    if (search) {
+      const q = String(search).trim();
+      subWhere.OR = [
+        { booking: { bookingReference: { contains: q } } },
+        { traveller: { fullName: { contains: q } } },
+        { traveller: { passportNumber: { contains: q } } },
+        { documentTitle: { contains: q } },
+        { signerName: { contains: q } },
+      ];
+    }
+
+    const submissions = await prisma.documentSubmission.findMany({
+      where: subWhere,
+      include: {
+        booking: {
+          select: {
+            id: true,
+            bookingReference: true,
+            contactName: true,
+            contactEmail: true,
+            departure: { select: { batchName: true, startDate: true } },
+            route: { select: { name: true, code: true } },
+          },
+        },
+        traveller: {
+          select: {
+            id: true,
+            fullName: true,
+            passportNumber: true,
+            medicalFitnessCertified: true,
+            docVerificationStatus: true,
+          },
+        },
+        member: {
+          select: { id: true, firstName: true, lastName: true, email: true, membershipReference: true },
+        },
+        reviews: { orderBy: { reviewedAt: 'desc' } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Also fetch legacy uploaded documents
+    const docWhere = {};
+    if (status) docWhere.status = String(status);
+    if (type) docWhere.documentType = String(type);
+
+    const legacyDocs = await prisma.uploadedDocument.findMany({
+      where: docWhere,
       include: {
         booking: {
           select: {
@@ -1442,32 +1515,150 @@ router.get('/documents', async (req, res, next) => {
       },
       orderBy: { createdAt: 'desc' },
     });
-    res.json({ documents });
+
+    // Format submissions into unified documents list
+    const mappedSubmissions = submissions.map((sub) => ({
+      id: sub.id,
+      isSubmission: true,
+      documentRef: sub.documentRef,
+      documentType:
+        sub.documentRef === 'SYPL-MED-2027'
+          ? 'MEDICAL_CERTIFICATE'
+          : sub.documentRef === 'SYPL-RISK-2027'
+          ? 'RISK_DECLARATION'
+          : sub.documentRef === 'SYPL-INS-2027'
+          ? 'INSURANCE'
+          : 'OTHER',
+      documentTitle: sub.documentTitle,
+      version: sub.version,
+      status: sub.status,
+      originalFilename: sub.originalFilename || `${sub.documentRef}.pdf`,
+      filePath: sub.filePath,
+      fileSizeBytes: sub.fileSizeBytes,
+      mimeType: sub.mimeType,
+      createdAt: sub.createdAt,
+      submittedAt: sub.submittedAt || sub.createdAt,
+      signerName: sub.signerName,
+      signerRelationship: sub.signerRelationship,
+      signaturePlace: sub.signaturePlace,
+      signatureDate: sub.signatureDate,
+      pageInitials: sub.pageInitials ? JSON.parse(sub.pageInitials) : null,
+      acknowledgements: sub.acknowledgements ? JSON.parse(sub.acknowledgements) : null,
+      formData: sub.formData ? (typeof sub.formData === 'string' ? JSON.parse(sub.formData) : sub.formData) : null,
+      reviews: sub.reviews,
+      rejectionReason: sub.reviews?.[0]?.reviewNote || null,
+      booking: sub.booking,
+      traveller: sub.traveller,
+      member: sub.member,
+    }));
+
+    const combinedDocuments = [...mappedSubmissions, ...legacyDocs.filter((ld) => !mappedSubmissions.some((ms) => ms.filePath === ld.filePath))];
+
+    res.json({
+      metrics: {
+        totalSubmitted,
+        pendingReview,
+        underReview,
+        clarificationRequested,
+        accepted,
+        notAccepted,
+      },
+      submissions,
+      documents: combinedDocuments,
+    });
   } catch (error) {
     next(error);
   }
 });
 
 const verifyDocSchema = z.object({
-  status: z.enum(['VERIFIED', 'REJECTED']),
+  status: z.enum(['VERIFIED', 'REJECTED', 'ACCEPTED', 'UNDER_REVIEW', 'CLARIFICATION_REQUIRED', 'NOT_ACCEPTED']),
   rejectionReason: z.string().optional(),
+  reviewNote: z.string().optional(),
+  action: z.string().optional(),
 });
 
 router.put('/documents/:id/verify', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { status, rejectionReason } = verifyDocSchema.parse(req.body);
+    const body = verifyDocSchema.parse(req.body);
 
+    const note = body.reviewNote || body.rejectionReason || null;
+    let newStatus = body.status;
+    if (newStatus === 'VERIFIED') newStatus = 'ACCEPTED';
+    if (newStatus === 'REJECTED') newStatus = 'NOT_ACCEPTED';
+
+    // 1. Check if DocumentSubmission
+    const sub = await prisma.documentSubmission.findUnique({
+      where: { id },
+      include: { traveller: true, booking: true },
+    });
+
+    if (sub) {
+      if (['CLARIFICATION_REQUIRED', 'NOT_ACCEPTED'].includes(newStatus) && (!note || !note.trim())) {
+        return res.status(400).json({ error: 'A review note explaining the clarification or rejection is required.' });
+      }
+
+      await prisma.documentReview.create({
+        data: {
+          submissionId: id,
+          reviewerEmail: req.user.email,
+          reviewerName: req.user.name || 'Shloka Administrator',
+          previousStatus: sub.status,
+          newStatus,
+          reviewNote: note,
+        },
+      });
+
+      const updatedSub = await prisma.documentSubmission.update({
+        where: { id },
+        data: { status: newStatus },
+      });
+
+      if (sub.documentRef === 'SYPL-MED-2027' && sub.travellerId) {
+        if (newStatus === 'ACCEPTED') {
+          await prisma.traveller.update({
+            where: { id: sub.travellerId },
+            data: { medicalFitnessCertified: true, docVerificationStatus: 'VERIFIED' },
+          });
+        } else {
+          await prisma.traveller.update({
+            where: { id: sub.travellerId },
+            data: {
+              medicalFitnessCertified: false,
+              docVerificationStatus: newStatus === 'NOT_ACCEPTED' ? 'REJECTED' : 'PENDING',
+              rejectionReason: note,
+            },
+          });
+        }
+      }
+
+      await prisma.auditLog.create({
+        data: {
+          userId: req.user.id,
+          userEmail: req.user.email,
+          action: 'DOCUMENT_REVIEW_DECISION',
+          entity: 'DOCUMENT_SUBMISSION',
+          entityId: id,
+          details: JSON.stringify({ previousStatus: sub.status, newStatus, note }),
+        },
+      });
+
+      return res.json({ message: `Document marked as ${newStatus}`, document: updatedSub });
+    }
+
+    // 2. Fallback to legacy UploadedDocument
     const doc = await prisma.uploadedDocument.findUnique({ where: { id } });
     if (!doc) {
       return res.status(404).json({ error: 'Document not found' });
     }
 
+    const legacyStatus = ['ACCEPTED', 'VERIFIED'].includes(newStatus) ? 'VERIFIED' : 'REJECTED';
     const updated = await prisma.uploadedDocument.update({
       where: { id },
       data: {
-        status,
-        rejectionReason: status === 'REJECTED' ? rejectionReason || 'Document illegible or incomplete' : null,
+        status: legacyStatus,
+        rejectionReason: legacyStatus === 'REJECTED' ? note || 'Document rejected' : null,
         verifiedBy: req.user.email,
         verifiedAt: new Date(),
       },
@@ -1477,8 +1668,8 @@ router.put('/documents/:id/verify', async (req, res, next) => {
       await prisma.traveller.update({
         where: { id: doc.travellerId },
         data: {
-          docVerificationStatus: status,
-          rejectionReason: status === 'REJECTED' ? rejectionReason : null,
+          docVerificationStatus: legacyStatus,
+          rejectionReason: legacyStatus === 'REJECTED' ? note : null,
         },
       });
     }
@@ -1490,11 +1681,11 @@ router.put('/documents/:id/verify', async (req, res, next) => {
         action: 'DOCUMENT_VERIFICATION_STATUS',
         entity: 'DOCUMENT',
         entityId: id,
-        details: JSON.stringify({ status, rejectionReason }),
+        details: JSON.stringify({ status: legacyStatus, rejectionReason: note }),
       },
     });
 
-    res.json({ message: `Document marked as ${status}`, document: updated });
+    res.json({ message: `Document marked as ${legacyStatus}`, document: updated });
   } catch (error) {
     next(error);
   }
