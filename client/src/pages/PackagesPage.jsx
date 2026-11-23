@@ -106,7 +106,7 @@ export default function PackagesPage() {
           >
             2027 Pilgrimage Options
           </span>
-          <h1 style={{ fontSize: 'clamp(36px, 5vw, 68px)', fontWeight: 300, marginBottom: '20px', color: '#FFFFFF' }}>
+          <h1 className="font-heading" style={{ fontSize: 'clamp(36px, 5vw, 68px)', fontWeight: 300, marginBottom: '20px', color: '#FFFFFF' }}>
             Yatra Packages & Pricing
           </h1>
           <p className="lead" style={{ color: '#D9E2EF', maxWidth: '64ch' }}>
@@ -241,6 +241,7 @@ export default function PackagesPage() {
                     </div>
 
                     <h2
+                      className="font-heading"
                       style={{
                         fontSize: '1.5rem',
                         color: pkg.isPopular ? '#FFFFFF' : '#071B3A',

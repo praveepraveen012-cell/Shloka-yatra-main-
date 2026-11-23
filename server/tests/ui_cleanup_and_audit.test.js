@@ -28,7 +28,8 @@ describe('UI Cleanup, Legal Pages Simplification & Design Audit Suite', () => {
     const termsCode = fs.readFileSync(path.join(clientSrc, 'pages', 'TermsPage.jsx'), 'utf8');
     
     // Heading must be "Terms & Conditions"
-    assert.ok(termsCode.includes('<h1 className="text-2xl sm:text-4xl md:text-5xl font-heading font-bold text-white mb-4 leading-tight">\n            Terms & Conditions\n          </h1>'), 'Terms heading must be "Terms & Conditions"');
+    const normalizedTerms = termsCode.replace(/\r\n/g, '\n');
+    assert.ok(normalizedTerms.includes('<h1 className="text-2xl sm:text-4xl md:text-5xl font-heading font-bold text-white mb-4 leading-tight">\n            Terms & Conditions\n          </h1>'), 'Terms heading must be "Terms & Conditions"');
     assert.strictEqual(termsCode.includes('Master Terms & Conditions'), false, 'Must not contain "Master Terms & Conditions"');
 
     // Badges must be removed

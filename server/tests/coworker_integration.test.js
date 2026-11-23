@@ -4,7 +4,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 describe('Coworker Build Functional Integration & Architecture Tests', () => {
-  const clientSrc = path.join(process.cwd(), 'client', 'src');
+  const rootDir = fs.existsSync(path.resolve('client', 'src'))
+    ? process.cwd()
+    : path.resolve(process.cwd(), '..');
+  const clientSrc = path.join(rootDir, 'client', 'src');
+  const publicDir = path.join(rootDir, 'client', 'public');
 
   test('1. App.jsx provides routes and aliases for all coworker URLs', () => {
     const appContent = fs.readFileSync(path.join(clientSrc, 'App.jsx'), 'utf8');
@@ -61,7 +65,6 @@ describe('Coworker Build Functional Integration & Architecture Tests', () => {
   });
 
   test('5. SEO and Discovery assets (robots.txt & sitemap.xml) are defined in public/', () => {
-    const publicDir = path.join(process.cwd(), 'client', 'public');
     assert.ok(fs.existsSync(path.join(publicDir, 'robots.txt')), 'client/public/robots.txt must exist');
     assert.ok(fs.existsSync(path.join(publicDir, 'sitemap.xml')), 'client/public/sitemap.xml must exist');
 

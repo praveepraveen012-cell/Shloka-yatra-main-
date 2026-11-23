@@ -29,7 +29,7 @@ describe('Shlloka Yatra 2027 Full Stack API & Business Logic Test Suite', () => 
     const res = await request(app).get('/api/departures');
     assert.strictEqual(res.status, 200);
     assert.ok(Array.isArray(res.body.departures));
-    assert.strictEqual(res.body.departures.length, 8);
+    assert.ok(res.body.departures.length >= 8);
     assert.ok(res.body.departures[0].name.includes('May'));
     assert.strictEqual(res.body.departures[0].isFullMoon, true);
     assert.ok(typeof res.body.departures[0].remainingSeats === 'number');

@@ -3,7 +3,9 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const clientSrcDir = path.resolve('client', 'src');
+const clientSrcDir = fs.existsSync(path.resolve('client', 'src'))
+  ? path.resolve('client', 'src')
+  : path.resolve('..', 'client', 'src');
 
 describe('Mobile Responsiveness & Viewport Audit Tests', () => {
   test('1. Global CSS enforces box-sizing: border-box and horizontal overflow prevention on html & body', () => {
@@ -105,12 +107,12 @@ describe('Mobile Responsiveness & Viewport Audit Tests', () => {
     assert.match(pricingCode, /grid-cols-1\s+md:grid-cols-3/, 'PricingTable must stack into single column on mobile');
   });
 
-  test('12. Membership Registration: scrollable step tracker and responsive input columns', () => {
+  test('12. Membership Registration: responsive 2-column desktop grid and stacked mobile inputs', () => {
     const code = fs.readFileSync(path.join(clientSrcDir, 'pages', 'MembershipRegisterPage.jsx'), 'utf8');
 
-    assert.match(code, /overflow-x-auto/, 'Membership steps tracker must be horizontally scrollable on mobile');
+    assert.match(code, /grid-cols-1\s+lg:grid-cols-12/, 'Membership layout must stack on mobile and span 12 columns on desktop');
     assert.match(code, /grid-cols-1\s+sm:grid-cols-2/, 'Membership form fields must stack into single column on mobile');
-    assert.match(code, /flex-col-reverse\s+sm:flex-row/, 'Membership buttons must stack on mobile');
+    assert.match(code, /flex-col\s+sm:flex-row/, 'Membership buttons must stack on mobile');
   });
 
   test('13. Admin Layout: mobile slide-over sidebar with backdrop and hamburger button', () => {

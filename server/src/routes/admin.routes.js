@@ -1470,7 +1470,7 @@ router.get('/documents', async (req, res, next) => {
             bookingReference: true,
             contactName: true,
             contactEmail: true,
-            departure: { select: { batchName: true, startDate: true } },
+            departure: { select: { name: true, batchNumber: true, arrivalDate: true, departureDate: true } },
             route: { select: { name: true, code: true } },
           },
         },

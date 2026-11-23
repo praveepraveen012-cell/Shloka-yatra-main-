@@ -4,7 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 describe('Admin Management System — Master Prompt Verification Suite', () => {
-  const rootDir = process.cwd();
+  const rootDir = fs.existsSync(path.resolve('client', 'src'))
+    ? process.cwd()
+    : path.resolve(process.cwd(), '..');
   const clientSrc = path.join(rootDir, 'client', 'src');
   const serverSrc = path.join(rootDir, 'server', 'src');
 
