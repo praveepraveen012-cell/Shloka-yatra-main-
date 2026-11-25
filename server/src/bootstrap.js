@@ -4,8 +4,10 @@ import prisma from './prisma.js';
 export const ADMIN_INITIAL_EMAIL = 'admin@shloka.com';
 export const ADMIN_TEMPORARY_PASSWORD = 'ShlokaAdmin@2027';
 
-export async function bootstrapAdmin() {
+export async function bootstrapAdmin(force = false) {
   try {
+    const isTest = process.env.NODE_ENV === 'test' || process.env.npm_lifecycle_event?.includes('test');
+    const shouldForce = force || isTest;
     const passwordHash = await bcrypt.hash(ADMIN_TEMPORARY_PASSWORD, 10);
 
     const primaryAdmin = await prisma.user.findUnique({
@@ -24,7 +26,7 @@ export async function bootstrapAdmin() {
         },
       });
       console.log('✅ Master Admin account bootstrapped: admin@shloka.com');
-    } else {
+    } else if (shouldForce || primaryAdmin.mustChangePassword) {
       await prisma.user.update({
         where: { id: primaryAdmin.id },
         data: {
@@ -49,7 +51,7 @@ export async function bootstrapAdmin() {
           mustChangePassword: true,
         },
       });
-    } else {
+    } else if (shouldForce || alias.mustChangePassword) {
       await prisma.user.update({
         where: { id: alias.id },
         data: {

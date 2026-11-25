@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import prisma from '../prisma.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/jwt.js';
 
 const router = Router();
 
@@ -43,8 +44,8 @@ router.post('/login', async (req, res, next) => {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'shlloka_yatra_jwt_secret_dev_key_2027_secure_key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     // Audit login
@@ -94,7 +95,7 @@ router.post('/forgot-password', async (req, res, next) => {
     if (user) {
       const resetToken = jwt.sign(
         { userId: user.id, purpose: 'PASSWORD_RESET' },
-        process.env.JWT_SECRET || 'shlloka_yatra_jwt_secret_dev_key_2027_secure_key',
+        JWT_SECRET,
         { expiresIn: '1h' }
       );
 

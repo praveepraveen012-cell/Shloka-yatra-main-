@@ -15,6 +15,7 @@ model User {
   name                 String
   phone                String?
   role                 String     @default("ADMIN") // SUPER_ADMIN, ADMIN, FINANCE, TRAVEL_OPS, CONTENT_MANAGER, SUPPORT, PARTICIPANT
+  clerkId              String?    @unique
   mustChangePassword   Boolean    @default(false)
   resetPasswordToken   String?
   resetPasswordExpires DateTime?
@@ -95,7 +96,11 @@ model Booking {
   totalAmount          Int // Total payable
   currency             String              @default("INR")
   status               String              @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  paymentStatus        String              @default("UNPAID") // UNPAID, PARTIALLY_PAID, PAID, REFUNDED
+  paymentStatus        String              @default("UNPAID") // UNPAID, PARTIALLY_PAID, PAID, REFUNDED, PENDING_VERIFICATION, REJECTED
+  paymentMethod        String?             @default("ONLINE") // ONLINE, OFFLINE
+  offlinePaymentVerifiedAt DateTime?
+  offlinePaymentVerifiedBy String?
+  offlinePaymentRejectionReason String?
   paymentDeadlineDate  DateTime?
   cancellationReason   String?
   cancelledAt          DateTime?
@@ -310,20 +315,22 @@ model AuditLog {
 
 model Member {
   id                  String      @id @default(uuid())
+  clerkId             String?     @unique
   membershipReference String      @unique // e.g. SHL-MEM-2027-1042
   firstName           String
   lastName            String
   email               String      @unique
-  mobile              String      @unique
+  mobile              String?
   countryCode         String      @default("+91")
   gender              String?     // MALE, FEMALE, OTHER
   whatsapp            String?
+  avatarUrl           String?
   dateOfBirth         String?
-  nationality         String
-  country             String
-  state               String
-  city                String
-  passwordHash        String
+  nationality         String      @default("Indian")
+  country             String      @default("India")
+  state               String      @default("Delhi")
+  city                String      @default("New Delhi")
+  passwordHash        String?     @default("CLERK_MANAGED")
   membershipType      String      @default("STANDARD")
   yatraInterest       String?     // "YES", "MAYBE", "FUTURE"
   preferredBatch      String?

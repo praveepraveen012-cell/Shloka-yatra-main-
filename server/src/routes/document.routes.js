@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import prisma from '../prisma.js';
+import { JWT_SECRET } from '../config/jwt.js';
 
 const router = express.Router();
 
@@ -30,10 +31,7 @@ export const authenticateUserOrMember = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'shlloka_yatra_secure_production_secret_key_2027_kailash'
-    );
+    const decoded = jwt.verify(token, JWT_SECRET);
 
     // 1. Check if Admin user
     if (decoded.userId) {
@@ -922,11 +920,11 @@ router.get('/:id/download', authenticateUserOrMember, async (req, res, next) => 
       submission.mimeType ||
       (ext === '.pdf' ? 'application/pdf' : ext === '.png' ? 'image/png' : 'image/jpeg');
 
+    const rawFilename = submission.originalFilename || `document${ext}`;
+    const safeFilename = path.basename(rawFilename).replace(/[^a-zA-Z0-9._-]/g, '_');
+
     res.setHeader('Content-Type', mime);
-    res.setHeader(
-      'Content-Disposition',
-      `inline; filename="${submission.originalFilename || 'document' + ext}"`
-    );
+    res.setHeader('Content-Disposition', `inline; filename="${safeFilename}"`);
 
     fs.createReadStream(submission.filePath).pipe(res);
   } catch (error) {

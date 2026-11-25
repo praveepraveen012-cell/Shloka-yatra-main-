@@ -317,6 +317,9 @@ export const api = {
   memberLogin: (credentials) =>
     request('/membership/login', { method: 'POST', body: JSON.stringify(credentials) }),
 
+  syncClerkMember: (payload) =>
+    request('/membership/clerk-sync', { method: 'POST', body: JSON.stringify(payload) }),
+
   getMemberProfile: () => request('/membership/me'),
   updateMemberProfile: (payload) =>
     request('/membership/profile', { method: 'PUT', body: JSON.stringify(payload) }),
@@ -352,45 +355,18 @@ export const api = {
 
   // Admin API Endpoints
   adminLogin: async (credentials) => {
-    try {
-      const res = await request('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-      });
-      if (res && res.token) {
-        localStorage.setItem('shlloka_admin_token', res.token);
-        if (res.user) {
-          localStorage.setItem('shlloka_admin_user', JSON.stringify(res.user));
-        }
-        return res;
+    const res = await request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    if (res && res.token) {
+      localStorage.setItem('shlloka_admin_token', res.token);
+      if (res.user) {
+        localStorage.setItem('shlloka_admin_user', JSON.stringify(res.user));
       }
-    } catch (err) {
-      const inputEmail = (credentials.email || '').toLowerCase().trim();
-      const inputPass = credentials.password || '';
-
-      const isAdmin =
-        (inputEmail === 'admin' || inputEmail === 'admin@shloka.com' || inputEmail === 'admin@shlloka.com') &&
-        (inputPass === 'ShlokaAdmin@2027' || inputPass === 'ShllokaAdmin@2027');
-
-      if (isAdmin) {
-        const mockUser = {
-          id: 'admin-master-01',
-          email: 'admin@shloka.com',
-          name: 'Shloka Administrator',
-          role: 'ADMIN',
-          mustChangePassword: true,
-        };
-        const mockToken = 'shloka_admin_session_' + Date.now();
-        localStorage.setItem('shlloka_admin_token', mockToken);
-        localStorage.setItem('shlloka_admin_user', JSON.stringify(mockUser));
-        return {
-          message: 'Authenticated successfully',
-          token: mockToken,
-          user: mockUser,
-        };
-      }
-      throw err;
+      return res;
     }
+    throw new Error('Authentication failed. No access token returned by server.');
   },
 
   forgotPassword: async (payload) => {
@@ -588,6 +564,8 @@ export const api = {
     }
   },
   recordAdminOfflinePayment: (payload) => request('/admin/payments/offline', { method: 'POST', body: JSON.stringify(payload) }),
+  verifyAdminOfflinePayment: (bookingId, payload) => request(`/admin/bookings/${bookingId}/verify-offline-payment`, { method: 'PUT', body: JSON.stringify(payload) }),
+  rejectAdminOfflinePayment: (bookingId, payload) => request(`/admin/bookings/${bookingId}/reject-offline-payment`, { method: 'PUT', body: JSON.stringify(payload) }),
   getAdminCustomers: async (query = '') => {
     try {
       return await request(`/admin/customers${query ? `?${query}` : ''}`);

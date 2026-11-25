@@ -17,6 +17,7 @@ import galleryRoutes from './routes/gallery.routes.js';
 import documentRoutes from './routes/document.routes.js';
 import { bootstrapAdmin } from './bootstrap.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { rateLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
 
@@ -28,6 +29,25 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
   credentials: true,
 }));
+
+// Standard Security Headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.razorpay.com; frame-src 'self' https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';"
+  );
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+  next();
+});
+
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
@@ -42,14 +62,23 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Feature flags query endpoint (for frontend dynamic capability discovery)
+app.get('/api/features', (req, res) => {
+  res.json({
+    offlineTestPayment: process.env.ENABLE_OFFLINE_TEST_PAYMENT === 'true' || process.env.NODE_ENV !== 'production',
+    paymentGatewayMode: process.env.PAYMENT_GATEWAY_MODE || 'sandbox',
+    emailServiceEnabled: process.env.EMAIL_SERVICE_ENABLED === 'true',
+  });
+});
+
 // Mount Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/membership', membershipRoutes);
+app.use('/api/auth', rateLimiter({ windowMs: 60000, max: 40, message: 'Too many authentication attempts. Please try again after 60 seconds.' }), authRoutes);
+app.use('/api/membership', rateLimiter({ windowMs: 60000, max: 60 }), membershipRoutes);
 app.use('/api/departures', departureRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', rateLimiter({ windowMs: 60000, max: 40 }), paymentRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/faqs', faqRoutes);
 app.use('/api/legal', legalRoutes);

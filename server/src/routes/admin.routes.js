@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import prisma from '../prisma.js';
-import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { authenticateToken, requireAdmin, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -332,8 +332,8 @@ router.get('/bookings/:id', async (req, res, next) => {
 
 // Update Booking Status / Payment Status / Notes
 const updateBookingStatusSchema = z.object({
-  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED']),
-  paymentStatus: z.enum(['UNPAID', 'PARTIALLY_PAID', 'PAID', 'REFUNDED']).optional(),
+  status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED', 'PENDING_CONFIRMATION']),
+  paymentStatus: z.enum(['UNPAID', 'PARTIALLY_PAID', 'PAID', 'REFUNDED', 'PENDING_VERIFICATION', 'REJECTED']).optional(),
   notes: z.string().optional(),
 });
 
@@ -373,6 +373,220 @@ router.put('/bookings/:id/status', async (req, res, next) => {
     });
 
     res.json({ message: 'Booking status updated successfully', booking: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Dedicated Offline Payment Verification Endpoint: PUT /api/admin/bookings/:id/verify-offline-payment
+const verifyOfflinePaymentSchema = z.object({
+  verifiedAmount: z.number().int().positive().optional(),
+  referenceNumber: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+router.put('/bookings/:id/verify-offline-payment', requireRole('SUPER_ADMIN', 'ADMIN', 'FINANCE'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { verifiedAmount, referenceNumber, notes } = verifyOfflinePaymentSchema.parse(req.body);
+
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        departure: true,
+        route: true,
+        travellers: true,
+        payments: true,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Target booking not found' });
+    }
+
+    const amountToCredit = verifiedAmount || booking.totalAmount;
+    const now = new Date();
+    const adminEmail = req.user.email;
+    const adminName = req.user.name || adminEmail;
+    const refNum = referenceNumber?.trim() || `UTR-${Date.now().toString().slice(-6)}`;
+    const receiptNumber = `REC-OFF-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Find any existing pending offline payment or create a new successful payment record
+      const pendingPayment = await tx.payment.findFirst({
+        where: {
+          bookingId: booking.id,
+          status: 'PENDING_VERIFICATION',
+        },
+      });
+
+      let paymentRecord;
+      if (pendingPayment) {
+        paymentRecord = await tx.payment.update({
+          where: { id: pendingPayment.id },
+          data: {
+            status: 'SUCCESS',
+            amount: amountToCredit,
+            referenceNumber: refNum,
+            receiptNumber,
+            recordedBy: adminEmail,
+            adminNotes: notes || `Offline payment verified by ${adminName}`,
+            gatewayResponse: JSON.stringify({
+              verifiedAt: now.toISOString(),
+              verifiedBy: adminEmail,
+              reference: refNum,
+            }),
+          },
+        });
+      } else {
+        paymentRecord = await tx.payment.create({
+          data: {
+            bookingId: booking.id,
+            transactionId: `TXN-OFF-${Date.now()}`,
+            receiptNumber,
+            referenceNumber: refNum,
+            paymentMethod: 'OFFLINE_BANK_TRANSFER',
+            paymentMode: 'BANK_TRANSFER',
+            installmentType: amountToCredit >= booking.totalAmount ? 'FULL' : 'REGISTRATION',
+            amount: amountToCredit,
+            currency: booking.currency || 'INR',
+            status: 'SUCCESS',
+            recordedBy: adminEmail,
+            adminNotes: notes || `Offline payment verified by ${adminName}`,
+          },
+        });
+      }
+
+      // Calculate total successful payments
+      const otherSuccessPayments = booking.payments
+        .filter((p) => p.status === 'SUCCESS' && p.id !== (pendingPayment?.id || ''))
+        .reduce((sum, p) => sum + p.amount, 0);
+      const totalPaid = otherSuccessPayments + amountToCredit;
+
+      const newPaymentStatus = totalPaid >= booking.totalAmount ? 'PAID' : 'PARTIALLY_PAID';
+
+      const updatedBooking = await tx.booking.update({
+        where: { id },
+        data: {
+          paymentStatus: newPaymentStatus,
+          status: 'CONFIRMED',
+          offlinePaymentVerifiedAt: now,
+          offlinePaymentVerifiedBy: adminEmail,
+          offlinePaymentRejectionReason: null,
+        },
+        include: {
+          departure: true,
+          route: true,
+          travellers: true,
+          payments: true,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId: req.user.id,
+          userEmail: adminEmail,
+          action: 'OFFLINE_PAYMENT_VERIFIED',
+          entity: 'BOOKING',
+          entityId: id,
+          details: JSON.stringify({
+            bookingReference: booking.bookingReference,
+            verifiedAmount: amountToCredit,
+            totalPaid,
+            newPaymentStatus,
+            newBookingStatus: 'CONFIRMED',
+            verifiedBy: adminEmail,
+          }),
+        },
+      });
+
+      return { booking: updatedBooking, payment: paymentRecord };
+    });
+
+    res.json({
+      message: 'Offline payment verified and booking confirmed successfully',
+      booking: result.booking,
+      payment: result.payment,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Dedicated Offline Payment Rejection Endpoint: PUT /api/admin/bookings/:id/reject-offline-payment
+const rejectOfflinePaymentSchema = z.object({
+  rejectionReason: z.string().min(3, 'Rejection reason is required and must be clear'),
+  notes: z.string().optional(),
+});
+
+router.put('/bookings/:id/reject-offline-payment', requireRole('SUPER_ADMIN', 'ADMIN', 'FINANCE'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { rejectionReason, notes } = rejectOfflinePaymentSchema.parse(req.body);
+
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        payments: true,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ error: 'Target booking not found' });
+    }
+
+    const adminEmail = req.user.email;
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Mark any pending verification payment as FAILED
+      await tx.payment.updateMany({
+        where: {
+          bookingId: booking.id,
+          status: 'PENDING_VERIFICATION',
+        },
+        data: {
+          status: 'FAILED',
+          adminNotes: `Rejected by ${adminEmail}: ${rejectionReason}`,
+        },
+      });
+
+      const updatedBooking = await tx.booking.update({
+        where: { id },
+        data: {
+          paymentStatus: 'REJECTED',
+          offlinePaymentRejectionReason: rejectionReason,
+          notes: notes ? `${booking.notes ? booking.notes + '\n' : ''}[Offline Payment Rejection]: ${rejectionReason}` : booking.notes,
+        },
+        include: {
+          departure: true,
+          route: true,
+          travellers: true,
+          payments: true,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId: req.user.id,
+          userEmail: adminEmail,
+          action: 'OFFLINE_PAYMENT_REJECTED',
+          entity: 'BOOKING',
+          entityId: id,
+          details: JSON.stringify({
+            bookingReference: booking.bookingReference,
+            rejectionReason,
+            rejectedBy: adminEmail,
+          }),
+        },
+      });
+
+      return updatedBooking;
+    });
+
+    res.json({
+      message: 'Offline payment has been rejected',
+      booking: result,
+    });
   } catch (error) {
     next(error);
   }

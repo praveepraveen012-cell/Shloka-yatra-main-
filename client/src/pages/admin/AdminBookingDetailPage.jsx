@@ -116,6 +116,15 @@ export default function AdminBookingDetailPage() {
   const [offlineNotes, setOfflineNotes] = useState('');
   const [offlineSubmitting, setOfflineSubmitting] = useState(false);
 
+  // Dedicated Offline Verification/Rejection Modal State
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [verifyAmount, setVerifyAmount] = useState('');
+  const [verifyRef, setVerifyRef] = useState('');
+  const [verifyNotes, setVerifyNotes] = useState('');
+  const [rejectReason, setRejectReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+
   // Internal Note State
   const [noteContent, setNoteContent] = useState('');
   const [noteSubmitting, setNoteSubmitting] = useState(false);
@@ -190,6 +199,66 @@ export default function AdminBookingDetailPage() {
       setTimeout(() => setActionSuccess(null), 3000);
     } catch (err) {
       alert('Error updating payment status: ' + err.message);
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
+  // Dedicated Offline Payment Verification
+  const handleVerifyOfflinePayment = async (e) => {
+    e?.preventDefault();
+    try {
+      setActionLoading(true);
+      const amt = verifyAmount ? parseInt(verifyAmount, 10) : booking.totalAmount;
+      await api.verifyAdminOfflinePayment(booking.id, {
+        verifiedAmount: amt,
+        referenceNumber: verifyRef.trim() || `UTR-${Date.now().toString().slice(-6)}`,
+        notes: verifyNotes.trim() || undefined,
+      });
+      setVerifyModalOpen(false);
+      setActionSuccess('Offline payment verified and booking confirmed successfully.');
+      await loadBooking();
+      setTimeout(() => setActionSuccess(null), 4000);
+    } catch (err) {
+      alert('Verification failed: ' + (err.message || err));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Dedicated Offline Payment Rejection
+  const handleRejectOfflinePayment = async (e) => {
+    e?.preventDefault();
+    if (!rejectReason.trim()) {
+      alert('Please provide a mandatory rejection reason.');
+      return;
+    }
+    try {
+      setActionLoading(true);
+      await api.rejectAdminOfflinePayment(booking.id, {
+        rejectionReason: rejectReason.trim(),
+      });
+      setRejectModalOpen(false);
+      setActionSuccess('Offline payment has been rejected and status updated to REJECTED.');
+      await loadBooking();
+      setTimeout(() => setActionSuccess(null), 4000);
+    } catch (err) {
+      alert('Rejection failed: ' + (err.message || err));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Dedicated Operational Confirm Booking
+  const handleConfirmBooking = async () => {
+    try {
+      setStatusUpdating(true);
+      await api.updateAdminBookingStatus(booking.id, { status: 'CONFIRMED' });
+      setActionSuccess('Booking confirmed operationally.');
+      await loadBooking();
+      setTimeout(() => setActionSuccess(null), 3000);
+    } catch (err) {
+      alert('Failed to confirm booking: ' + (err.message || err));
     } finally {
       setStatusUpdating(false);
     }
@@ -415,6 +484,116 @@ export default function AdminBookingDetailPage() {
             </select>
           </div>
         </div>
+
+        {/* Offline Payment Management & Verification Card */}
+        {(booking.paymentMethod === 'OFFLINE' || booking.paymentMethod === 'OFFLINE_TEST' || booking.paymentStatus === 'PENDING_VERIFICATION' || booking.offlinePaymentVerifiedBy || booking.offlinePaymentRejectionReason) && (
+          <div className="bg-[#0A1A33] border-2 border-[#D9A441]/40 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-[#D9A441]/10 border border-[#D9A441]/30 text-[#D9A441]">
+                  <CreditCard size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-heading font-bold text-base text-white">
+                      Offline Payment Verification Desk
+                    </h3>
+                    {(booking.paymentMethod === 'OFFLINE_TEST' || booking.paymentMethod === 'OFFLINE') && (
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-400 text-[#071B3A] uppercase tracking-wider">
+                        TEST BOOKING
+                      </span>
+                    )}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#D9A441]/20 text-[#D9A441] border border-[#D9A441]/40 uppercase">
+                      Offline Mode
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#8CA8CC] mt-0.5">
+                    Devotee registered with offline payment. Verify received bank remittance, RTGS, or cash before operational clearance.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <span
+                  className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                    booking.paymentStatus === 'PAID'
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+                      : booking.paymentStatus === 'REJECTED'
+                      ? 'bg-red-500/20 border-red-500/40 text-red-400'
+                      : 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                  }`}
+                >
+                  Payment Status: {booking.paymentStatus}
+                </span>
+                <span
+                  className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                    booking.status === 'CONFIRMED'
+                      ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+                      : booking.status === 'CANCELLED'
+                      ? 'bg-red-500/20 border-red-500/40 text-red-400'
+                      : 'bg-blue-500/20 border-blue-500/40 text-blue-300'
+                  }`}
+                >
+                  Booking Status: {booking.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Offline Verification Audit Info */}
+            {booking.offlinePaymentVerifiedBy && (
+              <div className="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
+                <span>
+                  ✓ Verified by <strong>{booking.offlinePaymentVerifiedBy}</strong> on{' '}
+                  {new Date(booking.offlinePaymentVerifiedAt).toLocaleString()}
+                </span>
+                <span className="font-semibold text-emerald-400">Payment Cleared</span>
+              </div>
+            )}
+
+            {booking.offlinePaymentRejectionReason && (
+              <div className="p-3 bg-red-950/40 border border-red-500/30 rounded-xl text-xs text-red-300">
+                <strong>Rejection Reason:</strong> {booking.offlinePaymentRejectionReason}
+              </div>
+            )}
+
+            {/* Action Buttons for Admin */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setVerifyAmount(String(booking.totalAmount));
+                  setVerifyModalOpen(true);
+                }}
+                disabled={actionLoading || booking.paymentStatus === 'PAID'}
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-emerald-900/30"
+              >
+                <CheckCircle size={15} />
+                <span>Verify Payment</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRejectModalOpen(true)}
+                disabled={actionLoading || booking.paymentStatus === 'REJECTED'}
+                className="px-4 py-2.5 rounded-xl bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
+              >
+                ✕ Reject Payment
+              </button>
+
+              {booking.status !== 'CONFIRMED' && (
+                <button
+                  type="button"
+                  onClick={handleConfirmBooking}
+                  disabled={actionLoading || statusUpdating}
+                  className="px-4 py-2.5 rounded-xl bg-[#2F6FED] hover:bg-[#2557c4] text-white text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-blue-900/30"
+                >
+                  <ShieldCheck size={15} />
+                  <span>Confirm Booking Operationally</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Section A & B: Devotee & Journey Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -1118,6 +1297,155 @@ export default function AdminBookingDetailPage() {
                 className="px-5 py-2.5 bg-[#2F6FED] hover:bg-[#2557c4] disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-lg shadow-[#2F6FED]/30"
               >
                 {offlineSubmitting ? 'Recording Receipt...' : 'Record Payment & Issue Receipt'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL 3: Verify Offline Payment Modal */}
+      {verifyModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
+          <form
+            onSubmit={handleVerifyOfflinePayment}
+            className="bg-[#071B3A] border border-emerald-500/30 rounded-2xl max-w-md w-full p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle size={20} />
+                <h3 className="font-heading font-bold text-base text-white">
+                  Verify Offline Payment
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVerifyModalOpen(false)}
+                className="text-[#8CA8CC] hover:text-white p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-[#8CA8CC] leading-relaxed">
+              Verify the bank credit for booking <strong className="text-white">{booking.bookingReference}</strong> ({booking.contactName}). This will credit the payment in the database and automatically confirm the pilgrimage booking.
+            </p>
+
+            <div>
+              <label className="block text-[#8CA8CC] text-xs font-semibold mb-1">
+                Verified Amount (INR) *
+              </label>
+              <input
+                type="number"
+                value={verifyAmount}
+                onChange={(e) => setVerifyAmount(e.target.value)}
+                placeholder={String(booking.totalAmount)}
+                required
+                min="1"
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg p-2.5 text-sm font-mono outline-none focus:border-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[#8CA8CC] text-xs font-semibold mb-1">
+                Bank Remittance UTR / Reference Number
+              </label>
+              <input
+                type="text"
+                value={verifyRef}
+                onChange={(e) => setVerifyRef(e.target.value)}
+                placeholder="e.g. UTR-982341203"
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg p-2.5 text-xs font-mono outline-none focus:border-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[#8CA8CC] text-xs font-semibold mb-1">
+                Verification Notes
+              </label>
+              <input
+                type="text"
+                value={verifyNotes}
+                onChange={(e) => setVerifyNotes(e.target.value)}
+                placeholder="e.g. Confirmed with ICICI bank statement on Nov 25"
+                className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg p-2.5 text-xs outline-none focus:border-emerald-500"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => setVerifyModalOpen(false)}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={actionLoading}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-lg shadow-emerald-900/40"
+              >
+                {actionLoading ? 'Verifying...' : 'Confirm Verification & Confirm Booking'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL 4: Reject Offline Payment Modal */}
+      {rejectModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
+          <form
+            onSubmit={handleRejectOfflinePayment}
+            className="bg-[#071B3A] border border-red-500/30 rounded-2xl max-w-md w-full p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2 text-red-400">
+                <AlertCircle size={20} />
+                <h3 className="font-heading font-bold text-base text-white">
+                  Reject Offline Payment
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRejectModalOpen(false)}
+                className="text-[#8CA8CC] hover:text-white p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-[#8CA8CC] leading-relaxed">
+              Are you sure you want to reject this offline payment for <strong className="text-white">{booking.bookingReference}</strong>? The devotee will be notified and the payment marked as rejected.
+            </p>
+
+            <div>
+              <label className="block text-[#8CA8CC] text-xs font-semibold mb-1">
+                Rejection Reason *
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g. Bank remittance not received after 5 business days, invalid UTR."
+                rows={3}
+                required
+                className="w-full bg-[#041329] border border-red-500/30 text-white rounded-lg p-2.5 text-xs outline-none focus:border-red-500"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => setRejectModalOpen(false)}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={actionLoading}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-500 disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-lg shadow-red-900/40"
+              >
+                {actionLoading ? 'Rejecting...' : 'Confirm Payment Rejection'}
               </button>
             </div>
           </form>

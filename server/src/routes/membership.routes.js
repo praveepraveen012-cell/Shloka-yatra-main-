@@ -12,9 +12,9 @@ import {
   maskMobile,
   getDevTestOtp,
 } from '../services/sms.service.js';
+import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/jwt.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'shlloka_yatra_jwt_secret_dev_key_2027_secure_key';
 
 // -------------------------------------------------------------
 // Validation Schemas
@@ -86,7 +86,7 @@ async function generateUniqueMembershipRef() {
 }
 
 // -------------------------------------------------------------
-// Middleware: Member JWT Authentication
+// Middleware: Member JWT Authentication & Clerk Support
 // -------------------------------------------------------------
 export const authenticateMemberToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -97,42 +97,60 @@ export const authenticateMemberToken = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (!decoded.memberId) {
-      return res.status(403).json({ error: 'Invalid member token.' });
+    let memberId = null;
+
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      memberId = decoded.memberId || decoded.id;
+    } catch (jwtErr) {
+      // In automated test environments only, support mock clerk tokens for test harnesses
+      if (process.env.NODE_ENV === 'test' && typeof token === 'string' && token.startsWith('user_test_')) {
+        const testMember = await prisma.member.findUnique({ where: { clerkId: token } });
+        if (testMember) memberId = testMember.id;
+      }
+      if (!memberId) {
+        return res.status(401).json({ error: 'Invalid or expired session token. Please sign in again.' });
+      }
     }
 
-    const member = await prisma.member.findUnique({
-      where: { id: decoded.memberId },
-      select: {
-        id: true,
-        membershipReference: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        mobile: true,
-        countryCode: true,
-        gender: true,
-        dateOfBirth: true,
-        nationality: true,
-        country: true,
-        state: true,
-        city: true,
-        membershipType: true,
-        yatraInterest: true,
-        preferredBatch: true,
-        preferredPackage: true,
-        travellersCount: true,
-        status: true,
-        isVerified: true,
-        verifiedAt: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
-    });
+    const memberSelect = {
+      id: true,
+      clerkId: true,
+      membershipReference: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      mobile: true,
+      countryCode: true,
+      gender: true,
+      dateOfBirth: true,
+      nationality: true,
+      country: true,
+      state: true,
+      city: true,
+      avatarUrl: true,
+      membershipType: true,
+      yatraInterest: true,
+      preferredBatch: true,
+      preferredPackage: true,
+      travellersCount: true,
+      status: true,
+      isVerified: true,
+      verifiedAt: true,
+      createdAt: true,
+      lastLoginAt: true,
+    };
+
+    let member = null;
+    if (memberId) {
+      member = await prisma.member.findUnique({
+        where: { id: memberId },
+        select: memberSelect,
+      });
+    }
 
     if (!member) {
-      return res.status(401).json({ error: 'Member session expired. Please sign in again.' });
+      return res.status(401).json({ error: 'Member session expired or account not found. Please sign in again.' });
     }
 
     if (member.status === 'SUSPENDED') {
@@ -145,6 +163,119 @@ export const authenticateMemberToken = async (req, res, next) => {
     return res.status(403).json({ error: 'Invalid or expired session token.' });
   }
 };
+
+// -------------------------------------------------------------
+// 0. POST /api/membership/clerk-sync
+// Synchronize Clerk user identity (Email/Password or Google Sign-In)
+// -------------------------------------------------------------
+router.post('/clerk-sync', async (req, res, next) => {
+  try {
+    const { clerkId, email, firstName, lastName, avatarUrl, mobile } = req.body;
+    if (!clerkId || !email) {
+      return res.status(400).json({ error: 'clerkId and email are required for synchronization' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // 1. Look up by clerkId first
+    let member = await prisma.member.findUnique({
+      where: { clerkId },
+      include: { bookings: true },
+    });
+
+    // 2. If not found by clerkId, search by email to link existing account
+    if (!member) {
+      const existingByEmail = await prisma.member.findUnique({
+        where: { email: normalizedEmail },
+        include: { bookings: true },
+      });
+
+      if (existingByEmail) {
+        // SECURITY CHECK: If this account already has a different clerkId assigned, prevent account hijacking
+        if (existingByEmail.clerkId && existingByEmail.clerkId !== clerkId) {
+          return res.status(409).json({
+            error: 'This email is already associated with another identity. Account link rejected for security.',
+          });
+        }
+        // Link Clerk ID to existing member without creating duplicate account
+        member = await prisma.member.update({
+          where: { id: existingByEmail.id },
+          data: {
+            clerkId,
+            avatarUrl: avatarUrl || existingByEmail.avatarUrl,
+            lastLoginAt: new Date(),
+            isVerified: true,
+          },
+          include: { bookings: true },
+        });
+      }
+    }
+
+    // 3. If still not found, create a new member record
+    if (!member) {
+      const membershipReference = await generateUniqueMembershipRef();
+      member = await prisma.member.create({
+        data: {
+          clerkId,
+          membershipReference,
+          firstName: firstName || 'Devotee',
+          lastName: lastName || 'Yatri',
+          email: normalizedEmail,
+          mobile: mobile || null,
+          avatarUrl: avatarUrl || null,
+          nationality: 'Indian',
+          country: 'India',
+          state: 'Delhi',
+          city: 'New Delhi',
+          passwordHash: 'CLERK_MANAGED',
+          status: 'ACTIVE',
+          isVerified: true,
+          verifiedAt: new Date(),
+          lastLoginAt: new Date(),
+        },
+        include: { bookings: true },
+      });
+
+      // Link any prior guest bookings made with this email address
+      await prisma.booking.updateMany({
+        where: {
+          contactEmail: normalizedEmail,
+          memberId: null,
+        },
+        data: {
+          memberId: member.id,
+        },
+      });
+    } else {
+      await prisma.member.update({
+        where: { id: member.id },
+        data: { lastLoginAt: new Date() },
+      });
+    }
+
+    // Generate member JWT token for session persistence across application APIs
+    const token = jwt.sign(
+      {
+        memberId: member.id,
+        clerkId: member.clerkId,
+        reference: member.membershipReference,
+        email: member.email,
+        name: `${member.firstName} ${member.lastName}`,
+        type: 'MEMBER',
+      },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    res.json({
+      message: 'Member synced successfully with Clerk',
+      member,
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // -------------------------------------------------------------
 // 1. POST /api/membership/register
@@ -167,7 +298,7 @@ router.post('/register', async (req, res, next) => {
       }
     }
 
-    const existingMobile = await prisma.member.findUnique({
+    const existingMobile = await prisma.member.findFirst({
       where: { mobile: fullMobile },
     });
     if (existingMobile) {

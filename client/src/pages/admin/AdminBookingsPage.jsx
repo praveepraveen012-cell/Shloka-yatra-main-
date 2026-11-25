@@ -141,6 +141,7 @@ export default function AdminBookingsPage() {
               >
                 <option value="ALL">All Statuses</option>
                 <option value="PENDING">Pending</option>
+                <option value="PENDING_CONFIRMATION">Pending Confirmation</option>
                 <option value="CONFIRMED">Confirmed</option>
                 <option value="CANCELLED">Cancelled</option>
               </select>
@@ -157,6 +158,7 @@ export default function AdminBookingsPage() {
                 className="w-full bg-[#041329] border border-[#D9E2EF]/20 text-white rounded-lg px-2.5 py-1.5 outline-none"
               >
                 <option value="ALL">All Payments</option>
+                <option value="PENDING_VERIFICATION">Pending Verification (Offline)</option>
                 <option value="UNPAID">Unpaid</option>
                 <option value="PARTIALLY_PAID">Partially Paid</option>
                 <option value="PAID">Fully Paid</option>
@@ -256,12 +258,19 @@ export default function AdminBookingsPage() {
                       <tr key={b.id} className="hover:bg-white/5 transition-colors">
                         {/* Booking ID & Date */}
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <Link
-                            to={`/admin/bookings/${b.id}`}
-                            className="font-bold text-[#2F6FED] hover:underline block font-mono text-xs"
-                          >
-                            {b.bookingReference}
-                          </Link>
+                          <div className="flex items-center gap-1.5">
+                            <Link
+                              to={`/admin/bookings/${b.id}`}
+                              className="font-bold text-[#2F6FED] hover:underline block font-mono text-xs"
+                            >
+                              {b.bookingReference}
+                            </Link>
+                            {(b.paymentMethod === 'OFFLINE' || b.paymentMethod === 'OFFLINE_TEST') && (
+                              <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-400 text-[#071B3A] tracking-wider">
+                                TEST
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[11px] text-[#8CA8CC]">
                             {new Date(b.createdAt).toLocaleDateString()}
                           </span>
@@ -326,20 +335,28 @@ export default function AdminBookingsPage() {
                                 : 'bg-amber-500/15 border-amber-500/40 text-amber-300'
                             }`}
                           >
-                            {b.status}
+                            {b.status.replace('_', ' ')}
                           </span>
-                          <div>
+                          <div className="flex flex-col items-center gap-0.5">
                             <span
                               className={`text-[9px] uppercase font-semibold ${
                                 b.paymentStatus === 'PAID'
                                   ? 'text-emerald-400'
                                   : b.paymentStatus === 'PARTIALLY_PAID'
                                   ? 'text-cyan-400'
-                                  : 'text-amber-300'
+                                  : b.paymentStatus === 'PENDING_VERIFICATION'
+                                  ? 'text-amber-300 font-bold'
+                                  : 'text-slate-400'
                               }`}
                             >
                               {(b.paymentStatus || 'UNPAID').replace('_', ' ')}
                             </span>
+                            {(b.paymentMethod === 'OFFLINE' || b.paymentMethod === 'OFFLINE_TEST') && (
+                              <span className="text-[9px] font-bold bg-[#D9A441]/20 text-[#D9A441] border border-[#D9A441]/40 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                <span className="bg-amber-400 text-black px-1 rounded text-[8px] font-black">TEST</span>
+                                <span>OFFLINE</span>
+                              </span>
+                            )}
                           </div>
                         </td>
 

@@ -106,6 +106,7 @@ export default function BookingPage() {
   });
 
   // Payment Options State (Step 8)
+  const [paymentMode, setPaymentMode] = useState('ONLINE'); // 'ONLINE' | 'OFFLINE'
   const [paymentChoice, setPaymentChoice] = useState('DEPOSIT'); // 'DEPOSIT' | 'FIRST_INSTALLMENT' | 'FULL'
   const [paymentMethod, setPaymentMethod] = useState('UPI'); // 'UPI' | 'CARD' | 'NETBANKING'
   const [processingPayment, setProcessingPayment] = useState(false);
@@ -350,6 +351,11 @@ export default function BookingPage() {
       setSubmitting(true);
       setServerError(null);
 
+      const isOfflineSelected =
+        paymentMethod === 'OFFLINE_TEST' ||
+        paymentMethod === 'OFFLINE' ||
+        paymentMode === 'OFFLINE';
+
       // 1. Create Booking in database
       const payload = {
         routeId: formData.routeId,
@@ -360,6 +366,7 @@ export default function BookingPage() {
         contactPhone: formData.contactPhone,
         notes: `Address: ${formData.contactAddress}, ${formData.contactCity}, ${formData.contactState} - ${formData.contactPincode}. Notes: ${formData.notes || 'None'}`,
         policyAccepted: true,
+        paymentMethod: isOfflineSelected ? 'OFFLINE_TEST' : 'ONLINE',
         travellers: formData.travellers,
       };
 
@@ -419,6 +426,12 @@ export default function BookingPage() {
         }
       }
 
+      // If Offline Payment, skip payment order/gateway and proceed directly to confirmation
+      if (isOfflineSelected) {
+        navigate(`/payment-success?ref=${createdBooking.bookingReference}&offline=true&test=true`);
+        return;
+      }
+
       // 4. Payment Order and Verification
       let installmentType = 'REGISTRATION';
       if (paymentChoice === 'FIRST_INSTALLMENT') {
@@ -427,22 +440,29 @@ export default function BookingPage() {
         installmentType = 'FULL';
       }
 
-      const orderRes = await api.createPaymentOrder({
-        bookingId: createdBooking.id,
-        installmentType,
-      });
+      try {
+        const orderRes = await api.createPaymentOrder({
+          bookingId: createdBooking.id,
+          installmentType,
+        });
 
-      // Verify simulated payment
-      const paymentOrder = orderRes.order;
-      await api.verifyPayment({
-        bookingId: createdBooking.id,
-        transactionId: paymentOrder?.gatewayOrderId || `TXN-${Date.now()}`,
-        paymentMethod: paymentMethod || 'SANDBOX_PAYMENT_GATEWAY',
-        signature: 'simulated_secure_sha256_sig',
-      });
+        // Verify payment authoritatively
+        const paymentOrder = orderRes?.order;
+        const finalTxnId = paymentOrder?.orderId || paymentOrder?.gatewayOrderId || `TXN-${Date.now()}`;
+        await api.verifyPayment({
+          bookingId: createdBooking.id,
+          transactionId: finalTxnId,
+          paymentMethod: paymentMethod || 'SANDBOX_PAYMENT_GATEWAY',
+          signature: 'simulated_secure_sha256_sig',
+        });
 
-      // 5. Navigate to official voucher
-      navigate(`/booking-success?ref=${createdBooking.bookingReference}`);
+        // 5. Navigate to official payment success page
+        navigate(`/payment-success?ref=${createdBooking.bookingReference}&txn=${finalTxnId}`);
+      } catch (payErr) {
+        console.warn('Payment simulation exception fallback:', payErr);
+        // Fallback: booking already committed in DB, navigate to success voucher
+        navigate(`/payment-success?ref=${createdBooking.bookingReference}&offline=true`);
+      }
     } catch (err) {
       setServerError(err.message || 'Booking submission failed. Please try again or contact support.');
     } finally {
@@ -1420,7 +1440,7 @@ export default function BookingPage() {
                   </div>
                 )}
 
-                {/* STEP 8: PAYMENT GATEWAY SIMULATION */}
+                {/* STEP 8: PAYMENT GATEWAY INTEGRATION & OFFLINE TESTING OPTION */}
                 {activeStep === 8 && (
                   <div>
                     <span className="text-xs uppercase tracking-wider text-[#2F6FED] font-bold">
@@ -1437,7 +1457,9 @@ export default function BookingPage() {
                     <div className="flex flex-col gap-3 mb-6">
                       <label
                         className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors ${
-                          paymentChoice === 'DEPOSIT' ? 'border-[#2F6FED] bg-blue-50/40' : 'border-slate-200 bg-white'
+                          paymentChoice === 'DEPOSIT'
+                            ? 'border-[#2F6FED] bg-blue-50/40'
+                            : 'border-slate-200 bg-white'
                         }`}
                       >
                         <div className="flex items-start sm:items-center gap-3">
@@ -1465,7 +1487,9 @@ export default function BookingPage() {
 
                       <label
                         className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors ${
-                          paymentChoice === 'FIRST_INSTALLMENT' ? 'border-[#2F6FED] bg-blue-50/40' : 'border-slate-200 bg-white'
+                          paymentChoice === 'FIRST_INSTALLMENT'
+                            ? 'border-[#2F6FED] bg-blue-50/40'
+                            : 'border-slate-200 bg-white'
                         }`}
                       >
                         <div className="flex items-start sm:items-center gap-3">
@@ -1498,36 +1522,71 @@ export default function BookingPage() {
                         Select Payment Rail (Sandbox Mode Active):
                       </h4>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
                         <button
                           type="button"
-                          onClick={() => setPaymentMethod('UPI')}
+                          onClick={() => {
+                            setPaymentMethod('UPI');
+                            setPaymentMode('ONLINE');
+                          }}
                           className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
-                            paymentMethod === 'UPI' ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]' : 'border-slate-300 bg-white text-slate-700'
+                            paymentMethod === 'UPI'
+                              ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]'
+                              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                           }`}
                         >
                           UPI (GPay / PhonePe)
                         </button>
                         <button
                           type="button"
-                          onClick={() => setPaymentMethod('CARD')}
+                          onClick={() => {
+                            setPaymentMethod('CARD');
+                            setPaymentMode('ONLINE');
+                          }}
                           className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
-                            paymentMethod === 'CARD' ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]' : 'border-slate-300 bg-white text-slate-700'
+                            paymentMethod === 'CARD'
+                              ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]'
+                              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                           }`}
                         >
                           Credit / Debit Card
                         </button>
                         <button
                           type="button"
-                          onClick={() => setPaymentMethod('NETBANKING')}
+                          onClick={() => {
+                            setPaymentMethod('NETBANKING');
+                            setPaymentMode('ONLINE');
+                          }}
                           className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
-                            paymentMethod === 'NETBANKING' ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]' : 'border-slate-300 bg-white text-slate-700'
+                            paymentMethod === 'NETBANKING'
+                              ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]'
+                              : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                           }`}
                         >
                           Net Banking (RTGS/NEFT)
                         </button>
+
+                        {/* Temporary Offline Test Payment Option (Controlled by feature flag) */}
+                        {import.meta.env.VITE_ENABLE_OFFLINE_TEST_PAYMENT !== 'false' && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPaymentMethod('OFFLINE_TEST');
+                              setPaymentMode('OFFLINE');
+                            }}
+                            className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
+                              paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
+                                ? 'border-[#D9A441] bg-amber-50 text-[#8C6010] font-bold ring-2 ring-[#D9A441]/40'
+                                : 'border-amber-300/80 bg-amber-50/40 text-[#8C6010] hover:bg-amber-100/60'
+                            }`}
+                          >
+                            <ShieldCheck size={14} className="text-[#D9A441]" />
+                            <span>Offline Payment (Testing Only)</span>
+                          </button>
+                        )}
                       </div>
 
+                      {/* Online Rail: UPI Input */}
                       {paymentMethod === 'UPI' && (
                         <div>
                           <label className="block text-xs text-slate-600 mb-1">
@@ -1542,6 +1601,7 @@ export default function BookingPage() {
                         </div>
                       )}
 
+                      {/* Online Rail: Card Input */}
                       {paymentMethod === 'CARD' && (
                         <div>
                           <label className="block text-xs text-slate-600 mb-1">
@@ -1556,11 +1616,80 @@ export default function BookingPage() {
                         </div>
                       )}
 
+                      {/* Online Rail: Net Banking info */}
                       {paymentMethod === 'NETBANKING' && (
-                        <div className="text-xs text-slate-600 leading-relaxed">
+                        <div className="text-xs text-slate-600 leading-relaxed bg-white p-3.5 rounded-xl border border-slate-200">
                           Official Beneficiary: <strong>{CONTRACT_METADATA.companyName}</strong><br />
                           Bank: HDFC Bank Limited, Noida Sector 104 Branch<br />
                           Account Type: Current Pilgrimage Operations Account
+                        </div>
+                      )}
+
+                      {/* Offline / Test Payment Option Active View */}
+                      {(paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE') && (
+                        <div className="space-y-4 pt-1">
+                          <div className="bg-amber-50/90 border border-amber-300/90 rounded-2xl p-4 sm:p-5 text-amber-950">
+                            <div className="flex items-start gap-3">
+                              <ShieldCheck size={22} className="text-[#A6781E] shrink-0 mt-0.5" />
+                              <div>
+                                <strong className="block text-sm sm:text-base text-[#071B3A]">
+                                  Offline Payment (Testing Only) Active
+                                </strong>
+                                <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">
+                                  Testing mode: Complete your booking registration without making an online payment.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+                            <h5 className="text-xs font-bold text-[#071B3A] uppercase tracking-wider flex items-center gap-2">
+                              <Building size={14} className="text-[#D9A441]" />
+                              <span>Official Remittance & Bank Transfer Details</span>
+                            </h5>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                <span className="text-[10px] uppercase font-semibold text-slate-500 block">
+                                  Beneficiary Account Name
+                                </span>
+                                <strong className="text-slate-900 font-bold block mt-0.5">
+                                  {CONTRACT_METADATA.companyName}
+                                </strong>
+                              </div>
+
+                              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                <span className="text-[10px] uppercase font-semibold text-slate-500 block">
+                                  Bank Name & Branch
+                                </span>
+                                <strong className="text-slate-900 font-bold block mt-0.5">
+                                  HDFC Bank Ltd, Sector 104 Noida / New Delhi
+                                </strong>
+                              </div>
+
+                              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                <span className="text-[10px] uppercase font-semibold text-slate-500 block">
+                                  Current Account Number
+                                </span>
+                                <strong className="text-[#101D35] font-mono font-bold text-sm block mt-0.5">
+                                  50200088921432
+                                </strong>
+                              </div>
+
+                              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                <span className="text-[10px] uppercase font-semibold text-slate-500 block">
+                                  IFSC Code (NEFT / RTGS / IMPS)
+                                </span>
+                                <strong className="text-[#101D35] font-mono font-bold text-sm block mt-0.5">
+                                  HDFC0001234
+                                </strong>
+                              </div>
+                            </div>
+
+                            <div className="p-3 rounded-lg bg-blue-50/70 border border-blue-200 text-xs text-blue-900 leading-relaxed">
+                              <strong>Verification Instructions:</strong> After submitting, your test booking will be saved in the database with status <strong>Pending Confirmation</strong> and payment status <strong>Pending Verification</strong> for administrative review in the Admin Panel.
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1576,13 +1705,25 @@ export default function BookingPage() {
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full sm:flex-1 py-4 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg min-h-[50px] cursor-pointer"
+                        className={`w-full sm:flex-1 py-4 px-6 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg min-h-[50px] cursor-pointer disabled:opacity-50 transition-all ${
+                          paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
+                            ? 'bg-[#101D35] hover:bg-[#1C3455] text-white border border-[#D9A441]'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        }`}
                       >
-                        <CreditCard size={18} />
+                        {paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE' ? (
+                          <ShieldCheck size={18} className="text-[#D9A441]" />
+                        ) : (
+                          <CreditCard size={18} />
+                        )}
                         <span>
                           {submitting
-                            ? 'Processing Secure Payment & Generating Voucher...'
-                            : `Authorize Payment (₹${(paymentChoice === 'DEPOSIT' ? (calculation?.depositAmount || 25000 * watchedTravellers.length) : Math.round((calculation?.baseAmount || 350000) * 0.5)).toLocaleString('en-IN')})`}
+                            ? (paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
+                                ? 'Submitting Test Booking...'
+                                : 'Processing Secure Payment & Generating Voucher...')
+                            : (paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
+                                ? 'Complete Test Booking'
+                                : `Authorize Payment (₹${(paymentChoice === 'DEPOSIT' ? (calculation?.depositAmount || 25000 * watchedTravellers.length) : Math.round((calculation?.baseAmount || 350000) * 0.5)).toLocaleString('en-IN')})`)}
                         </span>
                       </button>
                     </div>

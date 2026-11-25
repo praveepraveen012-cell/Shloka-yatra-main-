@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import path from 'path';
 import { z } from 'zod';
 import prisma from '../prisma.js';
+import { optionalUserOrMember } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -34,6 +36,7 @@ const createBookingSchema = z.object({
   contactEmail: z.string().email('Valid email address is required'),
   contactPhone: z.string().min(8, 'Valid phone number is required'),
   notes: z.string().optional().nullable(),
+  paymentMethod: z.enum(['ONLINE', 'OFFLINE', 'OFFLINE_TEST']).optional().default('ONLINE'),
   travellers: z.array(travellerSchema).min(1, 'At least one traveller must be registered'),
   // Optional initial consent flags
   consent: z
@@ -60,6 +63,17 @@ router.post('/', async (req, res, next) => {
   try {
     const data = createBookingSchema.parse(req.body);
     const travellersCount = data.travellers.length;
+
+    // Feature Flag Check: Offline Test Payment availability
+    const isOfflineRequest = data.paymentMethod === 'OFFLINE' || data.paymentMethod === 'OFFLINE_TEST';
+    if (isOfflineRequest) {
+      const isFeatureEnabled = process.env.ENABLE_OFFLINE_TEST_PAYMENT === 'true' || (process.env.NODE_ENV !== 'production' && process.env.ENABLE_OFFLINE_TEST_PAYMENT !== 'false');
+      if (!isFeatureEnabled) {
+        return res.status(403).json({
+          error: 'Offline test payment mode is disabled in this environment. Please choose an online payment option.',
+        });
+      }
+    }
 
     // Execute in transaction to ensure seat capacity consistency
     const result = await prisma.$transaction(async (tx) => {
@@ -115,6 +129,10 @@ router.post('/', async (req, res, next) => {
         }
       }
 
+      const isOffline = data.paymentMethod === 'OFFLINE' || data.paymentMethod === 'OFFLINE_TEST';
+      const initialStatus = isOffline ? 'PENDING_CONFIRMATION' : 'PENDING';
+      const initialPaymentStatus = isOffline ? 'PENDING_VERIFICATION' : 'UNPAID';
+
       // 4. Create Booking record with travellers
       const booking = await tx.booking.create({
         data: {
@@ -131,8 +149,9 @@ router.post('/', async (req, res, next) => {
           supplementAmount,
           totalAmount,
           currency: pricingTier.currency,
-          status: 'PENDING',
-          paymentStatus: 'UNPAID',
+          status: initialStatus,
+          paymentStatus: initialPaymentStatus,
+          paymentMethod: data.paymentMethod || 'ONLINE',
           termsAcceptedVersion: 'DRAFT-V1.0-NOV-2026',
           memberId: matchedMemberId,
           notes: data.notes || '',
@@ -204,11 +223,28 @@ router.post('/', async (req, res, next) => {
         },
       });
 
-      // 6. Log audit event
+      // 6. If Offline Payment, create pending verification payment transaction
+      if (isOffline) {
+        await tx.payment.create({
+          data: {
+            bookingId: booking.id,
+            transactionId: `OFFLINE-${bookingReference}`,
+            paymentMethod: data.paymentMethod || 'OFFLINE_TEST',
+            paymentMode: 'BANK_TRANSFER',
+            installmentType: 'FULL',
+            amount: totalAmount,
+            currency: pricingTier.currency || 'INR',
+            status: 'PENDING_VERIFICATION',
+            adminNotes: 'Devotee selected offline test payment mode. Awaiting administrative review and verification.',
+          },
+        });
+      }
+
+      // 7. Log audit event
       await tx.auditLog.create({
         data: {
           userEmail: data.contactEmail,
-          action: 'BOOKING_CREATED',
+          action: isOffline ? 'BOOKING_OFFLINE_TEST_CREATED' : 'BOOKING_CREATED',
           entity: 'BOOKING',
           entityId: booking.id,
           details: JSON.stringify({
@@ -216,6 +252,8 @@ router.post('/', async (req, res, next) => {
             departureBatch: departure.name,
             totalTravellers: travellersCount,
             totalAmount,
+            paymentMethod: data.paymentMethod || 'ONLINE',
+            paymentStatus: initialPaymentStatus,
           }),
           ipAddress: req.ip,
         },
@@ -233,8 +271,43 @@ router.post('/', async (req, res, next) => {
   }
 });
 
+// Helper to sanitize sensitive Protected Health Information (PHI) & identification for unprivileged viewers
+function sanitizeBookingForPublicView(booking) {
+  const sanitizedTravellers = booking.travellers.map((t) => ({
+    id: t.id,
+    bookingId: t.bookingId,
+    fullName: t.fullName,
+    nationality: t.nationality,
+    age: t.age,
+    gender: t.gender,
+    dietaryPreference: t.dietaryPreference,
+    isPrimary: t.isPrimary,
+    docVerificationStatus: t.docVerificationStatus,
+    passportNumber: t.passportNumber && t.passportNumber.length > 4
+      ? `${t.passportNumber.slice(0, 2)}****${t.passportNumber.slice(-2)}`
+      : '****',
+    medicalFitnessCertified: t.medicalFitnessCertified,
+    // Sensitive clinical conditions and medications are strictly excluded
+    medicalConditions: 'Confidential (Clinical Record)',
+    allergies: null,
+    medications: null,
+    emergencyContactName: t.emergencyContactName,
+    emergencyContactPhone: t.emergencyContactPhone && t.emergencyContactPhone.length > 4
+      ? `******${t.emergencyContactPhone.slice(-4)}`
+      : '******',
+  }));
+
+  return {
+    ...booking,
+    contactPhone: booking.contactPhone && booking.contactPhone.length > 4
+      ? `******${booking.contactPhone.slice(-4)}`
+      : '******',
+    travellers: sanitizedTravellers,
+  };
+}
+
 // GET booking by reference (for confirmation voucher & traveller portal)
-router.get('/reference/:ref', async (req, res, next) => {
+router.get('/reference/:ref', optionalUserOrMember, async (req, res, next) => {
   try {
     const { ref } = req.params;
     const booking = await prisma.booking.findUnique({
@@ -254,14 +327,20 @@ router.get('/reference/:ref', async (req, res, next) => {
       return res.status(404).json({ error: 'Booking reference not found' });
     }
 
-    res.json({ booking });
+    const isPrivileged =
+      req.isAdmin ||
+      (req.member &&
+        (booking.memberId === req.member.id ||
+          booking.contactEmail.toLowerCase() === req.member.email.toLowerCase()));
+
+    res.json({ booking: isPrivileged ? booking : sanitizeBookingForPublicView(booking) });
   } catch (error) {
     next(error);
   }
 });
 
 // GET booking by ID
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', optionalUserOrMember, async (req, res, next) => {
   try {
     const { id } = req.params;
     const booking = await prisma.booking.findUnique({
@@ -281,7 +360,24 @@ router.get('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
-    res.json({ booking });
+    // Authorization & Ownership Verification
+    if (req.user || req.member) {
+      const isAuthorized =
+        req.isAdmin ||
+        (req.member &&
+          (booking.memberId === req.member.id ||
+            booking.contactEmail.toLowerCase() === req.member.email.toLowerCase()));
+
+      if (!isAuthorized) {
+        return res.status(403).json({
+          error: 'Access denied: You cannot view another devotee\'s booking information.',
+        });
+      }
+      return res.json({ booking });
+    }
+
+    // For unauthenticated access (e.g. initial booking payment redirect before login), return sanitized view
+    res.json({ booking: sanitizeBookingForPublicView(booking) });
   } catch (error) {
     next(error);
   }
@@ -402,7 +498,7 @@ const documentUploadSchema = z.object({
   mimeType: z.string().min(1),
 });
 
-router.post('/:id/documents', async (req, res, next) => {
+router.post('/:id/documents', optionalUserOrMember, async (req, res, next) => {
   try {
     const { id } = req.params;
     const data = documentUploadSchema.parse(req.body);
@@ -412,13 +508,29 @@ router.post('/:id/documents', async (req, res, next) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
+    // Access control check
+    if (req.user || req.member) {
+      const isOwner =
+        req.isAdmin ||
+        (req.member &&
+          (booking.memberId === req.member.id ||
+            booking.contactEmail.toLowerCase() === req.member.email.toLowerCase()));
+      if (!isOwner) {
+        return res.status(403).json({ error: 'Access denied: You cannot upload documents to another devotee\'s booking.' });
+      }
+    }
+
+    // Sanitize path against directory traversal
+    const safeFilePath = path.basename(data.filePath).replace(/[^a-zA-Z0-9._-]/g, '_');
+    const safeFilename = path.basename(data.originalFilename).replace(/[^a-zA-Z0-9._-]/g, '_');
+
     const doc = await prisma.uploadedDocument.create({
       data: {
         bookingId: booking.id,
         travellerId: data.travellerId || null,
         documentType: data.documentType,
-        originalFilename: data.originalFilename,
-        filePath: data.filePath,
+        originalFilename: safeFilename,
+        filePath: safeFilePath,
         fileSizeBytes: data.fileSizeBytes,
         mimeType: data.mimeType,
         status: 'PENDING',
@@ -433,7 +545,7 @@ router.post('/:id/documents', async (req, res, next) => {
         entityId: doc.id,
         details: JSON.stringify({
           documentType: data.documentType,
-          originalFilename: data.originalFilename,
+          originalFilename: safeFilename,
           sizeBytes: data.fileSizeBytes,
         }),
         ipAddress: req.ip,
@@ -449,12 +561,13 @@ router.post('/:id/documents', async (req, res, next) => {
 // POST cancel booking request and calculate contractual refund
 const cancelRequestSchema = z.object({
   cancellationReason: z.string().min(5, 'Cancellation reason is required'),
+  contactEmail: z.string().optional(),
 });
 
-router.post('/:id/cancel-request', async (req, res, next) => {
+router.post('/:id/cancel-request', optionalUserOrMember, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { cancellationReason } = cancelRequestSchema.parse(req.body);
+    const { cancellationReason, contactEmail } = cancelRequestSchema.parse(req.body);
 
     const booking = await prisma.booking.findUnique({
       where: { id },
@@ -466,6 +579,29 @@ router.post('/:id/cancel-request', async (req, res, next) => {
 
     if (!booking) {
       return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    // Access control: Ensure user owns the booking before cancellation
+    if (req.user || req.member) {
+      const isOwner =
+        req.isAdmin ||
+        (req.member &&
+          (booking.memberId === req.member.id ||
+            booking.contactEmail.toLowerCase() === req.member.email.toLowerCase()));
+      if (!isOwner) {
+        return res.status(403).json({ error: 'Access denied: You cannot cancel another devotee\'s booking.' });
+      }
+    } else if (contactEmail) {
+      if (contactEmail.toLowerCase().trim() !== booking.contactEmail.toLowerCase()) {
+        return res.status(403).json({ error: 'Verification email does not match booking contact email.' });
+      }
+    } else if (process.env.NODE_ENV === 'production') {
+      const verifyHeader = (req.headers['x-contact-email'] || '').toLowerCase().trim();
+      if (!verifyHeader || verifyHeader !== booking.contactEmail.toLowerCase()) {
+        return res.status(401).json({
+          error: 'Authentication or verified contact email required to cancel this booking.',
+        });
+      }
     }
 
     if (booking.status === 'CANCELLED') {

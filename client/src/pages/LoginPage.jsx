@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, User, ArrowRight, ShieldCheck, AlertCircle, RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
 import { api } from '../services/api';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('');
@@ -111,6 +112,21 @@ export default function LoginPage() {
             <p className="text-slate-500 text-xs sm:text-sm">
               Sign in to manage your 2027 Kailash Mansarovar bookings, permit updates, and payments.
             </p>
+          </div>
+
+          {/* Professional Google Sign-In */}
+          <div className="mb-6">
+            <GoogleSignInButton text="Continue with Google" redirectTo="/account" />
+            <div className="relative my-5">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-3 text-slate-400 font-semibold tracking-wider">
+                  Or continue with email / mobile
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Error Message */}

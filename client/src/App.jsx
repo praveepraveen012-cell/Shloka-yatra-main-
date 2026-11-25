@@ -13,6 +13,9 @@ import DeparturesPage from './pages/DeparturesPage';
 import ItineraryPage from './pages/ItineraryPage';
 import BookingPage from './pages/BookingPage';
 import BookingSuccessPage from './pages/BookingSuccessPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentPendingPage from './pages/PaymentPendingPage';
+import PaymentFailedPage from './pages/PaymentFailedPage';
 import InclusionsPage from './pages/InclusionsPage';
 import PreparationPage from './pages/PreparationPage';
 import ContactPage from './pages/ContactPage';
@@ -114,7 +117,10 @@ export default function App() {
         <Route path="/member/dashboard" element={<MemberAccountPage />} />
 
         {/* Supporting Pages & Policy Routes */}
-        <Route path="/booking-success" element={<BookingSuccessPage />} />
+        <Route path="/payment-success" element={<PaymentSuccessPage />} />
+        <Route path="/payment-pending" element={<PaymentPendingPage />} />
+        <Route path="/payment-failed" element={<PaymentFailedPage />} />
+        <Route path="/booking-success" element={<PaymentSuccessPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/terms-and-conditions" element={<TermsPage />} />

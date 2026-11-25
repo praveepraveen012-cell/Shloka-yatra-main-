@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { LanguageProvider } from './context/LanguageContext';
+import { ClerkAuthProvider } from './context/ClerkAuthProvider';
 import './index.css';
 
 class ErrorBoundary extends React.Component {
@@ -47,9 +48,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <BrowserRouter basename={import.meta.env.BASE_URL || '/'}>
-        <LanguageProvider>
-          <App />
-        </LanguageProvider>
+        <ClerkAuthProvider>
+          <LanguageProvider>
+            <App />
+          </LanguageProvider>
+        </ClerkAuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>

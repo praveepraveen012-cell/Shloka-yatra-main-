@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useClerkAuth } from '../context/ClerkAuthProvider';
 import {
   User,
   Shield,
@@ -33,9 +34,12 @@ import { SYPL_RISK_DOCUMENT, SYPL_MEDICAL_DOCUMENT } from '../data/officialDocum
 
 export default function MemberAccountPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { logout: clerkLogout } = useClerkAuth();
   const [member, setMember] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'profile', 'bookings', 'payments', 'documents', 'security'
+  const initialTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Data states
   const [bookings, setBookings] = useState([]);
@@ -156,7 +160,11 @@ export default function MemberAccountPage() {
   const handleLogout = () => {
     localStorage.removeItem('shlloka_member_token');
     localStorage.removeItem('shlloka_member_user');
-    navigate('/login');
+    if (clerkLogout) {
+      clerkLogout();
+    } else {
+      navigate('/login');
+    }
   };
 
   // Save Profile Form
@@ -392,16 +400,33 @@ export default function MemberAccountPage() {
                       className="p-5 rounded-2xl border border-slate-200 hover:border-[#101D35]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
                           <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-[#101D35]">
                             {b.bookingReference}
                           </span>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
-                            {b.status}
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                            b.status === 'CONFIRMED'
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : b.status === 'CANCELLED'
+                              ? 'bg-red-50 text-red-700'
+                              : 'bg-blue-50 text-blue-700'
+                          }`}>
+                            {b.status.replace('_', ' ')}
                           </span>
-                          <span className="text-xs text-slate-500 font-medium">
-                            {b.paymentStatus}
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                            b.paymentStatus === 'PAID'
+                              ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                              : b.paymentStatus === 'PENDING_VERIFICATION'
+                              ? 'bg-amber-50 text-amber-800 font-bold border border-amber-200'
+                              : 'text-slate-500'
+                          }`}>
+                            Payment: {b.paymentStatus.replace('_', ' ')}
                           </span>
+                          {(b.paymentMethod === 'OFFLINE' || b.paymentMethod === 'OFFLINE_TEST') && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+                              TEST OFFLINE
+                            </span>
+                          )}
                         </div>
                         <h4 className="text-base font-bold text-[#101D35]">
                           {b.route?.name || 'Kailash Mansarovar Pilgrimage'}
@@ -670,16 +695,33 @@ export default function MemberAccountPage() {
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
                           <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-[#101D35]">
                             {b.bookingReference}
                           </span>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">
-                            {b.status}
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                            b.status === 'CONFIRMED'
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : b.status === 'CANCELLED'
+                              ? 'bg-red-50 text-red-700'
+                              : 'bg-blue-50 text-blue-700'
+                          }`}>
+                            {b.status.replace('_', ' ')}
                           </span>
-                          <span className="text-xs text-slate-500 font-medium">
-                            Payment: {b.paymentStatus}
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                            b.paymentStatus === 'PAID'
+                              ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                              : b.paymentStatus === 'PENDING_VERIFICATION'
+                              ? 'bg-amber-50 text-amber-800 font-bold border border-amber-200'
+                              : 'text-slate-500'
+                          }`}>
+                            Payment: {b.paymentStatus.replace('_', ' ')}
                           </span>
+                          {(b.paymentMethod === 'OFFLINE' || b.paymentMethod === 'OFFLINE_TEST') && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
+                              TEST OFFLINE
+                            </span>
+                          )}
                         </div>
                         <h4 className="text-base sm:text-lg font-bold text-[#101D35]">
                           {b.route?.name || 'Pilgrimage Route'}
