@@ -433,4 +433,19 @@ describe('Advanced Member Registration, Authentication and Admin Integration Sui
     assert.strictEqual(activateRes.status, 200);
     assert.strictEqual(activateRes.body.member.status, 'ACTIVE');
   });
+
+  after(async () => {
+    try {
+      await prisma.member.deleteMany({
+        where: {
+          OR: [
+            { email: { contains: 'shlloka.test' } },
+            { email: { contains: 'example.com' } },
+          ],
+        },
+      });
+    } catch (e) {
+      // ignore cleanup errors
+    }
+  });
 });

@@ -280,4 +280,23 @@ describe('Offline Payment Option Workflow Test Suite', () => {
       .send({ rejectionReason: 'Hacking attempt' });
     assert.equal(memberReject.status, 403, 'Member token cannot reject payment (must return 403)');
   });
+
+  after(async () => {
+    try {
+      if (testDeparture?.id) {
+        const bList = await prisma.booking.findMany({ where: { departureId: testDeparture.id }, select: { id: true } });
+        for (const b of bList) {
+          await prisma.payment.deleteMany({ where: { bookingId: b.id } });
+          await prisma.traveller.deleteMany({ where: { bookingId: b.id } });
+          await prisma.booking.delete({ where: { id: b.id } });
+        }
+        await prisma.departure.delete({ where: { id: testDeparture.id } }).catch(() => {});
+      }
+      if (testMember?.id) {
+        await prisma.member.delete({ where: { id: testMember.id } }).catch(() => {});
+      }
+    } catch (e) {
+      // ignore cleanup errors
+    }
+  });
 });

@@ -333,4 +333,23 @@ describe('Temporary Offline Test Payment Mode & Booking Workflow (Tests 1 - 6)',
       process.env.ENABLE_OFFLINE_TEST_PAYMENT = previousEnv || 'true';
     }
   });
+
+  after(async () => {
+    try {
+      if (testDeparture?.id) {
+        const bList = await prisma.booking.findMany({ where: { departureId: testDeparture.id }, select: { id: true } });
+        for (const b of bList) {
+          await prisma.payment.deleteMany({ where: { bookingId: b.id } });
+          await prisma.traveller.deleteMany({ where: { bookingId: b.id } });
+          await prisma.booking.delete({ where: { id: b.id } });
+        }
+        await prisma.departure.delete({ where: { id: testDeparture.id } }).catch(() => {});
+      }
+      if (uniqueEmail) {
+        await prisma.member.deleteMany({ where: { email: uniqueEmail } });
+      }
+    } catch (e) {
+      // ignore cleanup errors
+    }
+  });
 });
