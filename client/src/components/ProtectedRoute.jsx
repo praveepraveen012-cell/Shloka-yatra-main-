@@ -18,7 +18,8 @@ export default function ProtectedRoute({ children }) {
 
       try {
         const res = await api.getAdminProfile();
-        const allowedRoles = ['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'TRAVEL_OPS', 'SUPPORT'];
+        // Strictly allow only SUPER_ADMIN role for administrative access
+        const allowedRoles = ['SUPER_ADMIN'];
         if (res.user && allowedRoles.includes(res.user.role)) {
           setIsAuthenticated(true);
         } else {

@@ -21,17 +21,17 @@ export async function bootstrapAdmin(force = false) {
           passwordHash,
           name: 'Shloka Administrator',
           phone: '+91 6366852888',
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           mustChangePassword: true,
         },
       });
-      console.log('✅ Master Admin account bootstrapped: admin@shloka.com');
-    } else if (shouldForce || primaryAdmin.mustChangePassword) {
+      console.log('✅ Super Admin account bootstrapped: admin@shloka.com');
+    } else {
       await prisma.user.update({
         where: { id: primaryAdmin.id },
         data: {
           passwordHash,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           mustChangePassword: true,
         },
       });
@@ -47,20 +47,31 @@ export async function bootstrapAdmin(force = false) {
           passwordHash,
           name: 'Shloka Administrator',
           phone: '+91 6366852888',
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           mustChangePassword: true,
         },
       });
-    } else if (shouldForce || alias.mustChangePassword) {
+    } else {
       await prisma.user.update({
         where: { id: alias.id },
         data: {
           passwordHash,
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           mustChangePassword: true,
         },
       });
     }
+
+    // Deactivate any legacy staff roles so only SUPER_ADMIN holds administrative privileges
+    await prisma.user.updateMany({
+      where: {
+        role: { in: ['ADMIN', 'FINANCE', 'TRAVEL_OPS', 'SUPPORT', 'CONTENT_MANAGER', 'STAFF'] },
+        email: { notIn: ['admin@shloka.com', 'admin@shlloka.com'] },
+      },
+      data: {
+        role: 'STAFF_INACTIVE',
+      },
+    });
 
     // Bootstrap Official Document Templates (Draft 1.0 – 23 November 2026)
     const templates = [

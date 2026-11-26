@@ -24,12 +24,9 @@ describe('Admin Management System — Master Prompt Verification Suite', () => {
   });
 
   // --- 2. Authentication & Protected Routes ---
-  test('3. ProtectedRoute allows all operational admin roles (SUPER_ADMIN, ADMIN, FINANCE, TRAVEL_OPS, SUPPORT)', () => {
+  test('3. ProtectedRoute enforces SUPER_ADMIN administrative role', () => {
     const protectedRouteContent = fs.readFileSync(path.join(clientSrc, 'components', 'ProtectedRoute.jsx'), 'utf8');
     assert.ok(protectedRouteContent.includes('SUPER_ADMIN'), 'ProtectedRoute must support SUPER_ADMIN');
-    assert.ok(protectedRouteContent.includes('FINANCE'), 'ProtectedRoute must support FINANCE');
-    assert.ok(protectedRouteContent.includes('TRAVEL_OPS'), 'ProtectedRoute must support TRAVEL_OPS');
-    assert.ok(protectedRouteContent.includes('SUPPORT'), 'ProtectedRoute must support SUPPORT');
     assert.ok(protectedRouteContent.includes('to="/admin/login"'), 'Unauthenticated users must redirect to /admin/login');
   });
 
@@ -133,7 +130,7 @@ describe('Admin Management System — Master Prompt Verification Suite', () => {
   });
 
   // --- 8. Complete UI Pages & Layout ---
-  test('10. AdminLayout provides all 14 sidebar items and responsive mobile slide-out navigation', () => {
+  test('10. AdminLayout provides core sidebar items without Staff section and responsive mobile slide-out navigation', () => {
     const layoutContent = fs.readFileSync(path.join(clientSrc, 'components', 'AdminLayout.jsx'), 'utf8');
 
     assert.ok(layoutContent.includes('/admin/dashboard'), 'Sidebar must include Dashboard');
@@ -147,7 +144,7 @@ describe('Admin Management System — Master Prompt Verification Suite', () => {
     assert.ok(layoutContent.includes('/admin/enquiries'), 'Sidebar must include Enquiries');
     assert.ok(layoutContent.includes('/admin/whatsapp'), 'Sidebar must include WhatsApp Updates');
     assert.ok(layoutContent.includes('/admin/reports'), 'Sidebar must include Reports');
-    assert.ok(layoutContent.includes('/admin/users'), 'Sidebar must include Staff & Roles');
+    assert.ok(!layoutContent.includes('/admin/users'), 'Sidebar must NOT include Staff & Roles section per user requirement');
     assert.ok(layoutContent.includes('/admin/audit-logs'), 'Sidebar must include Audit Trail');
 
     // Mobile Drawer

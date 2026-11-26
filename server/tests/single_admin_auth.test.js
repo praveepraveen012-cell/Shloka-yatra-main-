@@ -19,7 +19,7 @@ describe('Single Admin Account & Security Suite', async () => {
 
     assert.strictEqual(res.status, 200);
     assert.ok(res.body.token);
-    assert.strictEqual(res.body.user.role, 'ADMIN');
+    assert.strictEqual(res.body.user.role, 'SUPER_ADMIN');
     assert.strictEqual(res.body.user.mustChangePassword, true);
     adminToken = res.body.token;
   });

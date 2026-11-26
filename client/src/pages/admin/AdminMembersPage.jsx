@@ -281,7 +281,7 @@ export default function AdminMembersPage() {
               ) : members.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="text-center py-12 text-slate-400">
-                    No registered members found matching your search.
+                    {searchTerm.trim() ? 'No registered members found matching your search.' : 'No registered members yet.'}
                   </td>
                 </tr>
               ) : (

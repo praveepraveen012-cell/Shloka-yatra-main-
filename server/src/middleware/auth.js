@@ -126,9 +126,9 @@ export const optionalUserOrMember = async (req, res, next) => {
 };
 
 export const requireAdmin = (req, res, next) => {
-  const allowed = ['SUPER_ADMIN', 'ADMIN', 'FINANCE', 'TRAVEL_OPS', 'SUPPORT'];
+  const allowed = ['SUPER_ADMIN'];
   if (!req.user || !allowed.includes(req.user.role)) {
-    return res.status(403).json({ error: 'Administrative privilege required.' });
+    return res.status(403).json({ error: 'Super Admin privilege required. Access restricted.' });
   }
   next();
 };
@@ -138,15 +138,12 @@ export const requireRole = (...roles) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required.' });
     }
-    // SUPER_ADMIN has master privileges
+    // SUPER_ADMIN has master privileges and is the sole administrative role
     if (req.user.role === 'SUPER_ADMIN') {
       return next();
     }
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        error: `Insufficient permissions. Required role: ${roles.join(' or ')}. Your role: ${req.user.role}`,
-      });
-    }
-    next();
+    return res.status(403).json({
+      error: 'Insufficient permissions. Super Admin privilege required.',
+    });
   };
 };

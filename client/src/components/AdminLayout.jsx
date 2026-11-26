@@ -51,6 +51,7 @@ export default function AdminLayout({ children, title, subtitle }) {
   const menuItems = [
     { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { label: 'Bookings & Yatris', path: '/admin/bookings', icon: Calendar },
+    { label: 'Registered Members', path: '/admin/members', icon: UserCheck },
     { label: 'Customer Management', path: '/admin/customers', icon: Users },
     { label: 'Payments & Revenue', path: '/admin/payments', icon: CreditCard },
     { label: 'Departures (2027)', path: '/admin/departures', icon: Calendar },
@@ -60,9 +61,7 @@ export default function AdminLayout({ children, title, subtitle }) {
     { label: 'Enquiries & Leads', path: '/admin/enquiries', icon: MessageSquare },
     { label: 'WhatsApp Updates', path: '/admin/whatsapp', icon: MessageCircle },
     { label: 'Reports & Export', path: '/admin/reports', icon: FileSpreadsheet },
-    { label: 'Member Registrations', path: '/admin/members', icon: UserCheck },
-    { label: 'Staff & Roles', path: '/admin/users', icon: UserCog },
-    { label: 'Admin Settings', path: '/admin/settings', icon: Settings },
+    { label: 'Super Admin Settings', path: '/admin/settings', icon: Settings },
     { label: 'Audit Trail', path: '/admin/audit-logs', icon: Activity },
   ];
 
@@ -196,7 +195,7 @@ export default function AdminLayout({ children, title, subtitle }) {
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#D9A441]/15 text-[#D9A441] text-xs font-bold border border-[#D9A441]/35 shadow-sm">
               <Shield size={13} className="text-[#D9A441]" />
-              <span>ADMINISTRATOR</span>
+              <span>SUPER ADMIN</span>
             </span>
           </div>
         </header>

@@ -7,6 +7,13 @@ import {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
+export const isStaticDeploymentWithoutBackend = () => {
+  if (typeof window === 'undefined') return false;
+  const isGitHubPages = window.location.hostname.endsWith('github.io');
+  const hasCustomApiBase = Boolean(import.meta.env.VITE_API_BASE_URL);
+  return isGitHubPages && !hasCustomApiBase;
+};
+
 async function request(endpoint, options = {}) {
   const adminToken = localStorage.getItem('shlloka_admin_token');
   const memberToken = localStorage.getItem('shlloka_member_token');
@@ -27,6 +34,11 @@ async function request(endpoint, options = {}) {
   try {
     response = await fetch(`${API_BASE}${endpoint}`, config);
   } catch (netErr) {
+    if (isStaticDeploymentWithoutBackend()) {
+      throw new Error(
+        'GitHub Pages is a static file host without a backend server. Please configure VITE_API_BASE_URL in GitHub repository secrets pointing to your deployed backend, or run locally on http://localhost:5173.'
+      );
+    }
     throw new Error(
       `Unable to connect to backend server at ${API_BASE}. Please ensure the backend server is running on port 5000.`
     );
@@ -40,7 +52,10 @@ async function request(endpoint, options = {}) {
       (data.details ? data.details.map((d) => d.message).join(', ') : null);
 
     if (!errorMsg) {
-      if (response.status === 504 || response.status === 502 || response.status === 503) {
+      if (response.status === 405) {
+        errorMsg =
+          'HTTP 405 Method Not Allowed: GitHub Pages is a static file hosting service and cannot execute backend POST/PUT API endpoints. To make registrations and bookings on the deployed site, deploy the backend server (e.g. Render, Railway, AWS, VPS) and set the VITE_API_BASE_URL GitHub Secret. For local testing, test on http://localhost:5173 where the local Node backend is active.';
+      } else if (response.status === 504 || response.status === 502 || response.status === 503) {
         errorMsg = 'Backend server unavailable (port 5000). Please start the backend service.';
       } else if (response.status === 401) {
         errorMsg = 'Invalid credentials or expired session.';

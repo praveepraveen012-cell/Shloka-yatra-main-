@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import ProtectedRoute from './components/ProtectedRoute';
+import StaticHostingBanner from './components/StaticHostingBanner';
 
 // Public Pages
 import HomePage from './pages/HomePage';
@@ -54,7 +55,6 @@ import AdminPaymentsPage from './pages/admin/AdminPaymentsPage';
 import AdminEnquiriesPage from './pages/admin/AdminEnquiriesPage';
 import AdminWhatsAppPage from './pages/admin/AdminWhatsAppPage';
 import AdminReportsPage from './pages/admin/AdminReportsPage';
-import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminPricingPage from './pages/admin/AdminPricingPage';
 import AdminAuditLogsPage from './pages/admin/AdminAuditLogsPage';
 import AdminDocumentsPage from './pages/admin/AdminDocumentsPage';
@@ -64,6 +64,7 @@ import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 function PublicLayout() {
   return (
     <>
+      <StaticHostingBanner />
       <Navbar />
       <main>
         <Outlet />
@@ -222,11 +223,7 @@ export default function App() {
       />
       <Route
         path="/admin/users"
-        element={
-          <ProtectedRoute>
-            <AdminUsersPage />
-          </ProtectedRoute>
-        }
+        element={<Navigate to="/admin/dashboard" replace />}
       />
       <Route
         path="/admin/settings"
