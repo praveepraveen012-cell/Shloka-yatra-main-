@@ -592,13 +592,12 @@ export default function BookingPage() {
                   key={s.step}
                   type="button"
                   onClick={() => s.step < activeStep && setActiveStep(s.step)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer min-h-[36px] ${
-                    activeStep === s.step
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer min-h-[36px] ${activeStep === s.step
                       ? 'bg-[#2F6FED] text-white shadow-md'
                       : activeStep > s.step
-                      ? 'bg-[#071B3A] text-white'
-                      : 'bg-white text-slate-600 border border-slate-200'
-                  }`}
+                        ? 'bg-[#071B3A] text-white'
+                        : 'bg-white text-slate-600 border border-slate-200'
+                    }`}
                 >
                   {activeStep > s.step ? <Check size={13} className="text-emerald-400 shrink-0" /> : null}
                   <span>{s.label}</span>
@@ -691,9 +690,8 @@ export default function BookingPage() {
                       </label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <label
-                          className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${
-                            watchedPassportType === 'INDIAN' ? 'border-[#2F6FED] bg-blue-50/50' : 'border-slate-200 bg-white'
-                          }`}
+                          className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${watchedPassportType === 'INDIAN' ? 'border-[#2F6FED] bg-blue-50/50' : 'border-slate-200 bg-white'
+                            }`}
                         >
                           <input
                             type="radio"
@@ -705,9 +703,8 @@ export default function BookingPage() {
                         </label>
 
                         <label
-                          className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${
-                            watchedPassportType === 'FOREIGN' ? 'border-[#2F6FED] bg-blue-50/50' : 'border-slate-200 bg-white'
-                          }`}
+                          className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${watchedPassportType === 'FOREIGN' ? 'border-[#2F6FED] bg-blue-50/50' : 'border-slate-200 bg-white'
+                            }`}
                         >
                           <input
                             type="radio"
@@ -729,9 +726,8 @@ export default function BookingPage() {
                           <div
                             key={r.id}
                             onClick={() => setValue('routeId', r.id)}
-                            className={`p-4 sm:p-6 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 sm:gap-4 ${
-                              isSelected ? 'border-[#2F6FED] bg-blue-50/40 shadow-md' : 'border-slate-200 bg-white hover:border-slate-300'
-                            }`}
+                            className={`p-4 sm:p-6 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 sm:gap-4 ${isSelected ? 'border-[#2F6FED] bg-blue-50/40 shadow-md' : 'border-slate-200 bg-white hover:border-slate-300'
+                              }`}
                           >
                             <input
                               type="radio"
@@ -798,9 +794,8 @@ export default function BookingPage() {
                           <div
                             key={batch.id}
                             onClick={() => setValue('departureId', batch.id)}
-                            className={`p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                              isSelected ? 'border-[#2F6FED] bg-blue-50/40 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'
-                            }`}
+                            className={`p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isSelected ? 'border-[#2F6FED] bg-blue-50/40 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300'
+                              }`}
                           >
                             <div className="flex items-start sm:items-center gap-3">
                               <input
@@ -1222,9 +1217,8 @@ export default function BookingPage() {
                     {/* Medical Fitness Acknowledgment */}
                     <div className="mb-6">
                       <label
-                        className={`flex items-start gap-3 p-4 rounded-xl border transition-colors cursor-pointer ${
-                          errors.medicalFitnessAcknowledged ? 'bg-red-50 border-red-300' : 'bg-blue-50/40 border-slate-200'
-                        }`}
+                        className={`flex items-start gap-3 p-4 rounded-xl border transition-colors cursor-pointer ${errors.medicalFitnessAcknowledged ? 'bg-red-50 border-red-300' : 'bg-blue-50/40 border-slate-200'
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1397,9 +1391,8 @@ export default function BookingPage() {
                     <div className="flex flex-col gap-3.5 mb-6">
                       {/* 1. Master Terms */}
                       <label
-                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
-                          errors.consentMasterTerms ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
-                        }`}
+                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${errors.consentMasterTerms ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1414,9 +1407,8 @@ export default function BookingPage() {
 
                       {/* 2. Cancellation Policy */}
                       <label
-                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
-                          errors.consentCancellationPolicy ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
-                        }`}
+                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${errors.consentCancellationPolicy ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1431,9 +1423,8 @@ export default function BookingPage() {
 
                       {/* 3. Service Schedule */}
                       <label
-                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
-                          errors.consentServiceSchedule ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
-                        }`}
+                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${errors.consentServiceSchedule ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1447,9 +1438,8 @@ export default function BookingPage() {
                       {errors.consentServiceSchedule && <p className="text-red-500 text-xs -mt-2 ml-7">{errors.consentServiceSchedule.message}</p>}
 
                       {/* 4. Risk Acknowledgement & Official Document SYPL-RISK-2027 */}
-                      <div className={`p-4 rounded-xl border transition-all ${
-                        riskDeclarationData ? 'bg-emerald-50/70 border-emerald-300' : 'bg-amber-50/60 border-amber-300'
-                      }`}>
+                      <div className={`p-4 rounded-xl border transition-all ${riskDeclarationData ? 'bg-emerald-50/70 border-emerald-300' : 'bg-amber-50/60 border-amber-300'
+                        }`}>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div>
                             <div className="flex items-center gap-2 mb-1">
@@ -1472,11 +1462,10 @@ export default function BookingPage() {
                           <button
                             type="button"
                             onClick={() => setIsRiskModalOpen(true)}
-                            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
-                              riskDeclarationData
+                            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${riskDeclarationData
                                 ? 'bg-emerald-700 text-white hover:bg-emerald-800'
                                 : 'bg-[#071B3A] text-amber-300 hover:bg-slate-900 border border-amber-500/40 shadow-sm'
-                            }`}
+                              }`}
                           >
                             <ShieldCheck size={14} />
                             <span>{riskDeclarationData ? 'Review Signed Declaration' : 'Open & Sign Declaration →'}</span>
@@ -1485,9 +1474,8 @@ export default function BookingPage() {
                       </div>
 
                       <label
-                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
-                          errors.consentRiskAcknowledgement ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
-                        }`}
+                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${errors.consentRiskAcknowledgement ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1502,9 +1490,8 @@ export default function BookingPage() {
 
                       {/* 5. Privacy Notice */}
                       <label
-                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${
-                          errors.consentPrivacyNotice ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
-                        }`}
+                        className={`p-3.5 sm:p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-colors ${errors.consentPrivacyNotice ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1571,11 +1558,10 @@ export default function BookingPage() {
                     {/* Choose Amount Option */}
                     <div className="flex flex-col gap-3 mb-6">
                       <label
-                        className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors ${
-                          paymentChoice === 'DEPOSIT'
+                        className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors ${paymentChoice === 'DEPOSIT'
                             ? 'border-[#2F6FED] bg-blue-50/40'
                             : 'border-slate-200 bg-white'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start sm:items-center gap-3">
                           <input
@@ -1601,11 +1587,10 @@ export default function BookingPage() {
                       </label>
 
                       <label
-                        className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors ${
-                          paymentChoice === 'FIRST_INSTALLMENT'
+                        className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer transition-colors ${paymentChoice === 'FIRST_INSTALLMENT'
                             ? 'border-[#2F6FED] bg-blue-50/40'
                             : 'border-slate-200 bg-white'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start sm:items-center gap-3">
                           <input
@@ -1644,11 +1629,10 @@ export default function BookingPage() {
                             setPaymentMethod('UPI');
                             setPaymentMode('ONLINE');
                           }}
-                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
-                            paymentMethod === 'UPI'
+                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${paymentMethod === 'UPI'
                               ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]'
                               : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
-                          }`}
+                            }`}
                         >
                           UPI (GPay / PhonePe)
                         </button>
@@ -1658,11 +1642,10 @@ export default function BookingPage() {
                             setPaymentMethod('CARD');
                             setPaymentMode('ONLINE');
                           }}
-                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
-                            paymentMethod === 'CARD'
+                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${paymentMethod === 'CARD'
                               ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]'
                               : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
-                          }`}
+                            }`}
                         >
                           Credit / Debit Card
                         </button>
@@ -1672,11 +1655,10 @@ export default function BookingPage() {
                             setPaymentMethod('NETBANKING');
                             setPaymentMode('ONLINE');
                           }}
-                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${
-                            paymentMethod === 'NETBANKING'
+                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center ${paymentMethod === 'NETBANKING'
                               ? 'border-[#2F6FED] bg-blue-50 text-[#2F6FED]'
                               : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
-                          }`}
+                            }`}
                         >
                           Net Banking (RTGS/NEFT)
                         </button>
@@ -1688,11 +1670,10 @@ export default function BookingPage() {
                             setPaymentMethod('OFFLINE_TEST');
                             setPaymentMode('OFFLINE');
                           }}
-                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
-                            paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
+                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
                               ? 'border-[#D9A441] bg-amber-50 text-[#8C6010] font-bold ring-2 ring-[#D9A441]/40'
                               : 'border-amber-300/80 bg-amber-50/40 text-[#8C6010] hover:bg-amber-100/60'
-                          }`}
+                            }`}
                         >
                           <ShieldCheck size={14} className="text-[#D9A441]" />
                           <span>Offline Payment (Testing Only)</span>
@@ -1818,11 +1799,10 @@ export default function BookingPage() {
                       <button
                         type="submit"
                         disabled={submitting}
-                        className={`w-full sm:flex-1 py-4 px-6 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg min-h-[50px] cursor-pointer disabled:opacity-50 transition-all ${
-                          paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
+                        className={`w-full sm:flex-1 py-4 px-6 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg min-h-[50px] cursor-pointer disabled:opacity-50 transition-all ${paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
                             ? 'bg-[#101D35] hover:bg-[#1C3455] text-white border border-[#D9A441]'
                             : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                        }`}
+                          }`}
                       >
                         {paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE' ? (
                           <ShieldCheck size={18} className="text-[#D9A441]" />
@@ -1832,11 +1812,11 @@ export default function BookingPage() {
                         <span>
                           {submitting
                             ? (paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
-                                ? 'Submitting Test Booking...'
-                                : 'Processing Secure Payment & Generating Voucher...')
+                              ? 'Submitting Test Booking...'
+                              : 'Processing Secure Payment & Generating Voucher...')
                             : (paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
-                                ? 'Complete Test Booking'
-                                : `Authorize Payment (₹${(paymentChoice === 'DEPOSIT' ? (calculation?.depositAmount || 25000 * watchedTravellers.length) : Math.round((calculation?.baseAmount || 350000) * 0.5)).toLocaleString('en-IN')})`)}
+                              ? 'Complete Test Booking'
+                              : `Authorize Payment (₹${(paymentChoice === 'DEPOSIT' ? (calculation?.depositAmount || 25000 * watchedTravellers.length) : Math.round((calculation?.baseAmount || 350000) * 0.5)).toLocaleString('en-IN')})`)}
                         </span>
                       </button>
                     </div>
