@@ -120,7 +120,14 @@ describe('Shlloka Yatra 2027 Full Stack API & Business Logic Test Suite', () => 
   // TEST 7: Complete Multi-Step Booking Registration (USER JOURNEY 2)
   test('7. POST /api/bookings should validate travellers, reserve capacity and create booking', async () => {
     const depRes = await request(app).get('/api/departures');
-    const dep2 = depRes.body.departures.find((d) => d.batchNumber === 2);
+    let dep2 = depRes.body.departures.find((d) => d.totalCapacity - d.bookedSeats >= 2);
+    if (!dep2) {
+      dep2 = depRes.body.departures[0];
+      await prisma.departure.update({
+        where: { id: dep2.id },
+        data: { totalCapacity: dep2.bookedSeats + 20 },
+      });
+    }
     const routesRes = await request(app).get('/api/routes');
     const route2 = routesRes.body.routes.find((r) => r.code === 'flight-to-lhasa');
 

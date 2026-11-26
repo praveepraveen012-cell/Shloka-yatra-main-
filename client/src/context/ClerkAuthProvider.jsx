@@ -124,9 +124,9 @@ function FallbackAuthProvider({ children }) {
   });
 
   const signInWithGoogle = async (redirectUrl = '/account') => {
-    // Graceful demonstration simulation when Clerk key is in placeholder/sandbox
+    // Graceful demonstration simulation when Clerk/Google OAuth credentials are in developer sandbox
     const simulatedClerkUser = {
-      clerkId: `clerk_google_dev_${Date.now()}`,
+      clerkId: 'google_sub_devotee_google_shlloka_com',
       email: 'devotee.google@shlloka.com',
       firstName: 'Kailash',
       lastName: 'Devotee',
@@ -134,16 +134,18 @@ function FallbackAuthProvider({ children }) {
     };
 
     try {
-      const res = await api.syncClerkMember(simulatedClerkUser);
+      const res = await api.googleAuth(simulatedClerkUser);
       if (res?.member && res?.token) {
         localStorage.setItem('shlloka_member_token', res.token);
         localStorage.setItem('shlloka_member_user', JSON.stringify(res.member));
         setMember(res.member);
-        navigate(redirectUrl);
+        const target = decodeURIComponent(redirectUrl || '/account');
+        navigate(target, { replace: true });
       }
     } catch (err) {
       console.warn('Fallback Google Sync:', err);
-      navigate(redirectUrl);
+      const target = decodeURIComponent(redirectUrl || '/account');
+      navigate(target, { replace: true });
     }
   };
 

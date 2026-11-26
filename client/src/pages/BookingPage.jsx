@@ -97,6 +97,15 @@ export default function BookingPage() {
   const [isRiskModalOpen, setIsRiskModalOpen] = useState(false);
   const [riskDeclarationData, setRiskDeclarationData] = useState(null);
 
+  // Authenticated Member State
+  const [currentMember, setCurrentMember] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('shlloka_member_user') || 'null');
+    } catch {
+      return null;
+    }
+  });
+
   // Document Upload State
   const [uploadedDocs, setUploadedDocs] = useState({
     passport: null,
@@ -176,6 +185,71 @@ export default function BookingPage() {
   const watchedTravellers = watch('travellers');
   const watchedContactName = watch('contactName');
   const watchedContactCity = watch('contactCity');
+
+  // Authentication Guard: Require member registration or login before booking
+  useEffect(() => {
+    const memberToken = localStorage.getItem('shlloka_member_token');
+    if (!memberToken) {
+      const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      navigate(`/login?redirect=${returnUrl}&notice=booking_required`, { replace: true });
+      return;
+    }
+
+    // Prefill form with verified member profile details
+    api
+      .getMemberProfile()
+      .then((res) => {
+        if (res && res.member) {
+          setCurrentMember(res.member);
+          localStorage.setItem('shlloka_member_user', JSON.stringify(res.member));
+
+          const fullName = `${res.member.firstName || ''} ${res.member.lastName || ''}`.trim();
+          if (fullName && !getValues('contactName')) {
+            setValue('contactName', fullName);
+          }
+          if (res.member.email && !getValues('contactEmail')) {
+            setValue('contactEmail', res.member.email);
+          }
+          if (res.member.mobile && !getValues('contactPhone')) {
+            setValue('contactPhone', res.member.mobile);
+          }
+          if (res.member.city && !getValues('contactCity')) {
+            setValue('contactCity', res.member.city);
+          }
+          if (res.member.state && !getValues('contactState')) {
+            setValue('contactState', res.member.state);
+          }
+          if (res.member.address && !getValues('contactAddress')) {
+            setValue('contactAddress', res.member.address);
+          }
+          if (res.member.pincode && !getValues('contactPincode')) {
+            setValue('contactPincode', res.member.pincode);
+          }
+
+          // Prefill primary lead traveller
+          const currentTravellers = getValues('travellers') || [];
+          if (currentTravellers.length > 0) {
+            if (!currentTravellers[0].fullName && fullName) {
+              setValue('travellers.0.fullName', fullName);
+            }
+            if (
+              res.member.gender &&
+              (res.member.gender === 'MALE' ||
+                res.member.gender === 'FEMALE' ||
+                res.member.gender === 'OTHER')
+            ) {
+              setValue('travellers.0.gender', res.member.gender);
+            }
+            if (res.member.nationality) {
+              setValue('travellers.0.nationality', res.member.nationality);
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Member prefill notice:', err.message);
+      });
+  }, [navigate, setValue, getValues]);
 
   // Load initial departures and routes
   useEffect(() => {
@@ -550,6 +624,47 @@ export default function BookingPage() {
               >
                 <AlertCircle size={20} color="#EF4444" />
                 <span style={{ fontSize: '0.92rem' }}>{serverError}</span>
+              </div>
+            )}
+
+            {/* Verified Member Status Banner */}
+            {currentMember && (
+              <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-[#071830] border border-[#D9A441]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-white shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-[#D9A441]/20 border border-[#D9A441]/50 flex items-center justify-center text-[#D9A441] font-bold text-lg shrink-0">
+                    ॐ
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#D9A441]">
+                        Verified Devotee Account
+                      </span>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">
+                        Active
+                      </span>
+                    </div>
+                    <p className="text-sm font-semibold text-white">
+                      Logged in as: <strong className="text-white font-bold">{currentMember.firstName} {currentMember.lastName}</strong>
+                      <span className="text-slate-300 text-xs ml-1.5 font-normal">
+                        ({currentMember.membershipReference || currentMember.email})
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.removeItem('shlloka_member_token');
+                      localStorage.removeItem('shlloka_member_user');
+                      const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+                      navigate(`/login?redirect=${returnUrl}&notice=booking_required`);
+                    }}
+                    className="px-3.5 py-2 rounded-xl border border-slate-600 hover:border-[#D9A441] text-slate-300 hover:text-[#D9A441] transition-colors cursor-pointer"
+                  >
+                    Not you? Log out or switch account
+                  </button>
+                </div>
               </div>
             )}
 
@@ -1566,24 +1681,22 @@ export default function BookingPage() {
                           Net Banking (RTGS/NEFT)
                         </button>
 
-                        {/* Temporary Offline Test Payment Option (Controlled by feature flag) */}
-                        {import.meta.env.VITE_ENABLE_OFFLINE_TEST_PAYMENT !== 'false' && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setPaymentMethod('OFFLINE_TEST');
-                              setPaymentMode('OFFLINE');
-                            }}
-                            className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
-                              paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
-                                ? 'border-[#D9A441] bg-amber-50 text-[#8C6010] font-bold ring-2 ring-[#D9A441]/40'
-                                : 'border-amber-300/80 bg-amber-50/40 text-[#8C6010] hover:bg-amber-100/60'
-                            }`}
-                          >
-                            <ShieldCheck size={14} className="text-[#D9A441]" />
-                            <span>Offline Payment (Testing Only)</span>
-                          </button>
-                        )}
+                        {/* Temporary Offline Test Payment Option */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPaymentMethod('OFFLINE_TEST');
+                            setPaymentMode('OFFLINE');
+                          }}
+                          className={`p-2.5 rounded-lg border text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
+                            paymentMethod === 'OFFLINE_TEST' || paymentMethod === 'OFFLINE'
+                              ? 'border-[#D9A441] bg-amber-50 text-[#8C6010] font-bold ring-2 ring-[#D9A441]/40'
+                              : 'border-amber-300/80 bg-amber-50/40 text-[#8C6010] hover:bg-amber-100/60'
+                          }`}
+                        >
+                          <ShieldCheck size={14} className="text-[#D9A441]" />
+                          <span>Offline Payment (Testing Only)</span>
+                        </button>
                       </div>
 
                       {/* Online Rail: UPI Input */}

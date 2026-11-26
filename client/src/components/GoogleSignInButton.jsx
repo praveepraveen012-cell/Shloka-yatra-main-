@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useClerkAuth } from '../context/ClerkAuthProvider';
 
-export default function GoogleSignInButton({ text = 'Continue with Google', redirectTo = '/account', className = '' }) {
+export default function GoogleSignInButton({ text = 'Continue with Google', redirectTo, className = '' }) {
+  const [searchParams] = useSearchParams();
   const { signInWithGoogle } = useClerkAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const destination = redirectTo || searchParams.get('redirect') || '/account';
 
   const handleClick = async () => {
     try {
       setLoading(true);
       setError(null);
-      await signInWithGoogle(redirectTo);
+      await signInWithGoogle(destination);
     } catch (err) {
       setError(err.message || 'Google Sign-In was cancelled or failed.');
     } finally {

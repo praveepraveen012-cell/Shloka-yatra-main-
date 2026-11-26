@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -35,7 +35,12 @@ const COUNTRY_CODES = [
 ];
 
 export default function MembershipRegisterPage() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const redirectParam = searchParams.get('redirect');
+  const noticeParam = searchParams.get('notice');
+  const destination = redirectParam ? decodeURIComponent(redirectParam) : null;
 
   // Registration View State: false = Form, true = Success Confirmation
   const [isSuccess, setIsSuccess] = useState(false);
@@ -312,10 +317,10 @@ export default function MembershipRegisterPage() {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <Link
-                to="/account"
+                to={destination || "/account"}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#101D35] text-white hover:bg-[#1C3455] font-semibold text-sm transition-all shadow-md"
               >
-                <span>Open Member Dashboard</span>
+                <span>{destination ? 'Proceed Directly to Booking' : 'Open Member Dashboard'}</span>
                 <ArrowRight size={16} className="text-[#D9A441]" />
               </Link>
               <Link
@@ -403,7 +408,7 @@ export default function MembershipRegisterPage() {
               <div className="bg-white rounded-2xl p-5 border border-slate-200 text-center">
                 <span className="text-xs text-slate-600 block mb-2">Already have a registered member account?</span>
                 <Link
-                  to="/login"
+                  to={redirectParam ? `/login?redirect=${encodeURIComponent(redirectParam)}&notice=${encodeURIComponent(noticeParam || 'booking_required')}` : '/login'}
                   className="inline-flex items-center gap-1.5 text-sm font-bold text-[#1C3455] hover:text-[#2F6FED] transition-colors"
                 >
                   <span>Sign In to Member Portal</span>
@@ -415,6 +420,21 @@ export default function MembershipRegisterPage() {
             {/* Right Section: Registration Card */}
             <div className="lg:col-span-7">
               <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/90 relative">
+                {/* Member Registration Required Notice */}
+                {(noticeParam === 'booking_required' || redirectParam?.includes('/book')) && (
+                  <div className="mb-6 p-4 rounded-2xl bg-[#071830] border border-[#D9A441]/50 text-white text-xs sm:text-sm flex items-start gap-3 shadow-md animate-fade-in">
+                    <Sparkles size={20} className="shrink-0 text-[#D9A441] mt-0.5" />
+                    <div>
+                      <p className="font-bold text-[#D9A441] mb-0.5">
+                        Pilgrimage Membership Required Before Booking
+                      </p>
+                      <p className="text-slate-300 text-xs leading-relaxed">
+                        Please create your Shloka Yatra membership account to proceed with your Kailash Mansarovar booking. Your chosen package, route and batch will be retained.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Header */}
                 <div className="border-b border-slate-100 pb-5 mb-6">
                   <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#101D35]">
@@ -427,7 +447,7 @@ export default function MembershipRegisterPage() {
 
                 {/* Professional Google Sign-In */}
                 <div className="mb-6">
-                  <GoogleSignInButton text="Continue with Google" redirectTo="/account" />
+                  <GoogleSignInButton text="Continue with Google" redirectTo={destination || '/account'} />
                   <div className="relative my-5">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-slate-200" />

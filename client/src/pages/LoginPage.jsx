@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Lock, User, ArrowRight, ShieldCheck, AlertCircle, RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
 import { api } from '../services/api';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 
 export default function LoginPage() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const redirectParam = searchParams.get('redirect');
+  const noticeParam = searchParams.get('notice');
+  const destination = redirectParam ? decodeURIComponent(redirectParam) : '/account';
+
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,8 +23,6 @@ export default function LoginPage() {
   const [unverifiedState, setUnverifiedState] = useState(null);
   const [otpCode, setOtpCode] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
-
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -46,7 +51,7 @@ export default function LoginPage() {
         if (data.member) {
           localStorage.setItem('shlloka_member_user', JSON.stringify(data.member));
         }
-        navigate('/account');
+        navigate(destination, { replace: true });
       } else {
         setErrorMsg('Authentication failed. Please verify your credentials.');
       }
@@ -85,7 +90,7 @@ export default function LoginPage() {
         if (res.member) {
           localStorage.setItem('shlloka_member_user', JSON.stringify(res.member));
         }
-        navigate('/account');
+        navigate(destination, { replace: true });
       }
     } catch (err) {
       setErrorMsg(err.message || 'Verification failed. Please re-enter the code.');
@@ -114,9 +119,24 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {/* Member Registration Required Before Booking Notice */}
+          {(noticeParam === 'booking_required' || redirectParam?.includes('/book')) && (
+            <div className="mb-6 p-4 rounded-2xl bg-[#071830] border border-[#D9A441]/50 text-white text-xs sm:text-sm flex items-start gap-3 shadow-md animate-fade-in">
+              <Sparkles size={20} className="shrink-0 text-[#D9A441] mt-0.5" />
+              <div>
+                <p className="font-bold text-[#D9A441] mb-0.5">
+                  Pilgrimage Membership Required Before Booking
+                </p>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  Please sign in or create your Shloka Yatra membership account to proceed with your Kailash Mansarovar booking. Your chosen package and batch details will be retained automatically.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Professional Google Sign-In */}
           <div className="mb-6">
-            <GoogleSignInButton text="Continue with Google" redirectTo="/account" />
+            <GoogleSignInButton text="Continue with Google" redirectTo={destination} />
             <div className="relative my-5">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200" />
@@ -274,7 +294,7 @@ export default function LoginPage() {
           <div className="border-t border-slate-100 pt-6 mt-6 text-center">
             <span className="text-xs text-slate-500 block mb-2">New to Shloka Yatra 2027?</span>
             <Link
-              to="/membership/register"
+              to={redirectParam ? `/membership/register?redirect=${encodeURIComponent(redirectParam)}&notice=${encodeURIComponent(noticeParam || 'booking_required')}` : '/membership/register'}
               className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold transition-all"
             >
               <Sparkles size={14} className="text-[#D9A441]" />

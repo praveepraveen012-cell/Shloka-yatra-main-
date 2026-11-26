@@ -23,11 +23,35 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  const response = await fetch(`${API_BASE}${endpoint}`, config);
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, config);
+  } catch (netErr) {
+    throw new Error(
+      `Unable to connect to backend server at ${API_BASE}. Please ensure the backend server is running on port 5000.`
+    );
+  }
+
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const errorMsg = data.error || (data.details ? data.details.map((d) => d.message).join(', ') : 'Request failed');
+    let errorMsg =
+      data.error ||
+      (data.details ? data.details.map((d) => d.message).join(', ') : null);
+
+    if (!errorMsg) {
+      if (response.status === 504 || response.status === 502 || response.status === 503) {
+        errorMsg = 'Backend server unavailable (port 5000). Please start the backend service.';
+      } else if (response.status === 401) {
+        errorMsg = 'Invalid credentials or expired session.';
+      } else if (response.status === 403) {
+        errorMsg = 'Access denied. You do not have authorization for this action.';
+      } else if (response.status === 404) {
+        errorMsg = `Endpoint not found: ${endpoint}`;
+      } else {
+        errorMsg = `Server returned status ${response.status} (${response.statusText || 'Request failed'})`;
+      }
+    }
     throw new Error(errorMsg);
   }
 
@@ -319,6 +343,9 @@ export const api = {
 
   syncClerkMember: (payload) =>
     request('/membership/clerk-sync', { method: 'POST', body: JSON.stringify(payload) }),
+
+  googleAuth: (payload) =>
+    request('/membership/google-auth', { method: 'POST', body: JSON.stringify(payload) }),
 
   getMemberProfile: () => request('/membership/me'),
   updateMemberProfile: (payload) =>
