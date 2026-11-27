@@ -245,17 +245,6 @@ export default function AdminLoginPage() {
               </button>
             </form>
 
-            {/* Quick Demo Credentials Assistant */}
-            <div className="mt-6 p-3.5 rounded-2xl bg-[#040F1E] border border-[#D9A441]/25 text-left text-xs">
-              <span className="text-[#D9A441] font-semibold block mb-1">
-                Authorized Admin Credentials:
-              </span>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[#8CA8CC] gap-1 font-mono text-[11px]">
-                <span>User: <strong className="text-white">admin@shloka.com</strong></span>
-                <span>Pass: <strong className="text-white">ShlokaAdmin@2027</strong></span>
-              </div>
-            </div>
-
             {/* Return to Public Portal */}
             <div className="mt-8 pt-5 border-t border-white/10 text-center">
               <Link
@@ -311,7 +300,7 @@ export default function AdminLoginPage() {
                   type="email"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  placeholder="admin@shloka.com"
+                  placeholder="admin@example.com"
                   required
                   className="w-full bg-[#041021] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:border-[#D9A441] outline-none"
                 />

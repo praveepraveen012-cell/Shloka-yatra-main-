@@ -27,13 +27,14 @@ export async function bootstrapAdmin(force = false) {
       });
       console.log('✅ Super Admin account bootstrapped: admin@shloka.com');
     } else {
+      const updateData = { role: 'SUPER_ADMIN' };
+      if (shouldForce) {
+        updateData.passwordHash = passwordHash;
+        updateData.mustChangePassword = true;
+      }
       await prisma.user.update({
         where: { id: primaryAdmin.id },
-        data: {
-          passwordHash,
-          role: 'SUPER_ADMIN',
-          mustChangePassword: true,
-        },
+        data: updateData,
       });
     }
 
@@ -52,13 +53,14 @@ export async function bootstrapAdmin(force = false) {
         },
       });
     } else {
+      const updateData = { role: 'SUPER_ADMIN' };
+      if (shouldForce) {
+        updateData.passwordHash = passwordHash;
+        updateData.mustChangePassword = true;
+      }
       await prisma.user.update({
         where: { id: alias.id },
-        data: {
-          passwordHash,
-          role: 'SUPER_ADMIN',
-          mustChangePassword: true,
-        },
+        data: updateData,
       });
     }
 

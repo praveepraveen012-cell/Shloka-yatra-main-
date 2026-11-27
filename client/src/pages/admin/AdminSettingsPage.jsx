@@ -318,7 +318,7 @@ export default function AdminSettingsPage() {
               </label>
               <input
                 type="email"
-                value={user?.email || 'admin@shloka.com'}
+                value={user?.email || ''}
                 disabled
                 className="w-full bg-[#041021]/50 border border-white/5 rounded-xl px-4 py-3 text-sm text-[#8CA8CC] cursor-not-allowed"
               />

@@ -30,6 +30,13 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
+  // Guard static GitHub Pages deployments attempting non-GET requests without backend
+  if (isStaticDeploymentWithoutBackend() && options.method && options.method !== 'GET') {
+    throw new Error(
+      'GitHub Pages is a static file hosting service without an active backend server. To access the Admin Dashboard or submit data, configure VITE_API_BASE_URL in repository secrets pointing to your deployed backend, or run locally on http://localhost:5173.'
+    );
+  }
+
   let response;
   try {
     response = await fetch(`${API_BASE}${endpoint}`, config);
@@ -56,11 +63,13 @@ async function request(endpoint, options = {}) {
         errorMsg =
           'HTTP 405 Method Not Allowed: GitHub Pages is a static file hosting service and cannot execute backend POST/PUT API endpoints. To make registrations and bookings on the deployed site, deploy the backend server (e.g. Render, Railway, AWS, VPS) and set the VITE_API_BASE_URL GitHub Secret. For local testing, test on http://localhost:5173 where the local Node backend is active.';
       } else if (response.status === 504 || response.status === 502 || response.status === 503) {
-        errorMsg = 'Backend server unavailable (port 5000). Please start the backend service.';
+        errorMsg = 'Backend server or database temporarily unavailable. Please verify service status and try again shortly.';
+      } else if (response.status === 500) {
+        errorMsg = 'Server encountered an internal error. Please try again shortly or contact system administration.';
       } else if (response.status === 401) {
-        errorMsg = 'Invalid credentials or expired session.';
+        errorMsg = 'Invalid email or password credentials, or session expired.';
       } else if (response.status === 403) {
-        errorMsg = 'Access denied. You do not have authorization for this action.';
+        errorMsg = 'Access denied. Super Admin authorization required.';
       } else if (response.status === 404) {
         errorMsg = `Endpoint not found: ${endpoint}`;
       } else {
