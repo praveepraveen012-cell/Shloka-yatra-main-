@@ -10,7 +10,12 @@
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
     "db:seed": "node src/seed.js",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/admin_management_system.test.js tests/single_admin_auth.test.js tests/temporary_offline_payment_mode.test.js tests/member_registration_and_admin.test.js tests/offline_payment_workflow.test.js",
+    "test:unit": "node --test tests/admin_management_system.test.js tests/single_admin_auth.test.js",
+    "test:api": "node --test tests/temporary_offline_payment_mode.test.js tests/offline_payment_workflow.test.js",
+    "test:integration": "node --test tests/member_registration_and_admin.test.js",
+    "test:e2e": "node --test tests/temporary_offline_payment_mode.test.js tests/admin_management_system.test.js",
+    "test:all": "npm test"
   },
   "dependencies": {
     "@clerk/backend": "^3.32.0",

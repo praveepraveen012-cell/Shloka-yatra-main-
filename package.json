@@ -11,6 +11,11 @@
     "setup": "npm run install:all && npm --prefix server run db:push && npm --prefix server run db:seed",
     "seed": "npm --prefix server run db:seed",
     "test": "npm --prefix server test",
+    "test:unit": "npm --prefix server run test:unit",
+    "test:api": "npm --prefix server run test:api",
+    "test:integration": "npm --prefix server run test:integration",
+    "test:e2e": "npm --prefix server run test:e2e",
+    "test:all": "npm --prefix server run test:all",
     "build": "npm --prefix client run build",
     "start": "node server/src/index.js"
   },

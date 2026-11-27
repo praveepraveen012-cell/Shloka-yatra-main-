@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shloka-api-server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - CORS_ORIGIN=http://localhost:5173,https://shloka.com
+      - DATABASE_URL=postgresql://shloka_user:shloka_secure_password@postgres:5432/shlloka_yatra?schema=public
+      - JWT_SECRET=shloka_production_jwt_secret_key_minimum_64_characters_long_kailash
+      - ENABLE_OFFLINE_TEST_PAYMENT=false
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: shloka-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=shloka_user
+      - POSTGRES_PASSWORD=shloka_secure_password
+      - POSTGRES_DB=shlloka_yatra
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

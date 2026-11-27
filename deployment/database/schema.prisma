@@ -1,0 +1,464 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                   String     @id @default(uuid())
+  email                String     @unique
+  passwordHash         String
+  name                 String
+  phone                String?
+  role                 String     @default("SUPER_ADMIN") // SUPER_ADMIN
+  clerkId              String?    @unique
+  mustChangePassword   Boolean    @default(false)
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  auditLogs            AuditLog[]
+}
+
+model Departure {
+  id            String    @id @default(uuid())
+  batchNumber   Int       @unique
+  name          String
+  slug          String    @unique
+  arrivalDate   DateTime
+  departureDate DateTime
+  totalDays     Int
+  isFullMoon    Boolean   @default(false)
+  totalCapacity Int       @default(25)
+  bookedSeats   Int       @default(0)
+  status        String    @default("AVAILABLE") // AVAILABLE, FAST_FILLING, SOLD_OUT
+  description   String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+}
+
+model Route {
+  id              String        @id @default(uuid())
+  routeNumber     Int           @unique
+  name            String
+  code            String        @unique // "bus-both-ways", "flight-to-lhasa", "lhasa-ali-pulan"
+  approachType    String // "BUS_BOTH_WAYS", "FLIGHT_LHASA", "FLIGHT_LHASA_ALI_PULAN"
+  titleTag        String
+  durationDays    Int
+  description     String
+  highlights      String // JSON array of string points
+  itinerary       String // JSON array of day-by-day objects
+  startingFromInr Int
+  image           String
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  pricingTiers    PricingTier[]
+  bookings        Booking[]
+}
+
+model PricingTier {
+  id                       String   @id @default(uuid())
+  routeId                  String
+  route                    Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  passportType             String // "INDIAN" or "FOREIGN"
+  basePrice                Int // in INR (e.g. 350000 or 425000)
+  currency                 String   @default("INR")
+  gstPercentage            Float    @default(5.0)
+  foreignAirfareSupplement Int      @default(0) // in USD (e.g. 0, 600, 1200)
+  depositRequired          Int      @default(25000) // in INR (or USD 250)
+  termsNotes               String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model Booking {
+  id                            String              @id @default(uuid())
+  bookingReference              String              @unique // e.g. SHY-2027-1042
+  departureId                   String
+  departure                     Departure           @relation(fields: [departureId], references: [id])
+  routeId                       String
+  route                         Route               @relation(fields: [routeId], references: [id])
+  passportType                  String // "INDIAN" or "FOREIGN"
+  contactName                   String
+  contactEmail                  String
+  contactPhone                  String
+  totalTravellers               Int                 @default(1)
+  baseAmount                    Int // Subtotal before GST/Supplements
+  gstAmount                     Int // 5% GST on Indian bookings
+  supplementAmount              Int                 @default(0) // USD supplement in INR or stored
+  totalAmount                   Int // Total payable
+  currency                      String              @default("INR")
+  status                        String              @default("PENDING_CONFIRMATION") // PENDING_CONFIRMATION, CONFIRMED, CANCELLED
+  paymentStatus                 String              @default("UNPAID") // UNPAID, PARTIALLY_PAID, PAID, REFUNDED, PENDING_VERIFICATION, REJECTED
+  paymentMethod                 String?             @default("ONLINE") // ONLINE, OFFLINE_TEST
+  offlinePaymentVerifiedAt      DateTime?
+  offlinePaymentVerifiedBy      String?
+  offlinePaymentRejectionReason String?
+  paymentDeadlineDate           DateTime?
+  cancellationReason            String?
+  cancelledAt                   DateTime?
+  refundAmount                  Int?
+  termsAcceptedVersion          String?
+  notes                         String?
+  internalNotes                 String?
+  createdAt                     DateTime            @default(now())
+  updatedAt                     DateTime            @updatedAt
+  travellers                    Traveller[]
+  payments                      Payment[]
+  refunds                       Refund[]
+  uploadedDocuments             UploadedDocument[]
+  consentRecords                ConsentRecord[]
+  whatsAppMessages              WhatsAppMessage[]
+  bookingNotes                  BookingNote[]
+  documentSubmissions           DocumentSubmission[]
+  memberId                      String?
+  member                        Member?             @relation(fields: [memberId], references: [id], onDelete: SetNull)
+}
+
+model Traveller {
+  id                           String              @id @default(uuid())
+  bookingId                    String
+  booking                      Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fullName                     String
+  dateOfBirth                  String?
+  passportNumber               String
+  passportExpiryDate           String?
+  nationality                  String
+  age                          Int
+  gender                       String
+  address                      String?
+  medicalConditions            String?
+  allergies                    String?
+  medications                  String?
+  medicalFitnessCertified      Boolean             @default(false)
+  insuranceProvider            String?
+  insurancePolicyNumber        String?
+  dietaryPreference            String              @default("PURE_VEGETARIAN")
+  emergencyContactName         String
+  emergencyContactRelationship String?
+  emergencyContactPhone        String
+  isPrimary                    Boolean             @default(false)
+  docVerificationStatus        String              @default("PENDING") // PENDING, VERIFIED, REJECTED
+  rejectionReason              String?
+  createdAt                    DateTime            @default(now())
+  uploadedDocuments            UploadedDocument[]
+  documentSubmissions          DocumentSubmission[]
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  bookingId       String
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  transactionId   String   @unique
+  paymentMethod   String   @default("MOCK_GATEWAY") // MOCK_GATEWAY, RAZORPAY, UPI, CARD, NET_BANKING, CASH, BANK_TRANSFER, OFFLINE_TEST
+  paymentMode     String?  // UPI, CREDIT_CARD, DEBIT_CARD, NET_BANKING, BANK_TRANSFER, CASH
+  installmentType String   @default("REGISTRATION") // REGISTRATION, FIRST_INSTALLMENT, FINAL_BALANCE, FULL
+  receiptNumber   String?  @unique
+  referenceNumber String?
+  recordedBy      String?
+  adminNotes      String?
+  amount          Int
+  currency        String   @default("INR")
+  status          String   @default("SUCCESS") // SUCCESS, PENDING, FAILED, REFUNDED, PENDING_VERIFICATION
+  gatewayResponse String? // JSON metadata
+  webhookVerified Boolean  @default(false)
+  createdAt       DateTime @default(now())
+}
+
+model Refund {
+  id                       String    @id @default(uuid())
+  bookingId                String
+  booking                  Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  refundReference          String    @unique
+  cancellationReason       String
+  noticeDate               DateTime  @default(now())
+  daysBeforeDeparture      Int
+  packageBasePrice         Int
+  totalPaid                Int
+  cancellationChargeRate   Float
+  cancellationChargeAmount Int
+  taxRefundAmount          Int       @default(0)
+  netRefundAmount          Int
+  status                   String    @default("PENDING") // PENDING, APPROVED, PROCESSED, REJECTED
+  approvedBy               String?
+  approvedAt               DateTime?
+  processedAt              DateTime?
+  notes                    String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+}
+
+model UploadedDocument {
+  id               String     @id @default(uuid())
+  bookingId        String
+  booking          Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  travellerId      String?
+  traveller        Traveller? @relation(fields: [travellerId], references: [id], onDelete: SetNull)
+  documentType     String // PASSPORT, PHOTO, MEDICAL_CERTIFICATE, INSURANCE, OTHER
+  originalFilename String
+  filePath         String
+  fileSizeBytes    Int
+  mimeType         String
+  status           String     @default("PENDING") // PENDING, VERIFIED, REJECTED
+  rejectionReason  String?
+  verifiedBy       String?
+  verifiedAt       DateTime?
+  createdAt        DateTime   @default(now())
+}
+
+model ConsentRecord {
+  id                   String   @id @default(uuid())
+  bookingId            String
+  booking              Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId               String?
+  termsAccepted        Boolean  @default(false)
+  termsVersion         String   @default("DRAFT-V1.0-NOV-2026")
+  cancellationAccepted Boolean  @default(false)
+  cancellationVersion  String   @default("DRAFT-V1.0-NOV-2026")
+  scheduleAccepted     Boolean  @default(false)
+  scheduleVersion      String   @default("2027-V1.0")
+  riskAcknowledged     Boolean  @default(false)
+  riskVersion          String   @default("DRAFT-V1.0-NOV-2026")
+  privacyConsent       Boolean  @default(false)
+  marketingConsent     Boolean  @default(false)
+  publicityConsent     Boolean  @default(false)
+  ipAddress            String?
+  userAgent            String?
+  acceptedAt           DateTime @default(now())
+}
+
+model LegalDocument {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  title           String
+  version         String   @default("DRAFT-V1.0")
+  effectiveDate   DateTime @default(now())
+  status          String   @default("PUBLISHED")
+  isApproved      Boolean  @default(true)
+  contentMarkdown String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SupportTicket {
+  id         String   @id @default(uuid())
+  userId     String?
+  bookingId  String?
+  name       String
+  email      String
+  subject    String
+  message    String
+  status     String   @default("OPEN")
+  priority   String   @default("NORMAL")
+  adminNotes String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Enquiry {
+  id              String   @id @default(uuid())
+  name            String
+  email           String
+  phone           String
+  preferredBatch  String?
+  preferredRoute  String?
+  travellersCount Int?     @default(1)
+  message         String
+  status          String   @default("NEW")
+  assignedTo      String?
+  internalNotes   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Faq {
+  id           String   @id @default(uuid())
+  question     String
+  answer       String
+  category     String   @default("GENERAL")
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model GalleryItem {
+  id           String   @id @default(uuid())
+  title        String
+  category     String   @default("KAILASH")
+  imageUrl     String
+  thumbnailUrl String?
+  caption      String?
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model Member {
+  id                  String      @id @default(uuid())
+  clerkId             String?     @unique
+  membershipReference String      @unique // e.g. SHL-MEM-2027-1042
+  firstName           String
+  lastName            String
+  email               String      @unique
+  mobile              String?
+  countryCode         String      @default("+91")
+  gender              String?
+  whatsapp            String?
+  avatarUrl           String?
+  dateOfBirth         String?
+  nationality         String      @default("Indian")
+  country             String      @default("India")
+  state               String      @default("Delhi")
+  city                String      @default("New Delhi")
+  passwordHash        String?     @default("CLERK_MANAGED")
+  membershipType      String      @default("STANDARD")
+  yatraInterest       String?
+  preferredBatch      String?
+  preferredPackage    String?
+  travellersCount     Int?        @default(1)
+  sourceDiscovery     String?
+  marketingConsent    Boolean     @default(false)
+  isVerified          Boolean     @default(false)
+  verifiedAt          DateTime?
+  status              String      @default("ACTIVE")
+  internalNotes       String?
+  lastLoginAt         DateTime?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  bookings            Booking[]
+  documentSubmissions DocumentSubmission[]
+  otps                MemberOtp[]
+}
+
+model MemberOtp {
+  id          String    @id @default(uuid())
+  memberId    String?
+  member      Member?   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  mobile      String
+  email       String?
+  otpHash     String
+  purpose     String
+  expiresAt   DateTime
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(5)
+  isUsed      Boolean   @default(false)
+  usedAt      DateTime?
+  reqIp       String?
+  createdAt   DateTime  @default(now())
+}
+
+model WhatsAppMessage {
+  id             String   @id @default(uuid())
+  bookingId      String?
+  booking        Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  recipientPhone String
+  recipientName  String
+  templateKey    String?
+  messageContent String
+  sentBy         String?
+  providerMsgId  String?
+  status         String   @default("SENT")
+  createdAt      DateTime @default(now())
+}
+
+model BookingNote {
+  id          String   @id @default(uuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorEmail String
+  authorName  String?
+  content     String
+  createdAt   DateTime @default(now())
+}
+
+model DocumentTemplate {
+  id               String               @id @default(uuid())
+  documentRef      String               @unique
+  title            String
+  category         String               @default("COMPLIANCE")
+  version          String               @default("Draft 1.0 – 23 November 2026")
+  lifecycleStatus  String               @default("DRAFT")
+  effectiveDate    DateTime             @default(now())
+  isApproved       Boolean              @default(false)
+  templateFilePath String?
+  description      String?
+  clausesCount     Int                  @default(0)
+  submissions      DocumentSubmission[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model DocumentSubmission {
+  id                   String            @id @default(uuid())
+  bookingId            String
+  booking              Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  travellerId          String?
+  traveller            Traveller?        @relation(fields: [travellerId], references: [id], onDelete: SetNull)
+  memberId             String?
+  member               Member?           @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  documentTemplateId   String?
+  documentTemplate     DocumentTemplate? @relation(fields: [documentTemplateId], references: [id], onDelete: SetNull)
+  documentRef          String
+  documentTitle        String            @default("Compliance Document")
+  version              String            @default("Draft 1.0 – 23 November 2026")
+  submissionType       String            @default("DIGITAL_FORM")
+  status               String            @default("PENDING_SUBMISSION")
+  originalFilename     String?
+  filePath             String?
+  fileSizeBytes        Int?
+  mimeType             String?
+  formData             String?
+  pageInitials         String?
+  acknowledgements     String?
+  signerName           String?
+  signerRelationship   String?
+  signatureDate        String?
+  signaturePlace       String?
+  signatureType        String?
+  signatureData        String?
+  witnessName          String?
+  witnessPhone         String?
+  witnessSignature     String?
+  ipAddress            String?
+  userAgent            String?
+  submittedAt          DateTime?
+  isCurrentVersion     Boolean           @default(true)
+  replacedSubmissionId String?
+  versionNumber        Int               @default(1)
+  reviews              DocumentReview[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+}
+
+model DocumentReview {
+  id                   String             @id @default(uuid())
+  submissionId         String
+  submission           DocumentSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewerEmail        String
+  reviewerName         String?
+  previousStatus       String
+  newStatus            String
+  reviewNote           String?
+  internalNotes        String?
+  clinicalObservation  String?
+  reviewedAt           DateTime           @default(now())
+}

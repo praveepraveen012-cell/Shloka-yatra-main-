@@ -37,7 +37,7 @@ async function main() {
       passwordHash: adminHash,
       name: 'Shloka Administrator',
       phone: '+91 6366852888',
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
       mustChangePassword: true,
     },
   });
@@ -48,7 +48,7 @@ async function main() {
       passwordHash: adminHash,
       name: 'Shloka Administrator',
       phone: '+91 6366852888',
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
       mustChangePassword: true,
     },
   });

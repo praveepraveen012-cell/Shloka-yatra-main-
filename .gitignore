@@ -17,6 +17,7 @@ build/
 
 # SQLite databases & temp files
 prisma/*.db
+prisma/*.db*
 prisma/*.db-journal
 prisma/prisma/
 *.sqlite
