@@ -20,7 +20,6 @@ import {
 import { api } from '../services/api';
 import { heroImages } from '../data/imageManifest';
 import { assetUrl } from '../utils/assets';
-import GoogleSignInButton from '../components/GoogleSignInButton';
 
 const COUNTRY_CODES = [
   { code: '+91', country: 'India (भारत)', flag: '🇮🇳' },
@@ -443,21 +442,6 @@ export default function MembershipRegisterPage() {
                   <p className="text-slate-500 text-xs sm:text-sm mt-1">
                     Fill in your details below to create your official pilgrimage membership account.
                   </p>
-                </div>
-
-                {/* Professional Google Sign-In */}
-                <div className="mb-6">
-                  <GoogleSignInButton text="Continue with Google" redirectTo={destination || '/account'} />
-                  <div className="relative my-5">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-slate-200" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-3 text-slate-400 font-semibold tracking-wider">
-                        Or register with email / mobile
-                      </span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Error Banner */}

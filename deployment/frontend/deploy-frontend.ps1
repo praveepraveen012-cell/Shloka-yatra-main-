@@ -1,4 +1,4 @@
-﻿# Shloka Yatra 2027 — Frontend AWS S3 + CloudFront Deployment Script
+# Shloka Yatra 2027 — Frontend AWS S3 + CloudFront Deployment Script
 param (
     [Parameter(Mandatory=$true)]
     [string]$BucketName,
